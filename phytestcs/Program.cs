@@ -49,7 +49,7 @@ namespace phytestcs
                     sw.Restart();
                     Simulation.UpdatePhysics();
                     
-                    var delta = Simulation.TargetDT - sw.Elapsed.TotalSeconds;
+                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000;
                     if (delta > 0)
                     {
                         Thread.Sleep((int) delta);

@@ -37,11 +37,9 @@ namespace phytestcs
 
         public static float CameraZoom => Render.Width / GameView.Size.X;
         public static Vector2f OldSize;
-        public static float OldZoom => Render.Width / OldSize.X;
         public static Vector2f OldPos;
         public static bool ZoomTransition;
         public static Vector2f NewSize;
-        public static float NewZoom => Render.Width / NewSize.X;
         public static Vector2f? NewPos;
         public static DateTime TransitionStart;
         public static float TransitionDuration = 0.1f;

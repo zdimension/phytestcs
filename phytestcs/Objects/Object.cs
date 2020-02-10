@@ -39,10 +39,15 @@ namespace phytestcs.Objects
             Simulation.World.Remove(this);
             Simulation.UpdatePhysicsInternal(0);
 
-            Deleted?.Invoke();
+            InvokeDeleted();
 
             if (Drawing.SelectedObject == this)
                 Drawing.SelectedObject = null;
+        }
+
+        public void InvokeDeleted()
+        {
+            Deleted?.Invoke();
         }
 
         public virtual void UpdatePhysics(float dt)

@@ -70,7 +70,6 @@ namespace phytestcs
         public static PhysicalObject[] AttractorsCache = new PhysicalObject[0];
         public static PhysicalObject Player;
         public static float FPS;
-        public static volatile float UPS;
         public static DateTime PauseA;
         public static volatile float SimDuration;
 
@@ -82,34 +81,25 @@ namespace phytestcs
         {
             if (!(Pause = !Pause))
             {
-                LastUpdate = PauseA = DateTime.Now;
+                PauseA = DateTime.Now;
             }
 
             UI.btnPlay.Image = Pause ? UI.imgPlay : UI.imgPause;
             UI.btnPlay.SetRenderer(!Pause ? UI.brRed : UI.brGreen);
         }
 
-        public static DateTime LastUpdate = DateTime.Now;
         private static float _gravityAngle;
         private static float _gravity = 9.81f;
         private static bool _gravityEnabled = true;
         public static event Action AfterUpdate;
 
-        public static float UpdatePhysics()
+        public static void UpdatePhysics()
         {
-            if (Pause) return 0;
+            if (Pause) return;
 
-            var dt = (float) (DateTime.Now - LastUpdate).TotalSeconds;
-
-            LastUpdate = DateTime.Now;
-
-            UPS = 1 / dt;
-
-            UpdatePhysicsInternal(dt * TimeScale);
+            UpdatePhysicsInternal(TargetDT * TimeScale);
 
             AfterUpdate?.Invoke();
-
-            return dt;
         }
 
         public static void UpdatePhysicsInternal(float dt)

@@ -300,6 +300,14 @@ namespace phytestcs.Interface
             };
         }
 
+        public static void ClearPropertyWindows()
+        {
+            foreach (var o in PropertyWindows.Keys.ToArray())
+            {
+                o.InvokeDeleted();
+            }
+        }
+
 
         public static Vector2i ClickPosition;
         public static DateTime MouseDownTime;

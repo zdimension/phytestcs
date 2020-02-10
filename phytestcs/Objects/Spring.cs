@@ -14,8 +14,8 @@ namespace phytestcs.Objects
         public Vector2f Object1RelPos { get; set; }
         public PhysicalObject Object2 { get; }
         public Vector2f Object2RelPos { get; set; }
-        private Force _force1;
-        private Force _force2;
+        private readonly Force _force1;
+        private readonly Force _force2;
 
         public Vector2f Object1AbsPos => Object1.Position + Object1RelPos;
         public Vector2f Object2AbsPos => (Object2?.Position ?? default) + Object2RelPos;
@@ -25,7 +25,7 @@ namespace phytestcs.Objects
         public bool ShowInfos { get; set; } = true;
 
         public Spring(float constant, float targetLength, PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject object2 = null, Vector2f object2RelPos = default, string name = "Spring")
+            PhysicalObject object2 = null, Vector2f object2RelPos = default, string name = "Ressort")
         {
             Constant = constant;
             TargetLength = targetLength;
@@ -50,7 +50,6 @@ namespace phytestcs.Objects
 
         public float DeltaLength => TargetLength - Delta.Norm();
 
-        // TODO: corriger cette formule de merde
         public float ElasticEnergy => (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
 
         public float Force

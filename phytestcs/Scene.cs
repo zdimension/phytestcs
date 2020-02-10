@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -36,6 +37,7 @@ namespace phytestcs
             Simulation.GravityEnabled = true;
 
             Simulation.SimDuration = 0;
+            UI.ClearPropertyWindows();
             Simulation.World.Clear();
             Simulation.WorldCache?.Clear();
             Simulation.AttractorsCache = new PhysicalObject[0];
@@ -46,40 +48,27 @@ namespace phytestcs
             Simulation.World.Add(PhysicalObject.Rectangle(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
             Simulation.World.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
 
-            if (true)
+            Console.WriteLine("Début compilation");
+            Script = scr ?? LoadScript();
+            Console.WriteLine("Fin compilation et début exécution");
+            try
             {
-                Console.WriteLine("Début compilation");
-                Script = scr ?? LoadScript();
-                Console.WriteLine("Fin compilation et début exécution");
-                try
-                {
-                    Script.CreateDelegate()();
-                }
-                catch(Exception e)
-                {
-                    var msgbox = new MessageBox("Erreur", "Erreur de chargement :\n" + e, new []{"OK"});
-                    Interface.UI.GUI.Add(msgbox);
-                    msgbox.SizeLayout = new Layout2d("800", "200");
-                    msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
-                    msgbox.MousePressed += delegate
-                    {
-                        msgbox.Dispose();
-                        Interface.UI.GUI.Remove(msgbox);
-                    };
-                }
-
-                Console.WriteLine("Fin exécution");
+                Script.CreateDelegate()();
             }
-            else
+            catch (Exception e)
             {
-                PhysicalObject obj;
-                Simulation.World.Add(obj = PhysicalObject.Rectangle(0, 0, 1, 1, Color.Red));
-
-                Simulation.World.Add(new Spring(100, 3, obj, new Vector2f(0.5f, 0.5f), null, new Vector2f(0.5f, 2.5f))
+                var msgbox = new MessageBox("Erreur", "Erreur de chargement :\n" + e, new[] {"OK"});
+                Interface.UI.GUI.Add(msgbox);
+                msgbox.SizeLayout = new Layout2d("800", "200");
+                msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
+                msgbox.MousePressed += delegate
                 {
-                    Damping = 0.1f
-                });
+                    msgbox.Dispose();
+                    Interface.UI.GUI.Remove(msgbox);
+                };
             }
+
+            Console.WriteLine("Fin exécution");
 
             Simulation.Player?.Forces.Add(Program.MoveForce);
             Simulation.UpdatePhysicsInternal(0);

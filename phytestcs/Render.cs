@@ -145,7 +145,7 @@ namespace phytestcs
             Statistics.DisplayedString =
                 $@"
 {Simulation.FPS,4:#} fps  (temps x{Simulation.TimeScale:F4}) zoom {Camera.CameraZoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz (physique) - simulation : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{(Simulation.Pause ? "-" : Simulation.TargetUPS.ToString("#")),4} Hz (physique) - simulation : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
 {Simulation.WorldCache.Count,5} objets

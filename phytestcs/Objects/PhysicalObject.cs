@@ -9,7 +9,6 @@ namespace phytestcs.Objects
 {
     public class PhysicalObject : Object
     {
-        private float _mass;
         private Vector2f _position;
         private Vector2f _speed;
 
@@ -68,18 +67,15 @@ namespace phytestcs.Objects
 
         public float Mass
         {
-            get => _mass;
-            set
-            {
-                _mass = value;
-                //Gravity.Value = new Vector2f(0, -Weight);
-            }
+            get;
+            set;
+            //Gravity.Value = new Vector2f(0, -Weight);
         }
 
         public float Density
         {
-            get => _mass / Shape.Area();
-            set => _mass = Shape.Area() * value;
+            get => Mass / Shape.Area();
+            set => Mass = Shape.Area() * value;
         }
 
         [ObjProp("Énergie cinétique", "J", unitDeriv:"W")]
@@ -87,7 +83,7 @@ namespace phytestcs.Objects
         [ObjProp("Énergie de pesanteur", "J", unitDeriv: "W")]
         public float GravityEnergy => Fixed ? 0 : Weight * CenterOfMass.WithUpdate(this).Y;
         [ObjProp("Énergie d'attraction", "J", unitDeriv: "W")]
-        public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(CenterOfMass, _mass, this);
+        public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(CenterOfMass, Mass, this);
 
         [ObjProp("Énergie totale", "J", unitDeriv: "W")]
         public float TotalEnergy => KineticEnergy + GravityEnergy + AttractionEnergy;
@@ -98,7 +94,7 @@ namespace phytestcs.Objects
         private Force Gravity { get; } = new Force("Gravité", new Vector2f(0, 0));
         private Force AirFriction { get; } = new Force("Frottements de l'air", new Vector2f(0, 0));
         private Force Buoyance { get; } = new Force("Poussée d'Archimède", new Vector2f(0, 0));
-        public float Weight => _mass * Simulation.ActualGravity;
+        public float Weight => Mass * Simulation.ActualGravity;
         public float Restitution { get; set; } = 0.5f;
         public float Friction { get; set; } = 0.5f;
         public bool Killer { get; set; }
@@ -107,7 +103,7 @@ namespace phytestcs.Objects
         public float Attraction { get; set; } = 0;
         public bool AttractionIsLinear = false;
         [ObjProp("Quantité de mouvement", "N⋅s", "N⋅s²", "N")]
-        public Vector2f Momentum => _mass * _speed;
+        public Vector2f Momentum => Mass * _speed;
 
         public float MomentOfInertia
         {
@@ -116,16 +112,16 @@ namespace phytestcs.Objects
                 switch (Shape)
                 {
                     case RectangleShape r:
-                        return _mass * (r.Size.NormSquared()) / 12;
+                        return Mass * (r.Size.NormSquared()) / 12;
                     default:
                         return 0; // todo
                 }
             }
         }
 
-        public float NormeChampGenerale(float masse = 1f)
+        public float FieldNorm(float masse = 1f)
         {
-            return Attraction * _mass * masse;
+            return Attraction * Mass * masse;
         }
 
         public Vector2f AttractionField(Vector2f pos, float masse = 1f)
@@ -139,7 +135,7 @@ namespace phytestcs.Objects
             if (!AttractionIsLinear)
                 dist *= dist;
 
-            return delta.Normalize() * NormeChampGenerale(masse) / dist;
+            return delta.Normalize() * FieldNorm(masse) / dist;
         }
 
         public float AttractionEnergyCaused(Vector2f pos, float masse = 1f)
@@ -149,7 +145,7 @@ namespace phytestcs.Objects
 
             var dist = (CenterOfMass - pos).Norm();
 
-            return NormeChampGenerale(masse) *
+            return FieldNorm(masse) *
                    (AttractionIsLinear
                        ? (float)Math.Log(dist)
                        : -1 / dist);
@@ -172,7 +168,7 @@ namespace phytestcs.Objects
             }
 
             //Gravity.Value = Simulation.GravityVector * _mass;
-            Gravity.Value = Simulation.GravityField(CenterOfMass, _mass, this);
+            Gravity.Value = Simulation.GravityField(CenterOfMass, Mass, this);
 
             if (!Fixed)
             {

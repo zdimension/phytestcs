@@ -74,6 +74,10 @@ namespace phytestcs
         public static DateTime PauseA;
         public static volatile float SimDuration;
 
+        public const float TargetUPS = 120;
+        public const float TargetDT = 1 / TargetUPS;
+
+
         public static void TogglePause()
         {
             if (!(Pause = !Pause))

@@ -51,7 +51,7 @@ namespace phytestcs.Objects
         public float DeltaLength => TargetLength - Delta.Norm();
 
         // TODO: corriger cette formule de merde
-        public float ElasticEnergy => (float) (Constant * Math.Pow(DeltaLength, 2) / 2 + DeltaLength * Object1.Speed.Y / 120 + Object1.Speed.Norm() / 300000);
+        public float ElasticEnergy => (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
 
         public float Force
         {

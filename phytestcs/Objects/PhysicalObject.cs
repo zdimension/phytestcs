@@ -85,7 +85,7 @@ namespace phytestcs.Objects
         [ObjProp("Énergie cinétique", "J", unitDeriv:"W")]
         public float KineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Speed.Norm(), 2) / 2;
         [ObjProp("Énergie de pesanteur", "J", unitDeriv: "W")]
-        public float GravityEnergy => Fixed ? 0 : Weight * CenterOfMass.Y;
+        public float GravityEnergy => Fixed ? 0 : Weight * CenterOfMass.WithUpdate(this).Y;
         [ObjProp("Énergie d'attraction", "J", unitDeriv: "W")]
         public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(CenterOfMass, _mass, this);
 

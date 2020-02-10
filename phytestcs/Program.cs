@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,16 +41,15 @@ namespace phytestcs
             Render.Window.MouseWheelScrolled += Window_MouseWheelScrolled;
             Render.Window.MouseMoved += Window_MouseMoved;
 
-            const float maxFPS = 240;
-            var minDT = 1000f / maxFPS;
+            var sw = new Stopwatch();
             var thrPhy = new Thread(() =>
             {
                 while (true)
                 {
-                    var avant = DateTime.Now;
+                    sw.Restart();
                     Simulation.UpdatePhysics();
                     
-                    var delta = minDT - (float) (DateTime.Now - avant).TotalMilliseconds;
+                    var delta = Simulation.TargetDT - sw.Elapsed.TotalSeconds;
                     if (delta > 0)
                     {
                         Thread.Sleep((int) delta);

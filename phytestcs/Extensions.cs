@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -11,6 +12,11 @@ namespace phytestcs
 {
     public static class Extensions
     {
+        public static Vector2f WithUpdate(this Vector2f v, PhysicalObject o)
+        {
+            return v - Simulation.TargetDT * o.Speed / 2;
+        }
+
         public static Vector2f Sum(this IEnumerable<Vector2f> arr)
 
         {

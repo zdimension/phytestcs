@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
+using TGUI;
 
 namespace phytestcs
 {
@@ -56,8 +57,15 @@ namespace phytestcs
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e);
-                    Console.ReadLine();
+                    var msgbox = new MessageBox("Erreur", "Erreur de chargement :\n" + e, new []{"OK"});
+                    Interface.UI.GUI.Add(msgbox);
+                    msgbox.SizeLayout = new Layout2d("800", "200");
+                    msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
+                    msgbox.MousePressed += delegate
+                    {
+                        msgbox.Dispose();
+                        Interface.UI.GUI.Remove(msgbox);
+                    };
                 }
 
                 Console.WriteLine("Fin exécution");

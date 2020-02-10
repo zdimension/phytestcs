@@ -130,21 +130,21 @@ namespace phytestcs.Interface.Windows
         private void DrawPlot()
         {
             _canvas.Clear(Color.Black);
-            lock (_points.SyncRoot)
+            //lock (_points.SyncRoot)
             {
-                //Vector2f[] cache;
-                var cache = _points;
-                /*lock (_points.SyncRoot)
+                Vector2f[] cache;
+                //var cache = _points;
+                lock (_points.SyncRoot)
                 {
                     cache = _points.ToArray();
-                }*/
+                }
 
-                if (cache.Count > 0)
+                if (cache.Length > 0)
                 {
                     var minY = cache[0].Y;
                     var maxY = cache[0].Y;
 
-                    for (var i = 1; i < cache.Count; i++)
+                    for (var i = 1; i < cache.Length; i++)
                     {
                         if (cache[i].Y < minY)
                             minY = cache[i].Y;
@@ -152,7 +152,7 @@ namespace phytestcs.Interface.Windows
                             maxY = cache[i].Y;
                     }
 
-                    /*var taille = new Vector2f(Simulation.SimDuration - _plotStart, maxY - minY);
+                    var taille = new Vector2f(Simulation.SimDuration - _plotStart, maxY - minY);
                     _canvasView.Center = new Vector2f(taille.X / 2, taille.Y / 2 + minY);
                     _canvasView.Size = taille * marge;
 
@@ -175,11 +175,11 @@ namespace phytestcs.Interface.Windows
                         var rpos = tex.MapPixelToCoords(new Vector2f(mpos.X - Position.X - _canvas.Position.X,
                             mpos.Y - Position.Y).I());
 
-                        if (cache.Count > 1)
+                        if (cache.Length > 1)
                         {
 
                             int k;
-                            for (k = 0; k < cache.Count; k++)
+                            for (k = 0; k < cache.Length; k++)
                             {
                                 if (cache[k].X > rpos.X)
                                     break;
@@ -207,7 +207,7 @@ namespace phytestcs.Interface.Windows
 
                                 _canvas.Draw(aire, PrimitiveType.Quads);
 
-                                if (k != cache.Count && k > 5)
+                                if (k != cache.Length && k > 5)
                                 {
                                     var deriv = (cache[k].Y - cache[k - 5].Y) / (cache[k].X - cache[k - 5].X);
                                     var cB = cache[k].Y - cache[k].X * deriv;
@@ -229,7 +229,7 @@ namespace phytestcs.Interface.Windows
 
                                     _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
   y   = {-cache[k].Y,6:F2} {props[drop.GetSelectedItemIndex()].Item2.Unit}
-  ∫   = {-integ,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitInteg}
+ ∫dx  = {-integ,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitInteg}
 dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
                                     _textInt.Position =
                                         (rpos - _canvasView.Center - _canvasView.Size / 2)
@@ -243,7 +243,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
                                 }
                             }
                         }
-                    }*/
+                    }
 
                     _canvas.Draw(cache.Select(p => new Vertex(p, colCourbe)).ToArray(), PrimitiveType.LineStrip);
 

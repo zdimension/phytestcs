@@ -5,6 +5,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
+    [System.Runtime.InteropServices.Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public sealed class Spring : VirtualObject
     {
         public float Constant { get; set; }
@@ -126,11 +127,54 @@ namespace phytestcs.Objects
         {
             base.DrawOverlay();
 
-            Render.Window.Draw(new[]
+            if (TargetLength == 0)
             {
-                new Vertex(Object1AbsPos, Color.Black),
-                new Vertex(Object2AbsPos, Color.Black)
-            }, PrimitiveType.Lines);
+                Render.Window.Draw(new[]
+                {
+                    new Vertex(Object1AbsPos, Color.Black),
+                    new Vertex(Object2AbsPos, Color.Black)
+                }, PrimitiveType.Lines);
+            }
+            else
+            {
+                var local = new View(Camera.GameView);
+                var angle = -Delta.Angle();
+                local.Rotate(angle.Degrees());
+                local.Center += Object1AbsPos.Rotate(angle);
+
+                var transform = Transform.Identity;
+                transform.Rotate(180 - angle.Degrees(), Object1AbsPos);
+
+                var d = 2 * (int) Math.Ceiling(2 * Math.Round(TargetLength / 2, MidpointRounding.AwayFromZero));
+                var dx = Delta.Norm() / d;
+                var dy = 0.5f;
+
+                var p = Object1AbsPos;
+                var hd = new Vector2f(dx / 2, -dy / 2);
+
+                var color = Color.Black;
+
+                var lines = new Vertex[2 + d];
+                lines[0] = new Vertex(p, color);
+                lines[1] = new Vertex(p += hd, color);
+
+                for (var i = 0; i < d - 1; i++)
+                {
+                    lines[2 + i] = new Vertex(p += new Vector2f(dx, dy), color);
+                    dy = -dy;
+                }
+
+                lines[2 + d - 1] = new Vertex(p + hd, color);
+
+                for (var i = 0; i < lines.Length; i++)
+                {
+                    lines[i].Position = transform.TransformPoint(lines[i].Position);
+                }
+
+                Render.Window.Draw(lines, PrimitiveType.LineStrip);
+
+                Render.Window.SetView(Camera.GameView);
+            }
 
             circle1.Position = Object1AbsPos;
             circle2.Position = Object2AbsPos;

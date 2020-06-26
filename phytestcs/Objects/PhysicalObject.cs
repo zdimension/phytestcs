@@ -209,15 +209,12 @@ namespace phytestcs.Objects
 
             PhysicalObject[] objectsArr;
 
-            lock (Simulation.World.SyncRoot)
-            {
-                var objects = Simulation.World.OfType<PhysicalObject>().Where(o => o != this);
+            var objects = Simulation.World.OfType<PhysicalObject>().Where(o => o != this);
 
-                if (Fixed)
-                    objects = objects.Where(o => !o.Fixed);
+            if (Fixed)
+                objects = objects.Where(o => !o.Fixed);
 
-                objectsArr = objects.ToArray();
-            }
+            objectsArr = objects.ToArrayLocked(Simulation.World);
 
             foreach (var obj in objectsArr)
             {
@@ -397,6 +394,20 @@ namespace phytestcs.Objects
             base.Draw();
 
             Render.Window.Draw(Shape);
+        }
+
+        public override void DrawOverlay()
+        {
+            base.DrawOverlay();
+
+            foreach (var f in Forces.ToArrayLocked())
+            {
+                Render.Window.Draw(new[]
+                {
+                    new Vertex(CenterOfMass, Color.Black),
+                    new Vertex(CenterOfMass + f.Value, Color.Black),
+                }, PrimitiveType.Lines);
+            }
         }
     }
 }

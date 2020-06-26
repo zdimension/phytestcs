@@ -39,7 +39,7 @@ namespace phytestcs
             Simulation.SimDuration = 0;
             UI.ClearPropertyWindows();
             Simulation.World.Clear();
-            Simulation.WorldCache?.Clear();
+            Simulation.WorldCache = new Objects.Object[0];
             Simulation.AttractorsCache = new PhysicalObject[0];
             Simulation.Player = null;
 
@@ -57,13 +57,15 @@ namespace phytestcs
             }
             catch (Exception e)
             {
-                var msgbox = new MessageBox("Erreur", "Erreur de chargement :\n" + e, new[] {"OK"});
+                var text = "Erreur de chargement :\n" + e;
+                Console.WriteLine(text);
+                var msgbox = new MessageBox("Erreur", text, new[] {"OK"});
                 Interface.UI.GUI.Add(msgbox);
                 msgbox.SizeLayout = new Layout2d("800", "200");
                 msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
-                msgbox.MousePressed += delegate
+                msgbox.ButtonPressed += delegate
                 {
-                    msgbox.Dispose();
+                    msgbox.CloseWindow();
                     Interface.UI.GUI.Remove(msgbox);
                 };
             }

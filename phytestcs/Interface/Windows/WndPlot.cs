@@ -132,12 +132,8 @@ namespace phytestcs.Interface.Windows
             _canvas.Clear(Color.Black);
             //lock (_points.SyncRoot)
             {
-                Vector2f[] cache;
+                Vector2f[] cache = _points.ToArrayLocked();
                 //var cache = _points;
-                lock (_points.SyncRoot)
-                {
-                    cache = _points.ToArray();
-                }
 
                 if (cache.Length > 0)
                 {

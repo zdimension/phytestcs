@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "phytestcs", "phytestcs\phytestcs.csproj", "{31113B61-13F3-4DB6-999A-784213D6B912}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "phytestcs", "phytestcs\phytestcs.csproj", "{31113B61-13F3-4DB6-999A-784213D6B912}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +15,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|x64.ActiveCfg = Debug|x64
-		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|x64.Build.0 = Debug|x64
+		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{31113B61-13F3-4DB6-999A-784213D6B912}.Debug|x64.Build.0 = Debug|Any CPU
 		{31113B61-13F3-4DB6-999A-784213D6B912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31113B61-13F3-4DB6-999A-784213D6B912}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31113B61-13F3-4DB6-999A-784213D6B912}.Release|x64.ActiveCfg = Release|x64

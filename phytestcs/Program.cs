@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -19,7 +20,7 @@ namespace phytestcs
         static void Main(string[] args)
         {
             Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default, new ContextSettings(){AntialiasingLevel = 4});
-            Render.Window.SetVerticalSyncEnabled(true);
+            //Render.Window.SetVerticalSyncEnabled(true);
             //Window.SetFramerateLimit(240);
 
 
@@ -49,25 +50,27 @@ namespace phytestcs
                     sw.Restart();
                     Simulation.UpdatePhysics();
                     
-                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000;
+                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 *0.975f;
                     if (delta > 0)
                     {
                         Thread.Sleep((int) delta);
                     }
                 }
             });
+            /*var tmrPhy = new System.Timers.Timer() {Interval = 10};
+            tmrPhy.Elapsed += (s, e) => { Simulation.UpdatePhysics(); };*/
 
             var lastUpd = DateTime.Now;
 
             Task.Run(() =>
             {
                 Scene.Load();
+                //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();
             });
 
-            var txl = new Text("Chargement...", UI.Font, 32);
-            txl.FillColor = Color.White;
+            var txl = new Text("Chargement...", UI.Font, 32) {FillColor = Color.White};
             txl.Origin = txl.GetLocalBounds().Size() / 2;
 
             while (Render.Window.IsOpen)
@@ -76,10 +79,7 @@ namespace phytestcs
 
                 if (Scene.Loaded)
                 {
-                    lock (Simulation.World.SyncRoot)
-                    {
-                        Simulation.WorldCache = Simulation.World.ToList();
-                    }
+                    Simulation.WorldCache = Simulation.World.ToArrayLocked();
 
                     Camera.UpdateZoom();
 
@@ -88,6 +88,8 @@ namespace phytestcs
                     Render.DrawGame();
 
                     Render.Window.SetView(Camera.MainView);
+
+                    Console.Write("\r" + Simulation.FPS + "     ");
 
                     if (Render.ShowGravityField)
                         Render.DrawGravityField();
@@ -259,66 +261,71 @@ namespace phytestcs
             var mouse = Mouse.GetPosition(Render.Window);
             var moved = mouse != ClickPosition;
 
-            if (Drawing.DrawMode == DrawingType.Rectangle && moved)
+            switch (Drawing.DrawMode)
             {
-                Simulation.World.Add(new PhysicalObject(Render.DrawRectangle.Position, new RectangleShape(Render.DrawRectangle)));
-            }
-            else if (Drawing.DrawMode == DrawingType.Circle && moved)
-            {
-                Simulation.World.Add(new PhysicalObject(Render.DrawCircle.Position, new CircleShape(Render.DrawCircle)));
-            }
-            else if (Drawing.DrawMode == DrawingType.Spring)
-            {
-                if (moved && Drawing.DragSpring != null)
+                case DrawingType.Rectangle when moved:
+                    Simulation.World.Add(new PhysicalObject(Render.DrawRectangle.Position, new RectangleShape(Render.DrawRectangle)));
+                    break;
+                case DrawingType.Circle when moved:
+                    Simulation.World.Add(new PhysicalObject(Render.DrawCircle.Position, new CircleShape(Render.DrawCircle)));
+                    break;
+                case DrawingType.Spring:
                 {
-                    var obj = PhysObjectAtPosition(mouse);
-
-                    if (obj != Drawing.DragObject)
+                    if (moved && Drawing.DragSpring != null)
                     {
-                        PhysicalObject obj2;
-                        Vector2f obj2Pos;
-                        if (obj != null)
+                        var obj = PhysObjectAtPosition(mouse);
+
+                        if (obj != Drawing.DragObject)
                         {
-                            obj2 = obj;
-                            obj2Pos = mouse.ToWorld() - obj.Position;
+                            PhysicalObject obj2;
+                            Vector2f obj2Pos;
+                            if (obj != null)
+                            {
+                                obj2 = obj;
+                                obj2Pos = mouse.ToWorld() - obj.Position;
+                            }
+                            else
+                            {
+                                obj2 = null;
+                                obj2Pos = mouse.ToWorld();
+                            }
+
+                            Simulation.World.Add(new Spring(Drawing.DragSpring.Constant,
+                                Drawing.DragSpring.TargetLength,
+                                Drawing.DragSpring.Object1, Drawing.DragSpring.Object1RelPos, obj2, obj2Pos));
                         }
-                        else
-                        {
-                            obj2 = null;
-                            obj2Pos = mouse.ToWorld();
-                        }
-
-                        Simulation.World.Add(new Spring(Drawing.DragSpring.Constant,
-                            Drawing.DragSpring.TargetLength,
-                            Drawing.DragSpring.Object1, Drawing.DragSpring.Object1RelPos, obj2, obj2Pos));
                     }
-                }
 
-                Drawing.DragObject = null;
-                Drawing.DragObjectRelPos = default;
-                Drawing.DragSpring = null;
-            }
-            else if (Drawing.DrawMode == DrawingType.Fixate)
-            {
-                if (!moved)
-                {
-                    var obj = PhysObjectAtPosition(mouse);
-
-                    if (obj != null && !obj.HasFixate)
-                    {
-                        Simulation.World.Add(new Fixate(obj, mouse.ToWorld() - obj.Position));
-                    }
-                }
-            }
-            else if (Drawing.DrawMode == DrawingType.Move)
-            {
-                if (Drawing.DragObject != null)
-                {
-                    Drawing.DragObject.IsMoving = false;
                     Drawing.DragObject = null;
+                    Drawing.DragObjectRelPos = default;
+                    Drawing.DragSpring = null;
+                    break;
                 }
+                case DrawingType.Fixate:
+                {
+                    if (!moved)
+                    {
+                        var obj = PhysObjectAtPosition(mouse);
 
-                Drawing.DragObjectRelPos = default;
+                        if (obj != null && !obj.HasFixate)
+                        {
+                            Simulation.World.Add(new Fixate(obj, mouse.ToWorld() - obj.Position));
+                        }
+                    }
+
+                    break;
+                }
+                case DrawingType.Move:
+                {
+                    if (Drawing.DragObject != null)
+                    {
+                        Drawing.DragObject.IsMoving = false;
+                        Drawing.DragObject = null;
+                    }
+
+                    Drawing.DragObjectRelPos = default;
+                    break;
+                }
             }
         }
 

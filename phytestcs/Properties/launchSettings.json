@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "phytestcs": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\GitHub\\phytestcs\\build"
+    }
+  }
+}

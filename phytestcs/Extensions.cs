@@ -63,6 +63,11 @@ namespace phytestcs
             return (float) Math.Atan2(vec.Y, vec.X);
         }
 
+        public static Vector2f Rotate(this Vector2f vec, float angle)
+        {
+            return Tools.FromPolar(vec.Norm(), angle);
+        }
+
         public static float Degrees(this float f)
         {
             return (float) (f * 180 / Math.PI);
@@ -103,6 +108,22 @@ namespace phytestcs
         public static RenderTexture RenderTexture(this Canvas c)
         {
             return c?.GetType().GetField("myRenderTexture", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(c) as RenderTexture;
+        }
+
+        public static T[] ToArrayLocked<T>(this SynchronizedCollection<T> coll)
+        {
+            lock (coll.SyncRoot)
+            {
+                return coll.ToArray();
+            }
+        }
+
+        public static T[] ToArrayLocked<T, Tc>(this IEnumerable<T> coll, SynchronizedCollection<Tc> c)
+        {
+            lock (c.SyncRoot)
+            {
+                return coll.ToArray();
+            }
         }
 
         public static Vector2i Position(this MouseMoveEventArgs e)

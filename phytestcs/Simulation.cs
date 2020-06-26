@@ -66,7 +66,7 @@ namespace phytestcs
         public static float TimeScale = 1;
         public static bool Pause = true;
         public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
-        public static List<Object> WorldCache = null;
+        public static Object[] WorldCache = null;
         public static PhysicalObject[] AttractorsCache = new PhysicalObject[0];
         public static PhysicalObject Player;
         public static float FPS;
@@ -92,10 +92,18 @@ namespace phytestcs
         private static float _gravity = 9.81f;
         private static bool _gravityEnabled = true;
         public static event Action AfterUpdate;
+        public static DateTime LastUpdate = DateTime.Now;
+        public static volatile float UPS = 0;
 
         public static void UpdatePhysics()
         {
             if (Pause) return;
+
+            var dt = (float)(DateTime.Now - LastUpdate).TotalSeconds;
+
+            LastUpdate = DateTime.Now;
+
+            UPS = 1 / dt;
 
             UpdatePhysicsInternal(TargetDT * TimeScale);
 
@@ -104,17 +112,14 @@ namespace phytestcs
 
         public static void UpdatePhysicsInternal(float dt)
         {
-            lock (World.SyncRoot)
-            {
-                var _cache = World.ToArray();
+            var _cache = World.ToArrayLocked();
 
-                AttractorsCache = _cache.OfType<PhysicalObject>().Where(o => o.Attraction != 0f).ToArray();
+            AttractorsCache = _cache.OfType<PhysicalObject>().Where(o => o.Attraction != 0f).ToArray();
 
-                SimDuration += dt;
+            SimDuration += dt;
 
-                foreach (var o in _cache)
-                    o.UpdatePhysics(dt);
-            }
+            foreach (var o in _cache)
+                o.UpdatePhysics(dt);
         }
 
         public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject excl = null)

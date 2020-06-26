@@ -145,10 +145,10 @@ namespace phytestcs
             Statistics.DisplayedString =
                 $@"
 {Simulation.FPS,4:#} fps  (temps x{Simulation.TimeScale:F4}) zoom {Camera.CameraZoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.TargetUPS.ToString("#")),4} Hz (physique) - simulation : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz (physique) - simulation : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
-{Simulation.WorldCache.Count,5} objets
+{Simulation.WorldCache.Length,5} objets
 Énergie totale = {etot,9:F2} J
 - potentielle  = {epot,9:F2} J
  - pesanteur   = {epes,9:F2} J
@@ -172,13 +172,10 @@ Masse       = {objPhy.Mass,7:F2} kg
 Forces :
 R = {objPhy.NetForce.Display()}
 ";
-                    lock (objPhy.Forces.SyncRoot)
+                    foreach (var force in objPhy.Forces.ToArrayLocked())
                     {
-                        foreach (var force in objPhy.Forces)
-                        {
-                            Statistics.DisplayedString +=
-                                $"  - {force.Value.Display()} {force.Name}\n";
-                        }
+                        Statistics.DisplayedString +=
+                            $"  - {force.Value.Display()} {force.Name}\n";
                     }
 
                     foreach (var obj in Simulation.WorldCache.OfType<PhysicalObject>())
@@ -186,9 +183,11 @@ R = {objPhy.NetForce.Display()}
                         if (obj == objPhy)
                             continue;
 
-                        if (obj.Shape.GetGlobalBounds().CollidesX(objPhy.Shape.GetGlobalBounds())) Statistics.DisplayedString += $"Touche {obj.Name} en X\n";
+                        if (obj.Shape.GetGlobalBounds().CollidesX(objPhy.Shape.GetGlobalBounds()))
+                            Statistics.DisplayedString += $"Touche {obj.Name} en X\n";
 
-                        if (obj.Shape.GetGlobalBounds().CollidesY(objPhy.Shape.GetGlobalBounds())) Statistics.DisplayedString += $"Touche {obj.Name} en Y\n";
+                        if (obj.Shape.GetGlobalBounds().CollidesY(objPhy.Shape.GetGlobalBounds()))
+                            Statistics.DisplayedString += $"Touche {obj.Name} en Y\n";
                     }
 
                     break;

@@ -47,7 +47,7 @@ Moment linéaire :
 {objPhy.Mass,8:F3} kg
 {objPhy.MomentOfInertia,7:F3} kg.m²
 {objPhy.Position.DisplayPoint()} m
-{objPhy.Speed.Display()} m/s
+{objPhy.Velocity.Display()} m/s
 {objPhy.Momentum.DisplayPoint()} N.s
 ";
                 }

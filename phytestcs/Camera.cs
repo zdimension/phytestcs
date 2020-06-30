@@ -53,7 +53,10 @@ namespace phytestcs
             NewSize = (abs ? Render.WindowF : GameView.Size) / val;
             NewPos = pos;
             TransitionStart = DateTime.Now;
+            ZoomChanged(val);
         }
+
+        public static event Action<float> ZoomChanged = delegate { };
 
         private static void SetZoomAbsolute(float val)
         {

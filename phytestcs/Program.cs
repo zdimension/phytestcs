@@ -141,6 +141,8 @@ namespace phytestcs
                 else
                 {
                     Drawing.DragSpring.Object2RelPos = e.Position().ToWorld();
+                    if (Drawing.DrawMode == DrawingType.Spring)
+                        Drawing.DragSpring.TargetLength = Drawing.DragSpring.Delta.Norm();
                 }
             }
         }
@@ -232,7 +234,7 @@ namespace phytestcs
                         if (obj != null)
                         {
                             Drawing.DragObject = obj;
-                            Drawing.DragObjectRelPos = pos.ToWorld() - obj.Position;
+                            Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
 
                             if (Drawing.DrawMode == DrawingType.Move)
                             {
@@ -264,10 +266,10 @@ namespace phytestcs
             switch (Drawing.DrawMode)
             {
                 case DrawingType.Rectangle when moved:
-                    Simulation.World.Add(new PhysicalObject(Render.DrawRectangle.Position, new RectangleShape(Render.DrawRectangle)));
+                    Simulation.World.Add(new PhysicalObject(Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2, new RectangleShape(Render.DrawRectangle)));
                     break;
                 case DrawingType.Circle when moved:
-                    Simulation.World.Add(new PhysicalObject(Render.DrawCircle.Position, new CircleShape(Render.DrawCircle)));
+                    Simulation.World.Add(new PhysicalObject(Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2, new CircleShape(Render.DrawCircle)));
                     break;
                 case DrawingType.Spring:
                 {
@@ -282,7 +284,7 @@ namespace phytestcs
                             if (obj != null)
                             {
                                 obj2 = obj;
-                                obj2Pos = mouse.ToWorld() - obj.Position;
+                                obj2Pos = obj.MapInv(mouse.ToWorld());
                             }
                             else
                             {
@@ -309,7 +311,21 @@ namespace phytestcs
 
                         if (obj != null && !obj.HasFixate)
                         {
-                            Simulation.World.Add(new Fixate(obj, mouse.ToWorld() - obj.Position));
+                            Simulation.World.Add(new Fixate(obj, obj.MapInv(mouse.ToWorld())));
+                        }
+                    }
+
+                    break;
+                }
+                case DrawingType.Hinge:
+                {
+                    if (!moved)
+                    {
+                        var obj = PhysObjectAtPosition(mouse);
+
+                        if (obj != null)
+                        {
+                            Simulation.World.Add(new Hinge(obj, obj.MapInv(mouse.ToWorld()), null, mouse.ToWorld()));
                         }
                     }
 
@@ -343,7 +359,7 @@ namespace phytestcs
             }
         }
 
-        public static Force MoveForce = new Force("Dépl", new Vector2f(0, 0));
+        public static Force MoveForce = new Force("Dépl", new Vector2f(0, 0), default);
 
         private static void Window_KeyPressed(object sender, KeyEventArgs e)
         {
@@ -401,10 +417,10 @@ namespace phytestcs
 
                     break;
                 case Keyboard.Key.Y:
-                    Simulation.Player.Speed = new Vector2f(5, 0);
+                    Simulation.Player.Velocity = new Vector2f(5, 0);
                     break;
                 case Keyboard.Key.T:
-                    Simulation.Player.Speed = new Vector2f(-5, 0);
+                    Simulation.Player.Velocity = new Vector2f(-5, 0);
                     break;
                 case Keyboard.Key.G:
                     var debut = DateTime.Now;
@@ -412,6 +428,9 @@ namespace phytestcs
                     while ((DateTime.Now - debut).TotalSeconds < 1)
                         Render.Window.DispatchEvents();
                     Simulation.TogglePause();
+                    break;
+                case Keyboard.Key.S:
+                    Simulation.UpdatePhysics(true);
                     break;
             }
         }

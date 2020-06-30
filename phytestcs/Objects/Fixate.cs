@@ -27,7 +27,7 @@ namespace phytestcs.Objects
             base.Delete();
         }
 
-        private Sprite _sprite = new Sprite(UI.actions[4].Item4.Value){Scale=new Vector2f(0.5f, 0.5f), Origin = new Vector2f(25, 25)};
+        private readonly Sprite _sprite = new Sprite(UI.actions[5].Item4.Value){Scale=new Vector2f(0.5f, 0.5f), Origin = new Vector2f(25, 25)};
 
         public override void DrawOverlay()
         {

@@ -30,9 +30,10 @@ namespace phytestcs.Interface
             (DrawingType.Off, "drag", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Move, "move",  new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Rectangle, "rectangle", new Ref<BitmapButton>(), new Ref<Texture>()),
-            //(DrawingType.Circle, "circle", new Ref<BitmapButton>(), new Ref<Texture>()),
+            (DrawingType.Circle, "circle", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Spring, "coil", new Ref<BitmapButton>(), new Ref<Texture>()),
-            (DrawingType.Fixate, "fix", new Ref<BitmapButton>(), new Ref<Texture>())
+            (DrawingType.Fixate, "fix", new Ref<BitmapButton>(), new Ref<Texture>()),
+            (DrawingType.Hinge, "hinge", new Ref<BitmapButton>(), new Ref<Texture>())
         };
         
         public static void SetDrawMode(DrawingType mode)
@@ -123,9 +124,9 @@ namespace phytestcs.Interface
             btnGrav.RightMouseReleased += (sender, f) =>
             {
                 var res = new ChildWindowEx("Gravité", 250);
-                res.AddEx(new TextField("Accélération de pesanteur", 0.1f, 30.0f, unit: "m/s²", bindObj: typeof(Simulation), bindProp: nameof(Simulation.Gravity)));
-                res.AddEx(new TextField("Angle", -180, 180, unit: "°", bindObj: typeof(Simulation), bindProp: nameof(Simulation.GravityAngle)));
-                res.AddEx(new CheckField("Afficher le champ", typeof(Render), nameof(Render.ShowGravityField)));
+                res.AddEx(new TextField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity));
+                res.AddEx(new TextField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle, conv: PropConverter<float, float>.AngleDegrees));
+                res.AddEx(new CheckField(bindProp: () => Render.ShowGravityField));
                 GUI.Add(res);
                 res.StartPosition = res.Position = btnGrav.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
             };
@@ -141,18 +142,39 @@ namespace phytestcs.Interface
             btnAirFr.RightMouseReleased += (sender, f) =>
             {
                 var res = new ChildWindowEx("Frottements de l'air", 250);
-                res.AddEx(new TextField("Coefficient de frottement", 0.01f, 100, unit: "x", log: true,
-                    bindObj: typeof(Simulation), bindProp: nameof(Simulation.AirFrictionMultiplier)));
-                res.AddEx(new TextField("Modèle linéaire", 0.0001f, 10, unit: "N/(m²/s)", log: true,
-                    bindObj: typeof(Simulation), bindProp: nameof(Simulation.AirFrictionLinear))
+                res.AddEx(new TextField<float>(0.01f, 100, 
+                    bindProp: () => Simulation.AirDensity, log: true));
+                res.AddEx(new TextField<float>(0.01f, 100, 
+                    bindProp: () => Simulation.AirFrictionMultiplier, log: true));
+                res.AddEx(new TextField<float>(0.0001f, 10, 
+                    bindProp: () => Simulation.AirFrictionLinear, log: true)
                 { LeftValue = 0 });
-                res.AddEx(new TextField("Modèle quadratique", 0.0001f, 1, unit: "N/(m³/s²)", log: true,
-                    bindObj: typeof(Simulation), bindProp: nameof(Simulation.AirFrictionQuadratic))
+                res.AddEx(new TextField<float>(0.0001f, 1, 
+                    bindProp: () => Simulation.AirFrictionQuadratic, log: true)
                 { LeftValue = 0 });
+
+                res.AddEx(new TextField<float>(0, 50,
+                    bindProp: () => Simulation.WindSpeed));
+                res.AddEx(new TextField<float>(-180, 180, unit: "°",
+                    bindProp: () => Simulation.WindAngle, conv: PropConverter<float, float>.AngleDegrees));
+
                 GUI.Add(res);
                 res.StartPosition = res.Position = btnAirFr.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
             };
             buttons.Add(btnAirFr);
+
+            var btnSettings = new BitmapButton { Image = new Texture("icones/options.png") };
+            btnSettings.SetRenderer(brToggle);
+            btnSettings.MouseReleased += (sender, f) =>
+            {
+                var res = new ChildWindowEx("Paramètres", 250);
+                res.AddEx(new CheckField(bindProp: () => Render.ShowForces));
+                res.AddEx(new TextField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true));
+               
+                GUI.Add(res);
+                res.StartPosition = res.Position = btnSettings.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
+            };
+            buttons.Add(btnSettings);
 
             var btnRestart = new BitmapButton();
             btnRestart.Image = new Texture("icones/reset.png");
@@ -162,7 +184,7 @@ namespace phytestcs.Interface
 
             GUI.Add(buttons);
 
-            buttons.SizeLayout = new Layout2d(10 * 60, 60);
+            buttons.SizeLayout = new Layout2d(11 * 60, 60);
             buttons.PositionLayout = new Layout2d("50% - w / 2", "&.h - h");
         }
 

@@ -11,6 +11,13 @@ namespace phytestcs
 {
     public class Render
     {
+        [ObjProp("Afficher les forces")]
+        public static bool ShowForces { get; set; } = true;
+        [ObjProp("Afficher les valeurs des forces")]
+        public static bool ShowForcesValues { get; set; } = true;
+        [ObjProp("Échelle des forces", "m/N")]
+        public static float ForcesScale { get; set; } = 0.080f;
+
         private static void DrawGrid()
         {
             var (f, r) = CalculateRuler(10);
@@ -40,7 +47,7 @@ namespace phytestcs
                     a = (byte)(80 + w * 20);
                 }
 
-                return (w, a);
+                return (w, (byte)(a / 2));
             }
 
             for (var x = Math.Round((decimal)start.X / fd) * fd; x < (decimal)end.X; x += fd / 100)
@@ -61,7 +68,7 @@ namespace phytestcs
                 lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float)y), new Vector2f(end.X, (float)y), new Color(255, 255, 255, a), h, true, f / 400));
             }
 
-            Window.Draw(lines.ToArray(), PrimitiveType.Lines);
+            Window.Draw(lines.ToArray(), PrimitiveType.Lines, new RenderStates(BlendMode.Alpha));
         }
 
         public static RectangleShape DrawRectangle = new RectangleShape();
@@ -155,46 +162,60 @@ Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
  - élastique   = {eela,9:F2} J
 - cinétique    = {ecin,9:F2} J
 ";
-
-            switch (Drawing.SelectedObject)
+            if (Drawing.SelectedObject == null)
             {
-                case null:
-                    Statistics.DisplayedString += "Pas d'objet sélectionné";
-                    break;
-                case PhysicalObject objPhy:
+                Statistics.DisplayedString += "Pas d'objet sélectionné";
+            }
+            else
+            {
+                Statistics.DisplayedString +=
+                    $@"
+ID          = {Drawing.SelectedObject.ID}";
+
+                switch (Drawing.SelectedObject)
                 {
-                    Statistics.DisplayedString +=
-                        $@"
+                    case PhysicalObject objPhy:
+                    {
+                        Statistics.DisplayedString +=
+                            $@"
 Position    = {objPhy.Position.DisplayPoint()}
-Centre de G = {objPhy.CenterOfMass.DisplayPoint()}
-Vitesse     = {objPhy.Speed.Display()}
+Vitesse     = {objPhy.Velocity.Display()}
+Angle       = {objPhy.Angle,7:F2} rad
+Vitesse ang = {objPhy.AngularVelocity,7:F2} rad/s
 Masse       = {objPhy.Mass,7:F2} kg
 Forces :
 R = {objPhy.NetForce.Display()}
 ";
-                    foreach (var force in objPhy.Forces.ToArrayLocked())
-                    {
+                        foreach (var force in objPhy.Forces.ToArrayLocked())
+                        {
+                            Statistics.DisplayedString +=
+                                $"  - {force.Value.Display()} (TTL={force.TimeToLive,4:F3}) {force.Name}\n";
+                        }
+
                         Statistics.DisplayedString +=
-                            $"  - {force.Value.Display()} {force.Name}\n";
+                            $@"
+Moments :
+R = {objPhy.NetTorque,7:F2} 
+";
+
+                        foreach (var obj in Simulation.WorldCache.OfType<PhysicalObject>())
+                        {
+                            if (obj == objPhy)
+                                continue;
+
+                            if (obj.Shape.GetGlobalBounds().CollidesX(objPhy.Shape.GetGlobalBounds()))
+                                Statistics.DisplayedString += $"Touche {obj.Name} en X\n";
+
+                            if (obj.Shape.GetGlobalBounds().CollidesY(objPhy.Shape.GetGlobalBounds()))
+                                Statistics.DisplayedString += $"Touche {obj.Name} en Y\n";
+                        }
+
+                        break;
                     }
-
-                    foreach (var obj in Simulation.WorldCache.OfType<PhysicalObject>())
-                    {
-                        if (obj == objPhy)
-                            continue;
-
-                        if (obj.Shape.GetGlobalBounds().CollidesX(objPhy.Shape.GetGlobalBounds()))
-                            Statistics.DisplayedString += $"Touche {obj.Name} en X\n";
-
-                        if (obj.Shape.GetGlobalBounds().CollidesY(objPhy.Shape.GetGlobalBounds()))
-                            Statistics.DisplayedString += $"Touche {obj.Name} en Y\n";
-                    }
-
-                    break;
+                    default:
+                        Statistics.DisplayedString += Drawing.SelectedObject.GetType().Name;
+                        break;
                 }
-                default:
-                    Statistics.DisplayedString += Drawing.SelectedObject.GetType().Name;
-                    break;
             }
 
             Window.Draw(Statistics);
@@ -226,6 +247,7 @@ R = {objPhy.NetForce.Display()}
             return (factor, ruler);
         }
 
+        [ObjProp("Afficher le champ")]
         public static bool ShowGravityField { get; set; } = false;
 
         public static void DrawGravityField()

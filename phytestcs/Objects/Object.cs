@@ -8,6 +8,15 @@ namespace phytestcs.Objects
 {
     public abstract class Object
     {
+        private static ulong _idCounter = 0;
+
+        protected Object()
+        {
+            ID = _idCounter++;
+        }
+
+        public ulong ID { get; }
+
         private readonly SynchronizedCollection<Object> parents = new SynchronizedCollection<Object>();
         private readonly SynchronizedCollection<Object> dependents = new SynchronizedCollection<Object>();
 
@@ -77,7 +86,7 @@ namespace phytestcs.Objects
         public string UnitInteg { get; set; }
         public string UnitDeriv { get; set; }
 
-        public ObjPropAttribute(string displayName, string unit, string unitInteg=null, string unitDeriv=null)
+        public ObjPropAttribute(string displayName, string unit="", string unitInteg=null, string unitDeriv=null)
         : base(displayName)
         {
             Unit = unit;

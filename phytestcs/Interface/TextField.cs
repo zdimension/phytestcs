@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Data.OleDb;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
+using phytestcs.Objects;
+using SFML.System;
 using TGUI;
 using CheckBox = TGUI.CheckBox;
 using Label = TGUI.Label;
@@ -9,36 +13,59 @@ using Panel = TGUI.Panel;
 
 namespace phytestcs.Interface
 {
-    public class TextField: Panel
+    public class TextField<T>: Panel
     {
-        public TextField(string name, float min, float max, float val=0, string unit="", bool deci=true, object bindObj=null, string bindProp=null, bool log=false, float step=0.01f)
+        public TextField(float min, float max, string name=null, float val = 0, string unit = null, bool deci = true,
+            Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
+            PropConverter<T, float> conv = null)
         {
             Log = log;
 
-            if (bindObj != null)
+            if (bindProp != null)
             {
-                Type t;
+                var expr = ((MemberExpression) bindProp.Body);
+                var BindPropInfo = expr.Member as PropertyInfo;
 
-                if (bindObj is Type o)
+                if (BindPropInfo != null)
                 {
-                    t = o;
-                }
-                else
-                {
-                    t = bindObj.GetType();
-                    BindObject = bindObj;
-                }
+                    var getMethod = BindPropInfo.GetGetMethod();
+                    object target = null;
 
-                BindPropInfo = t.GetProperty(bindProp);
+                    if (!getMethod.IsStatic)
+                    {
+                        var fieldOnClosureExpression = (MemberExpression) expr.Expression;
+                        target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
+                            ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
+                    }
 
-                UI.Drawn += Update;
+                    _getter = (Func<T>) getMethod.CreateDelegate(typeof(Func<T>), target);
+                    _setter = (Action<T>) BindPropInfo.GetSetMethod().CreateDelegate(typeof(Action<T>), target);
+
+                    UI.Drawn += Update;
+
+                    var attr = BindPropInfo.GetCustomAttribute<ObjPropAttribute>();
+
+                    if (attr != null)
+                    {
+                        name ??= attr.DisplayName;
+                        unit ??= attr.Unit;
+                    }
+
+                    name ??= BindPropInfo.Name;
+
+                    converter = conv ?? PropConverter<T, float>.Default();
+                }
             }
+
+            name ??= "";
+            unit ??= "";
 
             SizeLayout = new Layout2d("100%", "60");
             var lblName = new Label(name);
             lblName.PositionLayout = new Layout2d("0", "3");
             var lX = lblName.Size.X;
             Add(lblName);
+            
             if (!string.IsNullOrWhiteSpace(unit))
             {
                 var lblUnité = new Label(unit);
@@ -114,9 +141,9 @@ namespace phytestcs.Interface
         public Slider Slider { get; private set; }
 
         public Func<float, bool> Validation { get; set; } = x => true;
-        public object BindObject { get; set; }
-        public PropertyInfo BindPropInfo { get; set; }
-
+        private readonly Func<T> _getter;
+        private readonly Action<T> _setter;
+        private PropConverter<T, float> converter;
         private float _value;
         public float Value
         {
@@ -125,7 +152,7 @@ namespace phytestcs.Interface
             {
                 if (Validation(value))
                 {
-                    BindPropInfo?.SetValue(BindObject, Convert.ChangeType(value, BindPropInfo.PropertyType));
+                    _setter?.Invoke(converter.Set(value, _getter()));
 
                     Simulation.UpdatePhysicsInternal(0);
 
@@ -154,7 +181,7 @@ namespace phytestcs.Interface
 
         public void Update()
         {
-            var val = Convert.ToSingle(BindPropInfo?.GetValue(BindObject));
+            var val = converter.Get(_getter());
 
             if (val != _oldLoadedVal)
             {
@@ -163,6 +190,49 @@ namespace phytestcs.Interface
             }
 
             _value = val;
+        }
+    }
+
+    public class PropConverter<Torig, Tdisp>
+    {
+        public delegate Tdisp Getter(Torig o);
+        public delegate Torig Setter(Tdisp value, Torig old);
+
+        public Getter Get { get; }
+        public Setter Set { get; }
+
+        public PropConverter(Getter get, Setter set)
+        {
+            Get = get;
+            Set = set;
+        }
+
+        public static PropConverter<Torig, Tdisp> Default()
+        {
+            return new PropConverter<Torig, Tdisp>(o => (Tdisp) Convert.ChangeType(o, typeof(Tdisp)),
+                (value, old) => (Torig) Convert.ChangeType(value, typeof(Torig)));
+        }
+
+        public static readonly PropConverter<Vector2f, float> VectorNorm = new PropConverter<Vector2f, float>(
+            o => o.Norm(), (value, old) => old == default ? new Vector2f(value, 0) : old.Normalize() * value);
+
+        public static readonly PropConverter<Vector2f, float> VectorX = new PropConverter<Vector2f, float>(
+            o => o.X, (value, old) => new Vector2f(value, old.Y));
+
+        public static readonly PropConverter<Vector2f, float> VectorY = new PropConverter<Vector2f, float>(
+            o => o.Y, (value, old) => new Vector2f(old.X, value));
+
+        public static readonly PropConverter<Vector2f, float> VectorAngle = new PropConverter<Vector2f, float>(
+            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value));
+
+        public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
+
+        public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
+            o => o.Degrees(), (value, old) => value.Radians());
+
+        public PropConverter<Torig, Tout> Then<Tout>(PropConverter<Tdisp, Tout> next)
+        {
+            return new PropConverter<Torig, Tout>(o => next.Get(Get(o)), (value, old) => Set(next.Set(value, default), old));
         }
     }
 }

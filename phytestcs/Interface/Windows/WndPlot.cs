@@ -12,6 +12,7 @@ using SFML.System;
 using SFML.Window;
 using TGUI;
 using ComboBox = TGUI.ComboBox;
+using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
 using View = SFML.Graphics.View;
 
@@ -31,7 +32,9 @@ namespace phytestcs.Interface.Windows
         private static readonly string[] ObjPhyProps =
         {
             nameof(PhysicalObject.Position),
-            nameof(PhysicalObject.Speed),
+            nameof(PhysicalObject.Angle),
+            nameof(PhysicalObject.Velocity),
+            nameof(PhysicalObject.AngularVelocity),
             nameof(PhysicalObject.Momentum),
             nameof(PhysicalObject.Acceleration),
             nameof(PhysicalObject.NetForce),
@@ -53,12 +56,12 @@ namespace phytestcs.Interface.Windows
 
         private static readonly ReadOnlyCollection<(string, ObjPropAttribute, Func<PhysicalObject, float>)> props;
 
-        private Text _textInt = new Text("", UI.Font, 14)
+        private readonly Text _textInt = new Text("", UI.Font, 14)
         {
             FillColor = Color.White
         };
 
-        private View _canvasView;
+        private readonly View _canvasView;
 
         static WndPlot()
         {
@@ -130,129 +133,125 @@ namespace phytestcs.Interface.Windows
         private void DrawPlot()
         {
             _canvas.Clear(Color.Black);
-            //lock (_points.SyncRoot)
+            Vector2f[] cache = _points.ToArrayLocked();
+
+            if (cache.Length > 0)
             {
-                Vector2f[] cache = _points.ToArrayLocked();
-                //var cache = _points;
+                var minY = cache[0].Y;
+                var maxY = cache[0].Y;
 
-                if (cache.Length > 0)
+                for (var i = 1; i < cache.Length; i++)
                 {
-                    var minY = cache[0].Y;
-                    var maxY = cache[0].Y;
+                    if (cache[i].Y < minY)
+                        minY = cache[i].Y;
+                    if (cache[i].Y > maxY)
+                        maxY = cache[i].Y;
+                }
 
-                    for (var i = 1; i < cache.Length; i++)
+                var taille = new Vector2f(Simulation.SimDuration - _plotStart, maxY - minY);
+                _canvasView.Center = new Vector2f(taille.X / 2, taille.Y / 2 + minY);
+                _canvasView.Size = taille * marge;
+
+                _canvas.View = _canvasView;
+
+                DrawPlotGrid(maxY);
+
+                _canvas.Draw(new[]
+                {
+                    new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X / 2, 0), colAxeX),
+                    new Vertex(new Vector2f(_canvasView.Center.X + _canvasView.Size.X / 2, 0), colAxeX),
+                    new Vertex(new Vector2f(0, _canvasView.Center.Y - _canvasView.Size.Y / 2), colAxeX),
+                    new Vertex(new Vector2f(0, _canvasView.Center.Y + _canvasView.Size.Y / 2), colAxeX)
+                }, PrimitiveType.Lines);
+
+                var mpos = Mouse.GetPosition(Render.Window).F();
+                if (MouseOnWidget(mpos))
+                {
+                    var tex = _canvas.RenderTexture();
+                    var rpos = tex.MapPixelToCoords(new Vector2f(mpos.X - Position.X - _canvas.Position.X,
+                        mpos.Y - Position.Y).I());
+
+                    if (cache.Length > 1)
                     {
-                        if (cache[i].Y < minY)
-                            minY = cache[i].Y;
-                        if (cache[i].Y > maxY)
-                            maxY = cache[i].Y;
-                    }
 
-                    var taille = new Vector2f(Simulation.SimDuration - _plotStart, maxY - minY);
-                    _canvasView.Center = new Vector2f(taille.X / 2, taille.Y / 2 + minY);
-                    _canvasView.Size = taille * marge;
-
-                    _canvas.View = _canvasView;
-
-                    DrawPlotGrid(maxY);
-
-                    _canvas.Draw(new[]
-                    {
-                        new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X / 2, 0), colAxeX),
-                        new Vertex(new Vector2f(_canvasView.Center.X + _canvasView.Size.X / 2, 0), colAxeX),
-                        new Vertex(new Vector2f(0, _canvasView.Center.Y - _canvasView.Size.Y / 2), colAxeX),
-                        new Vertex(new Vector2f(0, _canvasView.Center.Y + _canvasView.Size.Y / 2), colAxeX)
-                    }, PrimitiveType.Lines);
-
-                    var mpos = Mouse.GetPosition(Render.Window).F();
-                    if (MouseOnWidget(mpos))
-                    {
-                        var tex = _canvas.RenderTexture();
-                        var rpos = tex.MapPixelToCoords(new Vector2f(mpos.X - Position.X - _canvas.Position.X,
-                            mpos.Y - Position.Y).I());
-
-                        if (cache.Length > 1)
+                        int k;
+                        for (k = 0; k < cache.Length; k++)
                         {
+                            if (cache[k].X > rpos.X)
+                                break;
+                        }
 
-                            int k;
-                            for (k = 0; k < cache.Length; k++)
+                        if (k > 0)
+                        {
+                            var aire = new Vertex[k * 4];
+                            var integ = 0f;
+
+                            for (var i = 1; i < k; i++)
                             {
-                                if (cache[k].X > rpos.X)
-                                    break;
+                                var j = i * 4;
+
+                                aire[j + 0] = new Vertex(cache[i - 0], colInteg);
+                                aire[j + 1] = new Vertex(cache[i - 1], colInteg);
+                                aire[j + 2] = new Vertex(new Vector2f(cache[i - 1].X, 0), colInteg);
+                                aire[j + 3] = new Vertex(new Vector2f(cache[i - 0].X, 0), colInteg);
+
+                                integ += (cache[i - 0].Y + cache[i - 1].Y)
+                                         * (cache[i - 0].X - cache[i - 1].X)
+                                         / 2;
+
                             }
 
-                            if (k > 0)
+                            _canvas.Draw(aire, PrimitiveType.Quads);
+
+                            if (k != cache.Length && k > 5)
                             {
-                                var aire = new Vertex[k * 4];
-                                var integ = 0f;
+                                var deriv = (cache[k].Y - cache[k - 5].Y) / (cache[k].X - cache[k - 5].X);
+                                var cB = cache[k].Y - cache[k].X * deriv;
 
-                                for (int i = 1; i < k; i++)
+                                var colDeriv = new Color(255, 255, 255, 110);
+                                var lignes = new[]
                                 {
-                                    var j = i * 4;
+                                    // intercept Y
+                                    new Vertex(new Vector2f(0, cache[k].Y), colDeriv),
+                                    new Vertex(cache[k], colDeriv),
 
-                                    aire[j + 0] = new Vertex(cache[i - 0], colInteg);
-                                    aire[j + 1] = new Vertex(cache[i - 1], colInteg);
-                                    aire[j + 2] = new Vertex(new Vector2f(cache[i - 1].X, 0), colInteg);
-                                    aire[j + 3] = new Vertex(new Vector2f(cache[i - 0].X, 0), colInteg);
+                                    new Vertex(new Vector2f(cache[k].X - 10, deriv * (cache[k].X - 10) + cB),
+                                        colDeriv),
+                                    new Vertex(new Vector2f(cache[k].X + 10, deriv * (cache[k].X + 10) + cB),
+                                        colDeriv),
+                                };
 
-                                    integ += (cache[i - 0].Y + cache[i - 1].Y)
-                                             * (cache[i - 0].X - cache[i - 1].X)
-                                             / 2;
+                                _canvas.Draw(lignes, PrimitiveType.Lines);
 
-                                }
-
-                                _canvas.Draw(aire, PrimitiveType.Quads);
-
-                                if (k != cache.Length && k > 5)
-                                {
-                                    var deriv = (cache[k].Y - cache[k - 5].Y) / (cache[k].X - cache[k - 5].X);
-                                    var cB = cache[k].Y - cache[k].X * deriv;
-
-                                    var colDeriv = new Color(255, 255, 255, 110);
-                                    var lignes = new[]
-                                    {
-                                        // intercept Y
-                                        new Vertex(new Vector2f(0, cache[k].Y), colDeriv),
-                                        new Vertex(cache[k], colDeriv),
-
-                                        new Vertex(new Vector2f(cache[k].X - 10, deriv * (cache[k].X - 10) + cB),
-                                            colDeriv),
-                                        new Vertex(new Vector2f(cache[k].X + 10, deriv * (cache[k].X + 10) + cB),
-                                            colDeriv),
-                                    };
-
-                                    _canvas.Draw(lignes, PrimitiveType.Lines);
-
-                                    _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
+                                _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
   y   = {-cache[k].Y,6:F2} {props[drop.GetSelectedItemIndex()].Item2.Unit}
  ∫dx  = {-integ,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitInteg}
 dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
-                                    _textInt.Position =
-                                        (rpos - _canvasView.Center - _canvasView.Size / 2)
-                                        .Prod(_canvas.DefaultView.Size)
-                                        .Div(_canvasView.Size) +
-                                        _canvas.Size + new Vector2f(30, -25);
-                                    Console.WriteLine(_textInt.Position);
-                                    _canvas.View = _canvas.DefaultView;
-                                    _canvas.Draw(_textInt);
-                                    _canvas.View = _canvasView;
-                                }
+                                _textInt.Position =
+                                    (rpos - _canvasView.Center - _canvasView.Size / 2)
+                                    .Prod(_canvas.DefaultView.Size)
+                                    .Div(_canvasView.Size) +
+                                    _canvas.Size + new Vector2f(30, -25);
+                                Console.WriteLine(_textInt.Position);
+                                _canvas.View = _canvas.DefaultView;
+                                _canvas.Draw(_textInt);
+                                _canvas.View = _canvasView;
                             }
                         }
                     }
-
-                    _canvas.Draw(cache.Select(p => new Vertex(p, colCourbe)).ToArray(), PrimitiveType.LineStrip);
-
-                    /*cercle.Position = (cache[cache.Length - 1] - v.Center - v.Size / 2).Prod(canvas.DefaultView.Size).Div(v.Size);
-                    canvas.View = canvas.DefaultView;
-                    canvas.Draw(cercle);*/
                 }
+
+                _canvas.Draw(cache.Select(p => new Vertex(p, colCourbe)).ToArray(), PrimitiveType.LineStrip);
+
+                /*cercle.Position = (cache[cache.Length - 1] - v.Center - v.Size / 2).Prod(canvas.DefaultView.Size).Div(v.Size);
+                canvas.View = canvas.DefaultView;
+                canvas.Draw(cercle);*/
             }
 
             _canvas.Display();
         }
 
-        public WndPlot(PhysicalObject obj, Vector2f pos)
+        public WndPlot(Object obj, Vector2f pos)
         : base(obj, obj.Name, lGauche + lGraphe, pos)
         {
             var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};

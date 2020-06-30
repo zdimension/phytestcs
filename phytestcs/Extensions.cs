@@ -14,7 +14,7 @@ namespace phytestcs
     {
         public static Vector2f WithUpdate(this Vector2f v, PhysicalObject o)
         {
-            return v - Simulation.TargetDT * o.Speed / 2;
+            return v - Simulation.TargetDT * o.Velocity / 2;
         }
 
         public static Vector2f Sum(this IEnumerable<Vector2f> arr)
@@ -63,14 +63,29 @@ namespace phytestcs
             return (float) Math.Atan2(vec.Y, vec.X);
         }
 
+        public static (float, float) ToPolar(this Vector2f vec)
+        {
+            return (vec.Norm(), vec.Angle());
+        }
+
         public static Vector2f Rotate(this Vector2f vec, float angle)
+        {
+            return vec.SetAngle(vec.Angle() + angle);
+        }
+
+        public static Vector2f SetAngle(this Vector2f vec, float angle)
         {
             return Tools.FromPolar(vec.Norm(), angle);
         }
 
         public static float Degrees(this float f)
         {
-            return (float) (f * 180 / Math.PI);
+            var angle = (float) (f * 180 / Math.PI);
+            if (angle > 180)
+                angle = 180 - (angle % 180);    
+            else if (angle < -180)
+                angle = 180 + (angle % 180);
+            return angle;
         }
 
         public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) => a(t.i0, t.i1, t.i2);
@@ -247,13 +262,18 @@ namespace phytestcs
         public static Vector2f Normalize(this Vector2f vec)
         {
             var n = vec.Norm();
-
+            if (float.IsNaN(n)) return default;
             return new Vector2f(vec.X / n, vec.Y / n);
         }
 
         public static float Dot(this Vector2f a, Vector2f b)
         {
             return a.X * b.X + a.Y * b.Y;
+        }
+
+        public static float Cross(this Vector2f a, Vector2f b)
+        {
+            return a.X * b.Y - a.Y * b.X;
         }
 
         public static Color Add(this Color a, Color b)
@@ -278,6 +298,63 @@ namespace phytestcs
                 (byte)Tools.Clamp(a.R * f, 0, 255),
                 (byte)Tools.Clamp(a.G * f, 0, 255),
                 (byte)Tools.Clamp(a.B * f, 0, 255));
+        }
+
+
+        public static Vector2f[] PointsLocal(this Shape s)
+        {
+            var points = new Vector2f[s.GetPointCount()];
+            for (uint i = 0; i < points.Length; i++)
+            {
+                points[i] = s.GetPoint(i);
+            }
+
+            return points;
+        }
+
+        public static Vector2f[] PointsGlobal(this Shape s)
+        {
+            var t = s.Transform;
+            var points = new Vector2f[s.GetPointCount()];
+            for (uint i = 0; i < points.Length; i++)
+            {
+                points[i] = t.TransformPoint(s.GetPoint(i));
+            }
+
+            return points;
+        }
+
+        // http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
+        public static bool ContainsPoint(this Vector2f[] points, Vector2f p)
+        {
+            static float GetAngle(Vector2f a, Vector2f b, Vector2f c)
+            {
+                var ab = a - b;
+                var bc = c - b;
+
+                return (float)Math.Atan2(ab.Cross(bc), ab.Dot(bc));
+            }
+
+            var max_point = points.Length - 1;
+            var total_angle = GetAngle(
+                points[max_point],
+                p,
+                points[0]);
+
+            for (var i = 0; i < max_point; i++)
+            {
+                total_angle += GetAngle(
+                    points[i],
+                    p,
+                    points[i + 1]);
+            }
+
+            return Math.Abs(total_angle) > 1;
+        }
+
+        public static bool Contains(this Shape s, Vector2f p)
+        {
+            return s.PointsGlobal().ContainsPoint(p);
         }
     }
 }

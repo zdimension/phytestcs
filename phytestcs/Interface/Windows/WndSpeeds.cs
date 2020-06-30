@@ -8,10 +8,11 @@ namespace phytestcs.Interface.Windows
         public WndSpeeds(PhysicalObject obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)
         {
-            AddEx(new TextField("Vitesse", 0, 25, unit: "m/s", bindObj: obj, bindProp: nameof(PhysicalObject.SpeedNorm)));
-            AddEx(new TextField("Angle", -180, 180, unit: "°", bindObj: obj, bindProp: nameof(PhysicalObject.SpeedAngleDeg)));
-            AddEx(new TextField("Vitesse X", -25, 25, unit: "m/s", bindObj: obj, bindProp: nameof(PhysicalObject.SpeedX)));
-            AddEx(new TextField("Vitesse Y", -25, 25, unit: "m/s", bindObj: obj, bindProp: nameof(PhysicalObject.SpeedY)));
+            AddEx(new TextField<Vector2f>(0, 25, bindProp: () => obj.Velocity, conv: PropConverter<Vector2f, float>.VectorNorm));
+            AddEx(new TextField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter<Vector2f, float>.VectorX));
+            AddEx(new TextField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter<Vector2f, float>.VectorY));
+            AddEx(new TextField<float>(0, 25, bindProp: () => obj.AngularVelocity));
+            AddEx(new TextField<float>(-180, 180, unit: "°", bindProp: () => obj.Angle, conv: PropConverter<float, float>.AngleDegrees));
             Show();
         }
     }

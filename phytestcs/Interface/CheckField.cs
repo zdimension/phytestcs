@@ -1,26 +1,43 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
+using phytestcs.Objects;
 using TGUI;
 
 namespace phytestcs.Interface
 {
     public class CheckField : Panel
     {
-        public CheckField(string name, object bindObj, string bindProp)
+        public CheckField(string name=null, Expression<Func<bool>> bindProp=null)
         {
-            Type t;
-
-            if (bindObj is Type o)
+            if (bindProp != null)
             {
-                t = o;
-            }
-            else
-            {
-                t = bindObj.GetType();
-                BindObject = bindObj;
-            }
+                var expr = ((MemberExpression) bindProp.Body);
+                var BindPropInfo = (PropertyInfo) expr.Member;
+                var getMethod = BindPropInfo.GetGetMethod();
+                object target = null;
 
-            BindPropInfo = t.GetProperty(bindProp);
+                if (!getMethod.IsStatic)
+                {
+                    var fieldOnClosureExpression = (MemberExpression) expr.Expression;
+                    target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
+                        ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
+                }
+
+                _getter = (Func<bool>) getMethod.CreateDelegate(typeof(Func<bool>), target);
+                _setter = (Action<bool>) BindPropInfo.GetSetMethod().CreateDelegate(typeof(Action<bool>), target);
+
+                var attr = BindPropInfo.GetCustomAttribute<ObjPropAttribute>();
+
+                if (attr != null)
+                {
+                    name ??= attr.DisplayName;
+                }
+
+                name ??= BindPropInfo.Name;
+
+                UI.Drawn += Update;
+            }
 
             Field = new CheckBox(name);
             Field.SizeLayout = new Layout2d("20", "20");
@@ -35,14 +52,12 @@ namespace phytestcs.Interface
 
             Add(Field);
 
-            UI.Drawn += Update;
-
             SizeLayout = new Layout2d("100%", "60");
         }
 
         public CheckBox Field { get; private set; }
-        public object BindObject { get; set; }
-        public PropertyInfo BindPropInfo { get; set; }
+        private readonly Func<bool> _getter;
+        private readonly Action<bool> _setter;
         private bool _uiLoading;
         private void UpdateUI(bool val)
         {
@@ -56,7 +71,7 @@ namespace phytestcs.Interface
             get => _value;
             set
             {
-                BindPropInfo?.SetValue(BindObject, Convert.ChangeType(value, BindPropInfo.PropertyType));
+                _setter?.Invoke(value);
 
                 Simulation.UpdatePhysicsInternal(0);
 
@@ -70,7 +85,7 @@ namespace phytestcs.Interface
 
         public void Update()
         {
-            var val = Convert.ToBoolean(BindPropInfo?.GetValue(BindObject));
+            var val = _getter();
 
             if (val != _oldLoadedVal)
             {

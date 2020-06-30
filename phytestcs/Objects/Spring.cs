@@ -6,7 +6,7 @@ using SFML.System;
 namespace phytestcs.Objects
 {
     [System.Runtime.InteropServices.Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
-    public sealed class Spring : VirtualObject
+    public class Spring : VirtualObject
     {
         public float Constant { get; set; }
         public float TargetLength { get; set; }
@@ -15,15 +15,17 @@ namespace phytestcs.Objects
         public Vector2f Object1RelPos { get; set; }
         public PhysicalObject Object2 { get; }
         public Vector2f Object2RelPos { get; set; }
-        private readonly Force _force1;
-        private readonly Force _force2;
+        protected readonly Force _force1;
+        protected readonly Force _force2;
 
-        public Vector2f Object1AbsPos => Object1.Position + Object1RelPos;
-        public Vector2f Object2AbsPos => (Object2?.Position ?? default) + Object2RelPos;
+        public Vector2f Object1AbsPos => Object1.Map(Object1RelPos);
+        public Vector2f Object2AbsPos => Object2?.Map(Object2RelPos) ?? Object2RelPos;
 
         public Vector2f Delta => Object1AbsPos - Object2AbsPos;
 
         public bool ShowInfos { get; set; } = true;
+
+        private static readonly Color ForceColor = Color.Magenta;
 
         public Spring(float constant, float targetLength, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, string name = "Ressort")
@@ -35,13 +37,13 @@ namespace phytestcs.Objects
             Object2 = object2;
             Object2RelPos = object2RelPos;
 
-            _force1 = new Force(name, new Vector2f(0, 0));
+            _force1 = new Force(name, new Vector2f(0, 0), object1RelPos) { Color = ForceColor };
             Object1.Forces.Add(_force1);
             DependsOn(Object1);
 
             if (Object2 != null)
             {
-                _force2 = new Force(name, new Vector2f(0, 0));
+                _force2 = new Force(name, new Vector2f(0, 0), object2RelPos) { Color = ForceColor };
                 Object2.Forces.Add(_force2);
                 DependsOn(Object2);
             }
@@ -53,7 +55,7 @@ namespace phytestcs.Objects
 
         public float ElasticEnergy => (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
 
-        public float Force
+        public virtual float Force
         {
             get
             {
@@ -76,10 +78,10 @@ namespace phytestcs.Objects
             {
                 var unit = UnitVector;
 
-                var dhdt = Object1.Speed.Dot(unit);
+                var dhdt = Object1.Velocity.Dot(unit);
 
                 if (Object2 != null)
-                    dhdt += Object2.Speed.Dot(-unit);
+                    dhdt += Object2.Velocity.Dot(-unit);
 
                 return dhdt;
             }
@@ -114,7 +116,7 @@ namespace phytestcs.Objects
             base.Delete();
         }
 
-        private const float CircleSize = 0.1f;
+        public const float CircleSize = 0.1f;
 
         private readonly CircleShape circle1 = new CircleShape(CircleSize)
             {FillColor = Color.Black, Origin = new Vector2f(CircleSize, CircleSize) };
@@ -137,10 +139,7 @@ namespace phytestcs.Objects
             }
             else
             {
-                var local = new View(Camera.GameView);
                 var angle = -Delta.Angle();
-                local.Rotate(angle.Degrees());
-                local.Center += Object1AbsPos.Rotate(angle);
 
                 var transform = Transform.Identity;
                 transform.Rotate(180 - angle.Degrees(), Object1AbsPos);
@@ -172,8 +171,6 @@ namespace phytestcs.Objects
                 }
 
                 Render.Window.Draw(lines, PrimitiveType.LineStrip);
-
-                Render.Window.SetView(Camera.GameView);
             }
 
             circle1.Position = Object1AbsPos;

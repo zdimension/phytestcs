@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using phytestcs.Interface;
 using phytestcs.Objects;
@@ -11,6 +12,7 @@ namespace phytestcs
 {
     public class Simulation
     {
+        [ObjProp("Accélération de pesanteur", "m/s²")]
         public static float Gravity
         {
             get => _gravity;
@@ -18,13 +20,27 @@ namespace phytestcs
         }
 
         public static bool AirFriction { get; set; } = false;
+        [ObjProp("Coefficient de frottement", "x")]
         public static float AirFrictionMultiplier { get; set; } = 1;
+        [ObjProp("Modèle linéaire", "N/(m²/s)")]
         public static float AirFrictionLinear { get; set; } = 0.1f;
+        [ObjProp("Modèle quadratique", "N/(m³/s²)")]
         public static float AirFrictionQuadratic { get; set; } = 0.01f;
+        [ObjProp("Densité de l'air", "kg/m²")]
         public static float AirDensity { get; set; } = 0.01f;
+        [ObjProp("Amortissement de rotation", "s⁻¹")]
+        public static float RotFrictionLinear { get; set; } = 0.0314f;
+
+        [ObjProp("Vent", "m/s")]
+        public static float WindSpeed { get; set; } = 0;
+        [ObjProp("Angle du vent", "rad")]
+        public static float WindAngle { get; set; } = 0;
+
+        public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);
 
         public static Vector2f GravityVector { get; private set; }
         public static Transform GravityTransform = Transform.Identity;
+        [ObjProp("Angle du champ", "rad")]
         public static float GravityAngle
         {
             get => _gravityAngle;
@@ -73,13 +89,19 @@ namespace phytestcs
         public static DateTime PauseA;
         public static volatile float SimDuration;
 
-        public const float TargetUPS = 120;
+        public const float TargetUPS = 100;
         public const float TargetDT = 1 / TargetUPS;
+        public static float ActualDT => TargetDT * TimeScale;
 
 
         public static void TogglePause()
         {
-            if (!(Pause = !Pause))
+            SetPause(!Pause);
+        }
+
+        public static void SetPause(bool val)
+        {
+            if (!(Pause = val))
             {
                 PauseA = DateTime.Now;
             }
@@ -95,9 +117,9 @@ namespace phytestcs
         public static DateTime LastUpdate = DateTime.Now;
         public static volatile float UPS = 0;
 
-        public static void UpdatePhysics()
+        public static void UpdatePhysics(bool force=false)
         {
-            if (Pause) return;
+            if (Pause && !force) return;
 
             var dt = (float)(DateTime.Now - LastUpdate).TotalSeconds;
 
@@ -105,7 +127,7 @@ namespace phytestcs
 
             UPS = 1 / dt;
 
-            UpdatePhysicsInternal(TargetDT * TimeScale);
+            UpdatePhysicsInternal(ActualDT);
 
             AfterUpdate?.Invoke();
         }
@@ -113,13 +135,17 @@ namespace phytestcs
         public static void UpdatePhysicsInternal(float dt)
         {
             var _cache = World.ToArrayLocked();
+            var phy = _cache.OfType<PhysicalObject>().ToArray();
 
-            AttractorsCache = _cache.OfType<PhysicalObject>().Where(o => o.Attraction != 0f).ToArray();
+            AttractorsCache = phy.Where(o => o.Attraction != 0f).ToArray();
 
             SimDuration += dt;
 
             foreach (var o in _cache)
                 o.UpdatePhysics(dt);
+
+            if (dt != 0)
+                PhysicalObject.ProcessPairs(dt, phy);
         }
 
         public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject excl = null)

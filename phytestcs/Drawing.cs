@@ -11,6 +11,7 @@ namespace phytestcs
         Circle,
         Spring,
         Fixate,
+        Hinge,
         Move
     }
 
@@ -30,13 +31,32 @@ namespace phytestcs
                 old.Shape.OutlineThickness = 0;
             }
 
+            SelectedObject = obj;
+
             if (obj != null && obj is PhysicalObject @new)
             {
-                @new.Shape.OutlineThickness = -0.2f;
+                UpdateThickness();
                 @new.Shape.OutlineColor = Color.White;
             }
+        }
 
-            SelectedObject = obj;
+        static Drawing()
+        {
+            Camera.ZoomChanged += zoom =>
+            {
+                UpdateThickness();
+            };
+        }
+
+        private static float GetThickness(float zoom)
+        {
+            return -7 / zoom;
+        }
+
+        private static void UpdateThickness()
+        {
+            if (SelectedObject is PhysicalObject @new)
+                @new.Shape.OutlineThickness = GetThickness(Camera.CameraZoom);
         }
 
         public static Object SelectedObject { get; set; }

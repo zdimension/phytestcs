@@ -15,8 +15,10 @@ namespace phytestcs
         public static bool ShowForces { get; set; } = true;
         [ObjProp("Afficher les valeurs des forces")]
         public static bool ShowForcesValues { get; set; } = true;
+        [ObjProp("Afficher les composantes des forces")]
+        public static bool ShowForcesComponents { get; set; } = false;
         [ObjProp("Échelle des forces", "m/N")]
-        public static float ForcesScale { get; set; } = 0.080f;
+        public static float ForcesScale { get; set; } = 0.50f;
 
         private static void DrawGrid()
         {
@@ -189,7 +191,7 @@ R = {objPhy.NetForce.Display()}
                         foreach (var force in objPhy.Forces.ToArrayLocked())
                         {
                             Statistics.DisplayedString +=
-                                $"  - {force.Value.Display()} (TTL={force.TimeToLive,4:F3}) {force.Name}\n";
+                                $"  - {force.Value.Display()} (TTL={force.TimeToLive,4:F3}) {force.Type.Name}\n";
                         }
 
                         Statistics.DisplayedString +=

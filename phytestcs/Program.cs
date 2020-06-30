@@ -245,7 +245,7 @@ namespace phytestcs
                                 Simulation.World.Add(Drawing.DragSpring =
                                     new Spring(Drawing.DragConstant, 0, Drawing.DragObject, Drawing.DragObjectRelPos, null,
                                         pos.ToWorld(),
-                                        "Main"){Damping = 1});
+                                        ForceType.Drag){Damping = 1});
                             }
                         }
                     }
@@ -359,7 +359,7 @@ namespace phytestcs
             }
         }
 
-        public static Force MoveForce = new Force("Dépl", new Vector2f(0, 0), default);
+        public static Force MoveForce = new Force(ForceType.External, new Vector2f(0, 0), default);
 
         private static void Window_KeyPressed(object sender, KeyEventArgs e)
         {

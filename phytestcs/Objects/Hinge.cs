@@ -9,8 +9,8 @@ namespace phytestcs.Objects
     public class Hinge : Spring
     {
         public Hinge(PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject object2 = null, Vector2f object2RelPos = default, string name = "Pivot")
-            : base(1e8f, 0, object1, object1RelPos, object2, object2RelPos, name: name)
+            PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
+            : base(1e8f, 0, object1, object1RelPos, object2, object2RelPos, type: type ?? ForceType.Hinge)
         {
             Damping = 0.5f;
         }

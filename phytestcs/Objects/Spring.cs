@@ -25,10 +25,8 @@ namespace phytestcs.Objects
 
         public bool ShowInfos { get; set; } = true;
 
-        private static readonly Color ForceColor = Color.Magenta;
-
         public Spring(float constant, float targetLength, PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject object2 = null, Vector2f object2RelPos = default, string name = "Ressort")
+            PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
         {
             Constant = constant;
             TargetLength = targetLength;
@@ -36,14 +34,15 @@ namespace phytestcs.Objects
             Object1RelPos = object1RelPos;
             Object2 = object2;
             Object2RelPos = object2RelPos;
+            type ??= ForceType.Spring;
 
-            _force1 = new Force(name, new Vector2f(0, 0), object1RelPos) { Color = ForceColor };
+            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos);
             Object1.Forces.Add(_force1);
             DependsOn(Object1);
 
             if (Object2 != null)
             {
-                _force2 = new Force(name, new Vector2f(0, 0), object2RelPos) { Color = ForceColor };
+                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos);
                 Object2.Forces.Add(_force2);
                 DependsOn(Object2);
             }

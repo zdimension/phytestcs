@@ -167,8 +167,10 @@ namespace phytestcs.Interface
             btnSettings.SetRenderer(brToggle);
             btnSettings.MouseReleased += (sender, f) =>
             {
-                var res = new ChildWindowEx("Paramètres", 250);
+                var res = new ChildWindowEx("Paramètres", 320);
                 res.AddEx(new CheckField(bindProp: () => Render.ShowForces));
+                res.AddEx(new CheckField(bindProp: () => Render.ShowForcesValues));
+                res.AddEx(new CheckField(bindProp: () => Render.ShowForcesComponents));
                 res.AddEx(new TextField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true));
                
                 GUI.Add(res);

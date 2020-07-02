@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 using phytestcs.Interface.Windows;
 using phytestcs.Objects;
@@ -11,13 +9,13 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
-using Label = TGUI.Label;
 using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
+using static phytestcs.Global;
 
 namespace phytestcs.Interface
 {
-    public class UI
+    public static class UI
     {
         public static BitmapButton btnPlay;
         public static readonly Texture imgPlay = new Texture("icones/play.png");
@@ -39,14 +37,15 @@ namespace phytestcs.Interface
         public static void SetDrawMode(DrawingType mode)
         {
             Drawing.DrawMode = mode;
-            foreach (var (dess, img, bref, text) in actions)
+            foreach (var (dess, _, bref, text) in actions)
             {
                 bref.Value.SetRenderer(dess == mode ? brToggle : brDef);
                 if (dess == mode)
                     Render.DrawSprite.Texture = text.Value;
             }
         }
-        static readonly RendererData brDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
+
+        private static readonly RendererData brDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
         private static readonly RendererData brToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
         public static readonly RendererData brGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
         public static readonly RendererData brRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
@@ -69,13 +68,13 @@ namespace phytestcs.Interface
         private static void InitMenuBar()
         {
             var menu = new MenuBar();
-            menu.AddMenu("Quitter");
-            menu.AddMenu("Ouvrir");
+            menu.AddMenu( L["Exit"]);
+            menu.AddMenu(L["Open"]);
             menu.MenuItemClicked += (sender, s) =>
             {
-                if (s.Value == "Quitter")
+                if (s.Value == L["Exit"])
                     Environment.Exit(0);
-                else if (s.Value == "Ouvrir")
+                else if (s.Value == L["Open"])
                 {
                     var ofp = new OpenFileDialog
                     {
@@ -84,7 +83,7 @@ namespace phytestcs.Interface
                         CheckPathExists = true,
                         AutoUpgradeEnabled = true,
                         DefaultExt = "csx",
-                        Filter = "Scène (*.csx)|*.csx",
+                        Filter = L["Scène"] + " (*.csx)|*.csx",
                         InitialDirectory = Path.Combine(Environment.CurrentDirectory, "scenes")
                     };
 
@@ -99,7 +98,36 @@ namespace phytestcs.Interface
 
         private static void InitToolButtons()
         {
+            const float spaceSize = 0.25f;
+
             var buttons = new HorizontalLayout();
+            var numSpaces = 0;
+
+            void space()
+            {
+                buttons.AddSpace(spaceSize);
+                numSpaces++;
+            }
+
+            static void connectButton(ClickableWidget b, ChildWindowEx w, bool right=false, bool center=false)
+            {
+                w.Visible = false;
+
+                void dlg(object sender, SignalArgsVector2f f)
+                {
+                    // ReSharper disable once AssignmentInConditionalExpression
+                    if (w.Visible = !w.Visible)
+                    {
+                        w.StartPosition = w.Position = b.AbsolutePosition + new Vector2f(center ? (-w.FullSize.X + b.FullSize.X) / 2 : 0, -w.FullSize.Y);
+                    }
+                }
+
+                if (right)
+                    b.RightMouseReleased += dlg;
+                else
+                    b.MouseReleased += dlg;
+            }
+
             btnPlay = new BitmapButton {Image = imgPlay};
 
             btnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
@@ -111,8 +139,22 @@ namespace phytestcs.Interface
                 bref.Value = btn;
             }
 
-            buttons.Add(new Panel());
+            var wndSim = new ChildWindowEx(L["Simulation"], 250, true, false)
+            {
+                new TextField<float>(0.1f, 10.0f, log: true, bindProp: () => Simulation.TimeScale)
+            };
+            GUI.Add(wndSim);
+            connectButton(btnPlay, wndSim, true, true);
+
+            space();
+
             buttons.Add(btnPlay);
+            var btnRestart = new BitmapButton {Image = new Texture("icones/reset.png")};
+            btnRestart.SetRenderer(brDef);
+            btnRestart.Clicked += (sender, f) => { Scene.Restart(); };
+            buttons.Add(btnRestart);
+
+            space();
 
             var btnGrav = new BitmapButton {Image = new Texture("icones/gravity.png")};
             btnGrav.SetRenderer(brToggle);
@@ -121,15 +163,15 @@ namespace phytestcs.Interface
                 Simulation.GravityEnabled = !Simulation.GravityEnabled;
                 btnGrav.SetRenderer(Simulation.GravityEnabled ? brToggle : brDef);
             };
-            btnGrav.RightMouseReleased += (sender, f) =>
+            var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
-                var res = new ChildWindowEx("Gravité", 250);
-                res.AddEx(new TextField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity));
-                res.AddEx(new TextField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle, conv: PropConverter<float, float>.AngleDegrees));
-                res.AddEx(new CheckField(bindProp: () => Render.ShowGravityField));
-                GUI.Add(res);
-                res.StartPosition = res.Position = btnGrav.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
+                new TextField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
+                new TextField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle,
+                    conv: PropConverter.AngleDegrees),
+                new CheckField(bindProp: () => Render.ShowGravityField)
             };
+            GUI.Add(wndGrav);
+            connectButton(btnGrav, wndGrav, true);
             buttons.Add(btnGrav);
 
             var btnAirFr = new BitmapButton {Image = new Texture("icones/wind.png")};
@@ -139,54 +181,43 @@ namespace phytestcs.Interface
                 Simulation.AirFriction = !Simulation.AirFriction;
                 btnAirFr.SetRenderer(Simulation.AirFriction ? brToggle : brDef);
             };
-            btnAirFr.RightMouseReleased += (sender, f) =>
+            var wndAirFr = new ChildWindowEx(L["Air friction"], 250)
             {
-                var res = new ChildWindowEx("Frottements de l'air", 250);
-                res.AddEx(new TextField<float>(0.01f, 100, 
-                    bindProp: () => Simulation.AirDensity, log: true));
-                res.AddEx(new TextField<float>(0.01f, 100, 
-                    bindProp: () => Simulation.AirFrictionMultiplier, log: true));
-                res.AddEx(new TextField<float>(0.0001f, 10, 
-                    bindProp: () => Simulation.AirFrictionLinear, log: true)
-                { LeftValue = 0 });
-                res.AddEx(new TextField<float>(0.0001f, 1, 
-                    bindProp: () => Simulation.AirFrictionQuadratic, log: true)
-                { LeftValue = 0 });
-
-                res.AddEx(new TextField<float>(0, 50,
-                    bindProp: () => Simulation.WindSpeed));
-                res.AddEx(new TextField<float>(-180, 180, unit: "°",
-                    bindProp: () => Simulation.WindAngle, conv: PropConverter<float, float>.AngleDegrees));
-
-                GUI.Add(res);
-                res.StartPosition = res.Position = btnAirFr.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
+                new TextField<float>(0.01f, 100,
+                    bindProp: () => Simulation.AirDensity, log: true),
+                new TextField<float>(0.01f, 100,
+                    bindProp: () => Simulation.AirFrictionMultiplier, log: true),
+                new TextField<float>(0.0001f, 10,
+                    bindProp: () => Simulation.AirFrictionLinear, log: true) {LeftValue = 0},
+                new TextField<float>(0.0001f, 1,
+                    bindProp: () => Simulation.AirFrictionQuadratic, log: true) {LeftValue = 0},
+                new TextField<float>(0, 50,
+                    bindProp: () => Simulation.WindSpeed),
+                new TextField<float>(-180, 180, unit: "°",
+                    bindProp: () => Simulation.WindAngle, conv: PropConverter.AngleDegrees)
             };
+
+
+            GUI.Add(wndAirFr);
+            connectButton(btnAirFr, wndAirFr, true);
             buttons.Add(btnAirFr);
 
             var btnSettings = new BitmapButton { Image = new Texture("icones/options.png") };
-            btnSettings.SetRenderer(brToggle);
-            btnSettings.MouseReleased += (sender, f) =>
+            btnSettings.SetRenderer(brDef);
+            var wndSettings = new ChildWindowEx(L["Settings"], 320, true, false)
             {
-                var res = new ChildWindowEx("Paramètres", 320);
-                res.AddEx(new CheckField(bindProp: () => Render.ShowForces));
-                res.AddEx(new CheckField(bindProp: () => Render.ShowForcesValues));
-                res.AddEx(new CheckField(bindProp: () => Render.ShowForcesComponents));
-                res.AddEx(new TextField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true));
-               
-                GUI.Add(res);
-                res.StartPosition = res.Position = btnSettings.AbsolutePosition + new Vector2f(0, -res.FullSize.Y);
+                new CheckField(bindProp: () => Render.ShowForces),
+                new CheckField(bindProp: () => Render.ShowForcesValues),
+                new CheckField(bindProp: () => Render.ShowForcesComponents),
+                new TextField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
             };
+            GUI.Add(wndSettings);
+            connectButton(btnSettings, wndSettings);
             buttons.Add(btnSettings);
-
-            var btnRestart = new BitmapButton();
-            btnRestart.Image = new Texture("icones/reset.png");
-            btnRestart.SetRenderer(brDef);
-            btnRestart.Clicked += (sender, f) => { Scene.Restart(); };
-            buttons.Add(btnRestart);
 
             GUI.Add(buttons);
 
-            buttons.SizeLayout = new Layout2d(11 * 60, 60);
+            buttons.SizeLayout = new Layout2d((11 + numSpaces * 0.25f) * 60, 60);
             buttons.PositionLayout = new Layout2d("50% - w / 2", "&.h - h");
         }
 
@@ -207,7 +238,7 @@ namespace phytestcs.Interface
         {
             foreach (var g in PropertyWindows.ToList())
             {
-                if (g.Key != obj && g.Value.FirstOrDefault(w => w.IsMain) is ChildWindowEx ww)
+                if (g.Key != obj && g.Value.FirstOrDefault(w => w.IsMain) is { } ww)
                 {
                     ww.Close();
                 }
@@ -219,31 +250,26 @@ namespace phytestcs.Interface
             }
             else
             {
-                if (PropertyWindows[obj].FirstOrDefault(w => w.IsMain) is ChildWindowEx ww)
+                if (PropertyWindows[obj].FirstOrDefault(w => w.IsMain) is { } ww)
                 {
                     ww.Position = pos;
                     return;
                 }
             }
 
-            var wnd = new WndBase(obj, obj.Name, 150, pos);
-            wnd.IsMain = true;
+            var wnd = new WndBase(obj, obj.Name, 150, pos) {IsMain = true};
 
             Vector2f posEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
 
-            var btnEff = new BitmapButton();
-            btnEff.Text = "Effacer";
-            btnEff.Image = new Texture("icones/delete.png");
+            var btnEff = new BitmapButton {Text = "Effacer", Image = new Texture("icones/delete.png")};
             btnEff.Clicked += delegate { obj.Delete(); };
-            wnd.AddEx(btnEff);
+            wnd.Add(btnEff);
 
             void btnFen<Tfen>(Object o, string nom, string image)
             {
-                var btn = new BitmapButton();
-                btn.Text = nom;
-                btn.Image = new Texture(image);
+                var btn = new BitmapButton {Text = nom, Image = new Texture(image)};
                 btn.Clicked += delegate { Activator.CreateInstance(typeof(Tfen), o, posEnfant()); };
-                wnd.AddEx(btn);
+                wnd.Add(btn);
             }
 
             btnFen<WndInfos>(obj, "Informations", "icones/info.png");
@@ -260,28 +286,27 @@ namespace phytestcs.Interface
 
             void CloseAll(bool exceptMoved=false)
             {
-                if (PropertyWindows.ContainsKey(obj))
+                if (!PropertyWindows.ContainsKey(obj)) return;
+
+                foreach (var w in PropertyWindows[obj].ToList())
                 {
-                    foreach (var w in PropertyWindows[obj].ToList())
+                    if (!PropertyWindows.ContainsKey(obj))
+                        return;
+
+                    if (w.CPointer == IntPtr.Zero)
                     {
-                        if (!PropertyWindows.ContainsKey(obj))
-                            return;
-
-                        if (w.CPointer == IntPtr.Zero)
-                        {
-                            PropertyWindows[obj].Remove(w);
-                            continue;
-                        }
-
-                        if (exceptMoved && w.WasMoved)
-                            continue;
-
-                        w.Close();
+                        PropertyWindows[obj].Remove(w);
+                        continue;
                     }
 
-                    if (PropertyWindows.ContainsKey(obj) && !PropertyWindows[obj].Any())
-                        PropertyWindows.Remove(obj);
+                    if (exceptMoved && w.WasMoved)
+                        continue;
+
+                    w.Close();
                 }
+
+                if (PropertyWindows.ContainsKey(obj) && !PropertyWindows[obj].Any())
+                    PropertyWindows.Remove(obj);
             }
 
             obj.Deleted += () =>
@@ -303,15 +328,9 @@ namespace phytestcs.Interface
 
             wnd.PositionChanged += (sender, f) =>
             {
-                foreach (var w in PropertyWindows[obj])
+                foreach (var w in PropertyWindows[obj].Where(w => w != wnd && !w.WasMoved))
                 {
-                    if (w == wnd)
-                        continue;
-
-                    if (!w.WasMoved)
-                    {
-                        w.StartPosition = w.Position = f.Value + new Vector2f(wnd.Size.X, 0);
-                    }
+                    w.StartPosition = w.Position = f.Value + new Vector2f(wnd.Size.X, 0);
                 }
 
                 wnd.StartPosition = wnd.Position;

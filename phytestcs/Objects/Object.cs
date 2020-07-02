@@ -6,9 +6,9 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public abstract class Object
+    public abstract class Object : IDisposable
     {
-        private static ulong _idCounter = 0;
+        private static ulong _idCounter;
 
         protected Object()
         {
@@ -52,6 +52,8 @@ namespace phytestcs.Objects
 
             if (Drawing.SelectedObject == this)
                 Drawing.SelectedObject = null;
+
+            Dispose();
         }
 
         public void InvokeDeleted()
@@ -77,6 +79,11 @@ namespace phytestcs.Objects
         public virtual bool Contains(Vector2f point)
         {
             return false;
+        }
+
+        public virtual void Dispose()
+        {
+            //
         }
     }
 

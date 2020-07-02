@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Data.OleDb;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using phytestcs.Objects;
 using SFML.System;
 using TGUI;
-using CheckBox = TGUI.CheckBox;
-using Label = TGUI.Label;
-using MessageBox = System.Windows.Forms.MessageBox;
-using Panel = TGUI.Panel;
 
 namespace phytestcs.Interface
 {
@@ -28,7 +23,7 @@ namespace phytestcs.Interface
 
                 if (BindPropInfo != null)
                 {
-                    var getMethod = BindPropInfo.GetGetMethod();
+                    var getMethod = BindPropInfo.GetGetMethod() ?? throw new ArgumentNullException(nameof(bindProp));
                     object target = null;
 
                     if (!getMethod.IsStatic)
@@ -53,7 +48,7 @@ namespace phytestcs.Interface
 
                     name ??= BindPropInfo.Name;
 
-                    converter = conv ?? PropConverter<T, float>.Default();
+                    converter = conv ?? PropConverter.Default<T, float>();
                 }
             }
 
@@ -61,8 +56,7 @@ namespace phytestcs.Interface
             unit ??= "";
 
             SizeLayout = new Layout2d("100%", "60");
-            var lblName = new Label(name);
-            lblName.PositionLayout = new Layout2d("0", "3");
+            var lblName = new Label(name) {PositionLayout = new Layout2d("0", "3")};
             var lX = lblName.Size.X;
             Add(lblName);
             
@@ -73,9 +67,12 @@ namespace phytestcs.Interface
                 Add(lblUnité);
                 lblUnité.PositionLayout = new Layout2d("&.w - w", "3");
             }
-            Field = new EditBox();
-            Field.PositionLayout = new Layout2d(lblName.Size.X + 5, 3);
-            Field.SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18");
+
+            Field = new EditBox
+            {
+                PositionLayout = new Layout2d(lblName.Size.X + 5, 3),
+                SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18")
+            };
             Add(Field);
             Field.ReturnKeyPressed += delegate(object sender, SignalArgsString s)
             {
@@ -137,13 +134,13 @@ namespace phytestcs.Interface
             };
         }
 
-        public EditBox Field { get; private set; }
-        public Slider Slider { get; private set; }
+        public EditBox Field { get; }
+        public Slider Slider { get; }
 
         public Func<float, bool> Validation { get; set; } = x => true;
         private readonly Func<T> _getter;
         private readonly Action<T> _setter;
-        private PropConverter<T, float> converter;
+        private readonly PropConverter<T, float> converter;
         private float _value;
         public float Value
         {
@@ -174,7 +171,7 @@ namespace phytestcs.Interface
             _uiLoading = true;
             Slider.Value = Log ? (float)Math.Log10(val) : val;
             _uiLoading = false;
-            Field.Text = val.ToString();
+            Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }
 
         private float? _oldLoadedVal;
@@ -193,6 +190,32 @@ namespace phytestcs.Interface
         }
     }
 
+    public static class PropConverter
+    {
+        public static readonly PropConverter<Vector2f, float> VectorNorm = new PropConverter<Vector2f, float>(
+            o => o.Norm(), (value, old) => old == default ? new Vector2f(value, 0) : old.Normalize() * value);
+
+        public static readonly PropConverter<Vector2f, float> VectorX = new PropConverter<Vector2f, float>(
+            o => o.X, (value, old) => new Vector2f(value, old.Y));
+
+        public static readonly PropConverter<Vector2f, float> VectorY = new PropConverter<Vector2f, float>(
+            o => o.Y, (value, old) => new Vector2f(old.X, value));
+
+        public static readonly PropConverter<Vector2f, float> VectorAngle = new PropConverter<Vector2f, float>(
+            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value));
+
+        public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
+            o => o.Degrees(), (value, old) => value.Radians());
+
+        public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
+
+        public static PropConverter<Torig, Tdisp> Default<Torig, Tdisp>()
+        {
+            return new PropConverter<Torig, Tdisp>(o => (Tdisp)Convert.ChangeType(o, typeof(Tdisp), CultureInfo.CurrentCulture),
+                (value, old) => (Torig)Convert.ChangeType(value, typeof(Torig), CultureInfo.CurrentCulture));
+        }
+    }
+
     public class PropConverter<Torig, Tdisp>
     {
         public delegate Tdisp Getter(Torig o);
@@ -206,29 +229,6 @@ namespace phytestcs.Interface
             Get = get;
             Set = set;
         }
-
-        public static PropConverter<Torig, Tdisp> Default()
-        {
-            return new PropConverter<Torig, Tdisp>(o => (Tdisp) Convert.ChangeType(o, typeof(Tdisp)),
-                (value, old) => (Torig) Convert.ChangeType(value, typeof(Torig)));
-        }
-
-        public static readonly PropConverter<Vector2f, float> VectorNorm = new PropConverter<Vector2f, float>(
-            o => o.Norm(), (value, old) => old == default ? new Vector2f(value, 0) : old.Normalize() * value);
-
-        public static readonly PropConverter<Vector2f, float> VectorX = new PropConverter<Vector2f, float>(
-            o => o.X, (value, old) => new Vector2f(value, old.Y));
-
-        public static readonly PropConverter<Vector2f, float> VectorY = new PropConverter<Vector2f, float>(
-            o => o.Y, (value, old) => new Vector2f(old.X, value));
-
-        public static readonly PropConverter<Vector2f, float> VectorAngle = new PropConverter<Vector2f, float>(
-            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value));
-
-        public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
-
-        public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
-            o => o.Degrees(), (value, old) => value.Radians());
 
         public PropConverter<Torig, Tout> Then<Tout>(PropConverter<Tdisp, Tout> next)
         {

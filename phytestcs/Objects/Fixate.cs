@@ -29,6 +29,13 @@ namespace phytestcs.Objects
 
         private readonly Sprite _sprite = new Sprite(UI.actions[5].Item4.Value){Scale=new Vector2f(0.5f, 0.5f), Origin = new Vector2f(25, 25)};
 
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _sprite.Dispose();
+        }
+
         public override void DrawOverlay()
         {
             base.DrawOverlay();

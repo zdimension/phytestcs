@@ -52,7 +52,7 @@ namespace phytestcs.Interface.Windows
         private float _plotStart;
         private readonly SynchronizedCollection<Vector2f> _points = new SynchronizedCollection<Vector2f>();
         private readonly Canvas _canvas = new Canvas(lGraphe, hauteur);
-        private ComboBox drop;
+        private readonly ComboBox drop;
 
         private static readonly ReadOnlyCollection<(string, ObjPropAttribute, Func<PhysicalObject, float>)> props;
 
@@ -70,19 +70,19 @@ namespace phytestcs.Interface.Windows
             foreach (var p in ObjPhyProps)
             {
                 var prop = typeof(PhysicalObject).GetProperty(p);
-                var attr = prop.GetCustomAttribute<ObjPropAttribute>();
+                var attr = prop.GetCustomAttribute<ObjPropAttribute>()!;
                 var nom = attr.DisplayName;
 
                 if (prop.PropertyType == typeof(float))
                 {
-                    res.Add((nom, attr, (o) => (float)prop.GetValue(o)));
+                    res.Add((nom, attr, o => (float)prop.GetValue(o)));
                 }
                 else if (prop.PropertyType == typeof(Vector2f))
                 {
-                    res.Add((nom, attr, (o) => ((Vector2f)prop.GetValue(o)).Norm()));
-                    res.Add((nom + " (X)", attr, (o) => ((Vector2f)prop.GetValue(o)).X));
-                    res.Add((nom + " (Y)", attr, (o) => ((Vector2f)prop.GetValue(o)).Y));
-                    res.Add((nom + " (θ)", attr, (o) => ((Vector2f)prop.GetValue(o)).Angle()));
+                    res.Add((nom, attr, o => ((Vector2f)prop.GetValue(o)).Norm()));
+                    res.Add((nom + " (X)", attr, o => ((Vector2f)prop.GetValue(o)).X));
+                    res.Add((nom + " (Y)", attr, o => ((Vector2f)prop.GetValue(o)).Y));
+                    res.Add((nom + " (θ)", attr, o => ((Vector2f)prop.GetValue(o)).Angle()));
                 }
             }
 
@@ -264,7 +264,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
             };
             hl.Add(btnClear);
 
-            drop = new TGUI.ComboBox();
+            drop = new ComboBox();
 
             foreach (var p in props)
             {
@@ -288,7 +288,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             drop.ItemSelected += delegate { ClearPlot(); };
 
-            _canvasView = new SFML.Graphics.View(_canvas.View);
+            _canvasView = new View(_canvas.View);
 
             Simulation.AfterUpdate += UpdatePlot;
             UI.Drawn += DrawPlot;
@@ -303,7 +303,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             btnCSV.Clicked += btnCSV_Clicked;
 
-            AddEx(hl);
+            Add(hl);
 
             Show();
 
@@ -316,7 +316,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
         private void btnCSV_Clicked(object sender, SignalArgsVector2f e)
         {
-            var sfd = new SaveFileDialog()
+            var sfd = new SaveFileDialog
             {
                 AddExtension = true,
                 CheckPathExists = true,

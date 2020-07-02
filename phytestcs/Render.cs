@@ -9,12 +9,12 @@ using SFML.Window;
 
 namespace phytestcs
 {
-    public class Render
+    public static class Render
     {
         [ObjProp("Afficher les forces")]
         public static bool ShowForces { get; set; } = true;
         [ObjProp("Afficher les valeurs des forces")]
-        public static bool ShowForcesValues { get; set; } = true;
+        public static bool ShowForcesValues { get; set; } = false;
         [ObjProp("Afficher les composantes des forces")]
         public static bool ShowForcesComponents { get; set; } = false;
         [ObjProp("Échelle des forces", "m/N")]
@@ -138,7 +138,7 @@ namespace phytestcs
         }
 
         public static Text Statistics;
-        private static Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
+        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
 
         public static void DrawStatistics()
         {

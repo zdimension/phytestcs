@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.Linq;
 using phytestcs.Interface;
 using phytestcs.Objects;
@@ -10,7 +9,7 @@ using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
-    public class Simulation
+    public static class Simulation
     {
         [ObjProp("Accélération de pesanteur", "m/s²")]
         public static float Gravity
@@ -79,11 +78,12 @@ namespace phytestcs
         public static float EscapeVelocity = 55;
         public static float Jump = 40;
         public static float Walk = 15;
-        public static float TimeScale = 1;
+        [ObjProp("Vitesse de la simulation", "x")]
+        public static float TimeScale { get; set; } = 1;
         public static bool Pause = true;
         public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
         public static Object[] WorldCache = null;
-        public static PhysicalObject[] AttractorsCache = new PhysicalObject[0];
+        public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
         public static PhysicalObject Player;
         public static float FPS;
         public static DateTime PauseA;
@@ -115,7 +115,7 @@ namespace phytestcs
         private static bool _gravityEnabled = true;
         public static event Action AfterUpdate;
         public static DateTime LastUpdate = DateTime.Now;
-        public static volatile float UPS = 0;
+        public static volatile float UPS;
 
         public static void UpdatePhysics(bool force=false)
         {

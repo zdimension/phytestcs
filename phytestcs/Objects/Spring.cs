@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
 
 namespace phytestcs.Objects
 {
-    [System.Runtime.InteropServices.Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
+    [Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public class Spring : VirtualObject
     {
         public float Constant { get; set; }
@@ -47,7 +48,7 @@ namespace phytestcs.Objects
                 DependsOn(Object2);
             }
 
-            UpdatePhysics(0);
+            UpdateForce();
         }
 
         public float DeltaLength => TargetLength - Delta.Norm();
@@ -87,6 +88,11 @@ namespace phytestcs.Objects
         }
 
         public override void UpdatePhysics(float dt)
+        {
+            UpdateForce();
+        }
+
+        private void UpdateForce()
         {
             var unit = UnitVector;
             var force = Force;

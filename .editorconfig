@@ -1,0 +1,45 @@
+﻿[*.cs]
+
+# IDE0055: Corriger la mise en forme
+dotnet_diagnostic.IDE0055.severity = none
+
+# CA2000: Supprimer les objets avant la mise hors de portée
+dotnet_diagnostic.CA2000.severity = none
+
+# CA1707: Les identificateurs ne doivent pas contenir de traits de soulignement
+dotnet_diagnostic.CA1707.severity = none
+
+dotnet_diagnostic.CA1724.severity = none
+
+# CA2211: Les champs non constants ne doivent pas être visibles
+dotnet_diagnostic.CA2211.severity = none
+
+# CA1715: Les identificateurs doivent être dotés d'un préfixe correct
+dotnet_diagnostic.CA1715.severity = none
+
+# CA1062: Valider les arguments de méthodes publiques
+dotnet_diagnostic.CA1062.severity = none
+
+# CA1720: L'identificateur contient le nom de type
+dotnet_diagnostic.CA1720.severity = none
+
+# CA1710: Les identificateurs doivent avoir un suffixe correct
+dotnet_diagnostic.CA1710.severity = none
+
+# CA1716: Les identificateurs ne doivent pas correspondre à des mots clés
+dotnet_diagnostic.CA1716.severity = none
+
+# CA1810: Initialisez les champs static de type référence inline
+dotnet_diagnostic.CA1810.severity = none
+
+# CA1051: Ne pas déclarer de champs d'instances visibles
+dotnet_diagnostic.CA1051.severity = none
+
+# CA1816: Les méthodes Dispose doivent appeler SuppressFinalize
+dotnet_diagnostic.CA1816.severity = none
+
+# CA1063: Implémenter IDisposable correctement
+dotnet_diagnostic.CA1063.severity = none
+
+# CA1065: Ne pas lever d'exceptions dans les emplacements inattendus
+dotnet_diagnostic.CA1065.severity = none

@@ -7,6 +7,7 @@ using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -39,8 +40,8 @@ namespace phytestcs
             Simulation.SimDuration = 0;
             UI.ClearPropertyWindows();
             Simulation.World.Clear();
-            Simulation.WorldCache = new Objects.Object[0];
-            Simulation.AttractorsCache = new PhysicalObject[0];
+            Simulation.WorldCache = Array.Empty<Object>();
+            Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
 
             Simulation.World.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
@@ -60,13 +61,13 @@ namespace phytestcs
                 var text = "Erreur de chargement :\n" + e;
                 Console.WriteLine(text);
                 var msgbox = new MessageBox("Erreur", text, new[] {"OK"});
-                Interface.UI.GUI.Add(msgbox);
+                UI.GUI.Add(msgbox);
                 msgbox.SizeLayout = new Layout2d("800", "200");
                 msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
                 msgbox.ButtonPressed += delegate
                 {
                     msgbox.CloseWindow();
-                    Interface.UI.GUI.Remove(msgbox);
+                    UI.GUI.Remove(msgbox);
                 };
             }
 

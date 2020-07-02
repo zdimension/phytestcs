@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
@@ -47,7 +44,7 @@ namespace phytestcs.Objects
 
         public Shape Shape { get; }
 
-        public SynchronizedCollection<Force> Forces { get; set; }
+        public SynchronizedCollection<Force> Forces { get; }
 
         [ObjProp("Masse", "kg")]
         public float Mass
@@ -94,7 +91,7 @@ namespace phytestcs.Objects
         [ObjProp("Quantité de mouvement", "N⋅s", "N⋅s²", "N")]
         public Vector2f Momentum => Mass * Velocity;
 
-        [ObjProp("Moment d'inertie", "kg⋅m²")]
+        [ObjProp("Moment d'inertie", "kg⋅m²")] // m^4 ?
         public float MomentOfInertia
         {
             get
@@ -284,7 +281,7 @@ namespace phytestcs.Objects
                         let realPos = f.Position - avgAppPoint
                         let realAngle = f.Value.Angle() - Angle
                         select f.Value.Norm() * 
-                               (float) (realPos.X / Shape.GetLocalBounds().Width) *
+                               (realPos.X / Shape.GetLocalBounds().Width) *
                                (float) Math.Sin(realAngle) * realPos.Norm()
                                ).Sum();
                 }
@@ -296,7 +293,7 @@ namespace phytestcs.Objects
 
         public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + AngularAirFriction);
 
-        private float AngularAirFriction = 0;
+        private float AngularAirFriction;
 
         [ObjProp("Moment angulaire", "J⋅s")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
@@ -416,7 +413,7 @@ namespace phytestcs.Objects
                     forceName.FillColor = color;
                     forceName.DisplayedString = f.Type.ShortName;
                     if (Render.ShowForcesValues)
-                    forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
+                        forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
                     forceName.Position = tip.ToScreen().F();
                     Render.Window.Draw(forceName);
 

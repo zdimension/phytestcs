@@ -26,9 +26,7 @@ Moment linéaire :
   - attraction :
   - élastique :";
             header.SizeLayout = new Layout2d(130, header.Size.Y);
-            var val = new Label();
-            val.SizeLayout = new Layout2d(280, header.Size.Y);
-            val.PositionLayout = new Layout2d(130, 0);
+            var val = new Label {SizeLayout = new Layout2d(280, header.Size.Y), PositionLayout = new Layout2d(130, 0)};
 
             void updateInfos()
             {
@@ -37,24 +35,24 @@ Moment linéaire :
                 var eela = 0f;
                 var ecin = 0f;
                 var eatt = 0f;
-                if (obj is PhysicalObject objPhy)
+                switch (obj)
                 {
-                    ecin += objPhy.KineticEnergy;
-                    epes += objPhy.GravityEnergy;
-                    eatt += objPhy.AttractionEnergy;
-                    text +=
-                        $@"{objPhy.Shape.Area(),7:F3} m²
+                    case PhysicalObject objPhy:
+                        ecin += objPhy.KineticEnergy;
+                        epes += objPhy.GravityEnergy;
+                        eatt += objPhy.AttractionEnergy;
+                        text +=
+                            $@"{objPhy.Shape.Area(),7:F3} m²
 {objPhy.Mass,8:F3} kg
 {objPhy.MomentOfInertia,7:F3} kg.m²
 {objPhy.Position.DisplayPoint()} m
 {objPhy.Velocity.Display()} m/s
 {objPhy.Momentum.DisplayPoint()} N.s
 ";
-                }
-
-                if (obj is Spring ress)
-                {
-                    eela += ress.ElasticEnergy;
+                        break;
+                    case Spring ress:
+                        eela += ress.ElasticEnergy;
+                        break;
                 }
 
                 var epot = epes + eela;
@@ -78,11 +76,10 @@ Moment linéaire :
 
             updateInfos();
 
-            var pnl = new Panel();
-            pnl.SizeLayout = new Layout2d(Size.X, header.Size.Y);
+            var pnl = new Panel {SizeLayout = new Layout2d(Size.X, header.Size.Y)};
             pnl.Add(header);
             pnl.Add(val);
-            AddEx(pnl);
+            Add(pnl);
             Show();
         }
     }

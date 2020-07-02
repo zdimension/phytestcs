@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -11,15 +9,16 @@ using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
 using static phytestcs.Interface.UI;
+using static phytestcs.Global;
 
 namespace phytestcs
 {
-    public class Program
+    public static class Program
     {
         [STAThread]
         static void Main(string[] args)
         {
-            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default, new ContextSettings(){AntialiasingLevel = 4});
+            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default, new ContextSettings {AntialiasingLevel = 4});
             //Render.Window.SetVerticalSyncEnabled(true);
             //Window.SetFramerateLimit(240);
 
@@ -64,13 +63,13 @@ namespace phytestcs
 
             Task.Run(() =>
             {
-                Scene.Load();
+                Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/energie.csx"));
                 //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();
             });
 
-            var txl = new Text("Chargement...", UI.Font, 32) {FillColor = Color.White};
+            var txl = new Text(L["Loading..."], UI.Font, 32) {FillColor = Color.White};
             txl.Origin = txl.GetLocalBounds().Size() / 2;
 
             while (Render.Window.IsOpen)
@@ -102,7 +101,7 @@ namespace phytestcs
 
                     GUI.Draw();
 
-                    Render.DrawDrawing();
+                    Render.DrawDrawing();//
                 }
                 else
                 {
@@ -117,11 +116,23 @@ namespace phytestcs
 
                 Render.Window.Display();
 
-                Simulation.FPS = (float) (1 / (DateTime.Now - lastUpd).TotalSeconds);
+                var dt = (float)(DateTime.Now - lastUpd).TotalSeconds;
+
+                if (CameraMoveVel != default)
+                {
+                    Camera.GameView.Center += CameraMoveVel.InvertY() * dt / Camera.CameraZoom;
+                    CameraMoveVel *= (float)Math.Exp(-3 * dt);
+                    if (CameraMoveVel.Norm() < 0.001f)
+                        CameraMoveVel = default;
+                }
+
+                Simulation.FPS = 1 / dt;
 
                 lastUpd = DateTime.Now;
             }
         }
+
+        private static (DateTime, Vector2i) _lastMove;
 
         private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
         {
@@ -130,6 +141,7 @@ namespace phytestcs
             {
                 Camera.GameView.Center = Camera.CameraMoveOrigin.Value +
                                        (ClickPosition - e.Position()).F().InvertY() / Camera.CameraZoom;
+                _lastMove = (DateTime.Now, e.Position());
             }
 
             if (Drawing.DragObject != null && Mouse.IsButtonPressed(Mouse.Button.Left))
@@ -170,7 +182,9 @@ namespace phytestcs
 
         public static void Window_MouseButtonReleased(Vector2i pos, Mouse.Button btn)
         {
-            if (pos == ClickPosition)
+            var moved = pos != ClickPosition;
+
+            if (!moved)
             {
                 Drawing.SelectObject(ObjectAtPosition(pos));
             }
@@ -198,21 +212,34 @@ namespace phytestcs
                     FinishDrawing();
                 }
             }
-            else if (btn == Mouse.Button.Right && pos == ClickPosition)
+            else if (btn == Mouse.Button.Right)
             {
-                var obj = ObjectAtPosition(pos);
-                if (obj != null)
+                if (moved)
                 {
-                    OpenProperties(obj, pos.F());
+                    var (time, mpos) = _lastMove;
+                    var dt = DateTime.Now - time;
+                    var dp = mpos - pos;
+                    CameraMoveVel = dp.F() / (float)dt.TotalSeconds;
+                }
+                else
+                {
+                    var obj = ObjectAtPosition(pos);
+                    if (obj != null)
+                    {
+                        OpenProperties(obj, pos.F());
+                    }
                 }
             }
 
             Camera.CameraMoveOrigin = null;
+            _lastMove = default;
 
             ClickPosition = default;
 
             LastClick = pos;
         }
+
+        private static Vector2f CameraMoveVel;
 
         public static void Window_MouseButtonPressed(Vector2i pos, Mouse.Button btn)
         {
@@ -254,6 +281,8 @@ namespace phytestcs
                 case Mouse.Button.Right:
                 case Mouse.Button.Middle:
                     Camera.CameraMoveOrigin = Camera.GameView.Center;
+                    CameraMoveVel = default;
+                    _lastMove = (DateTime.Now, pos);
                     break;
             }
         }

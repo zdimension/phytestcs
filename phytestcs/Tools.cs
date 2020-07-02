@@ -103,8 +103,8 @@ namespace phytestcs
 
     public class ColorWrapper
     {
-        private Func<Color> getter;
-        private Action<Color> setter;
+        private readonly Func<Color> getter;
+        private readonly Action<Color> setter;
 
         public ColorWrapper(Func<Color> getter, Action<Color> setter)
         {

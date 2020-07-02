@@ -39,9 +39,7 @@ namespace phytestcs.Interface
                 UI.Drawn += Update;
             }
 
-            Field = new CheckBox(name);
-            Field.SizeLayout = new Layout2d("20", "20");
-            Field.PositionLayout = new Layout2d(10, 5);
+            Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 5)};
             Field.Toggled += (sender, f) =>
             {
                 if (_uiLoading)
@@ -55,7 +53,7 @@ namespace phytestcs.Interface
             SizeLayout = new Layout2d("100%", "30");
         }
 
-        public CheckBox Field { get; private set; }
+        public CheckBox Field { get; }
         private readonly Func<bool> _getter;
         private readonly Action<bool> _setter;
         private bool _uiLoading;

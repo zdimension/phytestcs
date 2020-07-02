@@ -1,14 +1,16 @@
-﻿using SFML.System;
+﻿using System.Collections;
+using System.Collections.Generic;
+using SFML.System;
 using TGUI;
 
 namespace phytestcs.Interface
 {
-    public class ChildWindowEx : ChildWindow
+    public class ChildWindowEx : ChildWindow, IEnumerable<Widget>
     {
         public Vector2f? StartPosition { get; set; }
         public bool WasMoved => StartPosition.HasValue && Position != StartPosition.Value;
         public bool IsMinimized { get; private set; }
-        public VerticalLayout Container { get; private set; }
+        public VerticalLayout Container { get; }
         public bool IsMain { get; set; }
         public bool IsClosing { get; private set; }
         public void Close()
@@ -21,13 +23,13 @@ namespace phytestcs.Interface
             IsClosing = false;
         }
 
-        public ChildWindowEx(string name, int width) : base(name, TitleButton.Close | TitleButton.Minimize)
+        public ChildWindowEx(string name, int width, bool hide=false, bool minimize=true) : base(name, TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
             Size = new Vector2f(width, 0);
 
             Container = new VerticalLayout();
 
-            Add(Container);
+            ((Container) this).Add(Container);
 
             UpdateSize();
 
@@ -36,11 +38,21 @@ namespace phytestcs.Interface
                 IsMinimized = !IsMinimized; UpdateSize();
             };
 
-            Closed += delegate
+            if (hide)
             {
-                UI.GUI.Remove(this);
-                Dispose();
-            };
+                Closed += delegate
+                {
+                    Visible = false;
+                };
+            }
+            else
+            {
+                Closed += delegate
+                {
+                    UI.GUI.Remove(this);
+                    Dispose();
+                };
+            }
         }
 
         void UpdateSize()
@@ -53,17 +65,27 @@ namespace phytestcs.Interface
 
         private float _height;
 
-        public void AddEx(Widget w)
+        public void Add(Widget w)
         {
             _height += w.Size.Y;
-            Container.Add(w);
-            
+            Container.Add(w, w.Size.Y);
+
             UpdateSize();
         }
 
         public void Show()
         {
             ShowWithEffect(ShowAnimationType.Scale, Time.FromMilliseconds(50));
+        }
+
+        public IEnumerator<Widget> GetEnumerator()
+        {
+            return Widgets.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

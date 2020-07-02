@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using SFML.Graphics;
 using SFML.System;
 
@@ -126,15 +124,13 @@ namespace phytestcs
                     // shapes are not overlapping
                     return false;
                 }
-                else
+
+                if (overlap < minOverlap)
                 {
-                    if (overlap < minOverlap)
-                    {
-                        minOverlap = overlap;
-                        mtv = axis * minOverlap;
-                        // ideally we would do this only once for the minimal overlap
-                        // but this is very cheap operation
-                    }
+                    minOverlap = overlap;
+                    mtv = axis * minOverlap;
+                    // ideally we would do this only once for the minimal overlap
+                    // but this is very cheap operation
                 }
             }
 

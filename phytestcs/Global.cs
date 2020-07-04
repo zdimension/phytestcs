@@ -14,7 +14,7 @@ namespace phytestcs
         public static readonly Random RNG = new Random();
 
         public static readonly IStringLocalizer L = new ResourceManagerStringLocalizerFactory(
-            new OptionsWrapper<LocalizationOptions>(new LocalizationOptions() { ResourcesPath = "Resources" }),
+            new OptionsWrapper<LocalizationOptions>(new LocalizationOptions { ResourcesPath = "Resources" }),
             NullLoggerFactory.Instance).Create(typeof(Global));
     }
 }

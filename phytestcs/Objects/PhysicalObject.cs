@@ -4,6 +4,7 @@ using System.Linq;
 using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
+using static phytestcs.Global;
 
 namespace phytestcs.Objects
 {
@@ -36,17 +37,17 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Vitesse angulaire", "rad/s", "rad")]
+        [ObjProp("Angular velocity", "rad/s", "rad")]
         public float AngularVelocity { get; set; }
 
-        [ObjProp("Vitesse", "m/s", "m")]
+        [ObjProp("Velocity", "m/s", "m")]
         public Vector2f Velocity { get; set; }
 
         public Shape Shape { get; }
 
         public SynchronizedCollection<Force> Forces { get; }
 
-        [ObjProp("Masse", "kg")]
+        [ObjProp("Mass", "kg")]
         public float Mass
         {
             get;
@@ -55,43 +56,49 @@ namespace phytestcs.Objects
 
         public float InertialMass => Fixed ? float.PositiveInfinity : Mass;
 
-        [ObjProp("Densité", "kg/m²")]
+        [ObjProp("Density", "kg/m²")]
         public float Density
         {
             get => Mass / Shape.Area();
             set => Mass = Shape.Area() * value;
         }
 
-        [ObjProp("Énergie cinétique", "J", unitDeriv:"W")]
-        public float KineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Velocity.Norm(), 2) / 2;
-        [ObjProp("Énergie de pesanteur", "J", unitDeriv: "W")]
+        [ObjProp("Linear kinetic energy", "J", unitDeriv:"W")]
+        public float LinearKineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Velocity.Norm(), 2) / 2;
+        [ObjProp("Angular kinetic energy", "J", unitDeriv: "W")]
+        public float AngularKineticEnergy => Fixed ? 0 : MomentOfInertia * (float)Math.Pow(AngularVelocity, 2) / 2;
+        [ObjProp("Kinetic energy", "J", unitDeriv: "W")]
+        public float KineticEnergy => LinearKineticEnergy + AngularKineticEnergy;
+        [ObjProp("Potential gravitational energy", "J", unitDeriv: "W")]
         public float GravityEnergy => Fixed ? 0 : Weight * Position.WithUpdate(this).Y;
-        [ObjProp("Énergie d'attraction", "J", unitDeriv: "W")]
+        [ObjProp("Potential attraction energy", "J", unitDeriv: "W")]
         public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(Position, Mass, this);
+        [ObjProp("Potential energy", "J", unitDeriv: "W")]
+        public float PotentialEnergy => GravityEnergy + AttractionEnergy;
 
-        [ObjProp("Énergie totale", "J", unitDeriv: "W")]
-        public float TotalEnergy => KineticEnergy + GravityEnergy + AttractionEnergy;
+        [ObjProp("Total energy", "J", unitDeriv: "W")]
+        public float TotalEnergy => KineticEnergy + PotentialEnergy;
         public bool Fixed => Wall || IsMoving || HasFixate;
         public bool Wall { get; set; }
         public bool IsMoving { get; set; }
 
         private Force Gravity { get; } = new Force(ForceType.Gravity, new Vector2f(0, 0), default);
         private Force AirFriction { get; } = new Force(ForceType.AirFriction, new Vector2f(0, 0), default);
-        private Force Buoyance { get; } = new Force(ForceType.Buoyance, new Vector2f(0, 0), default);
+        private Force Buoyance { get; } = new Force(ForceType.Buoyancy, new Vector2f(0, 0), default);
         public float Weight => Mass * Simulation.ActualGravity;
         [ObjProp("Restitution")]
         public float Restitution { get; set; } = 0.5f;
-        [ObjProp("Frottements")]
+        [ObjProp("Friction")]
         public float Friction { get; set; } = 0.5f;
         public bool Killer { get; set; }
         public bool HasFixate { get; set; } = false;
         [ObjProp("Attraction", "Nm²/kg²")]
         public float Attraction { get; set; } = 0;
         public bool AttractionIsLinear = false;
-        [ObjProp("Quantité de mouvement", "N⋅s", "N⋅s²", "N")]
+        [ObjProp("Momentum", "N⋅s", "N⋅s²", "N")]
         public Vector2f Momentum => Mass * Velocity;
 
-        [ObjProp("Moment d'inertie", "kg⋅m²")] // m^4 ?
+        [ObjProp("Moment of inertia", "kg⋅m²")] // m^4 ?
         public float MomentOfInertia
         {
             get
@@ -196,6 +203,7 @@ namespace phytestcs.Objects
             {
                 _position += Velocity * dt;
                 _angle += AngularVelocity * dt;
+                _angle = (float) Math.Round(_angle, 2);
                 UpdatePosition();
             }
         }
@@ -243,7 +251,7 @@ namespace phytestcs.Objects
             return (Shape.GetGlobalBounds().Intersects(autre.Shape.GetGlobalBounds(), out var overlap), overlap);
         }
 
-        [ObjProp("Forces", "N")]
+        [ObjProp("Net force", "N")]
         public Vector2f NetForce
         {
             get
@@ -288,14 +296,14 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Accélération", "m/s²", "m/s", "m/s³")]
+        [ObjProp("Acceleration", "m/s²", "m/s", "m/s³")]
         public Vector2f Acceleration => Fixed ? default : (NetForce / Mass);
 
         public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + AngularAirFriction);
 
         private float AngularAirFriction;
 
-        [ObjProp("Moment angulaire", "J⋅s")]
+        [ObjProp("Angular momentum", "J⋅s")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
         
         public Vector2f Map(Vector2f point)
@@ -409,13 +417,16 @@ namespace phytestcs.Objects
                     }, PrimitiveType.Lines);
 
                     Render.Window.SetView(Camera.MainView);
-                    forceName.CharacterSize = (uint)(30 * arrow);
-                    forceName.FillColor = color;
-                    forceName.DisplayedString = f.Type.ShortName;
-                    if (Render.ShowForcesValues)
-                        forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
-                    forceName.Position = tip.ToScreen().F();
-                    Render.Window.Draw(forceName);
+
+                    if ((forceName.CharacterSize = (uint) (30 * arrow)) < 300)
+                    {
+                        forceName.FillColor = color;
+                        forceName.DisplayedString = f.Type.ShortName;
+                        if (Render.ShowForcesValues)
+                            forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
+                        forceName.Position = tip.ToScreen().F();
+                        Render.Window.Draw(forceName);
+                    }
 
                     Render.Window.SetView(Camera.GameView);
                 }

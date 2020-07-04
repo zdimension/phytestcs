@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using static phytestcs.Global;
 
 namespace phytestcs
 {
@@ -32,14 +33,14 @@ namespace phytestcs
             Color = color;
         }
 
-        public static readonly ForceType Gravity = new ForceType("Gravité", "P", Color.Black);
-        public static readonly ForceType AirFriction = new ForceType("Frottements de l'air", "f", Color.Red);
-        public static readonly ForceType Buoyance = new ForceType("Poussée d'Archimède", "Φ", Color.Green);
-        public static readonly ForceType Normal = new ForceType("Normale", "N", Color.Black);
-        public static readonly ForceType Friction = new ForceType("Frottements", "T", Color.Black);
-        public static readonly ForceType Spring = new ForceType("Ressort", "s", Color.Magenta);
-        public static readonly ForceType External = new ForceType("Utilisateur", "u", Color.Blue);
-        public static readonly ForceType Drag = new ForceType("Main", "h", Color.Yellow);
-        public static readonly ForceType Hinge = new ForceType("Pivot", "o", Color.Cyan);
+        public static readonly ForceType Gravity = new ForceType(L["Gravity"], "P", Color.Black);
+        public static readonly ForceType AirFriction = new ForceType(L["Air friction"], "f", Color.Red);
+        public static readonly ForceType Buoyancy = new ForceType(L["Buoyancy"], "Φ", Color.Green);
+        public static readonly ForceType Normal = new ForceType(L["Normal"], "N", Color.Black);
+        public static readonly ForceType Friction = new ForceType(L["Friction"], "T", Color.Black);
+        public static readonly ForceType Spring = new ForceType(L["Spring"], "s", Color.Magenta);
+        public static readonly ForceType User = new ForceType(L["User"], "u", Color.Blue);
+        public static readonly ForceType Drag = new ForceType(L["Drag"], "h", Color.Yellow);
+        public static readonly ForceType Hinge = new ForceType(L["Hinge"], "o", Color.Cyan);
     }
 }

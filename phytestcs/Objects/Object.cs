@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using SFML.System;
+using static phytestcs.Global;
 
 namespace phytestcs.Objects
 {
-    public abstract class Object : IDisposable
+    public abstract class Object : DispatchProxy, IDisposable
     {
         private static ulong _idCounter;
 
@@ -85,6 +88,39 @@ namespace phytestcs.Objects
         {
             //
         }
+
+        protected override object Invoke(MethodInfo targetMethod, object[] args)
+        {
+            if (_bindings.TryGetValue(targetMethod, out var func))
+                return func();
+            return targetMethod.Invoke(this, args);
+        }
+
+        public void Bind<Tthis, T>(Expression<Func<Tthis, T>> prop, Func<T> value)
+        {
+            if (typeof(Tthis) != GetType())
+                throw new ArgumentException(nameof(Tthis));
+
+            var expr = ((MemberExpression)prop.Body);
+            var BindPropInfo = (PropertyInfo)expr.Member;
+            var getMethod = BindPropInfo.GetGetMethod()!;
+
+            _bindings[getMethod] = () => value();
+        }
+
+        public void Unbind<Tthis, T>(Expression<Func<Tthis, T>> prop)
+        {
+            if (typeof(Tthis) != GetType())
+                throw new ArgumentException(nameof(Tthis));
+
+            var expr = ((MemberExpression)prop.Body);
+            var BindPropInfo = (PropertyInfo)expr.Member;
+            var getMethod = BindPropInfo.GetGetMethod()!;
+
+            _bindings.Remove(getMethod);
+        }
+
+        private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
     }
 
     public class ObjPropAttribute : DisplayNameAttribute
@@ -94,11 +130,17 @@ namespace phytestcs.Objects
         public string UnitDeriv { get; set; }
 
         public ObjPropAttribute(string displayName, string unit="", string unitInteg=null, string unitDeriv=null)
-        : base(displayName)
+        : base(L[displayName])
         {
             Unit = unit;
             UnitInteg = unitInteg ?? (unit + "⋅s");
             UnitDeriv = unitDeriv ?? (unit + "/s");
         }
+    }
+
+    public class Binding<T>
+    {
+        public Action<T> Setter { get; set; }
+        public Expression<Func<T>> Value { get; set; }
     }
 }

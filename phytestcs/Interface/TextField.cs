@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 using phytestcs.Objects;
 using SFML.System;
 using TGUI;
@@ -74,19 +75,39 @@ namespace phytestcs.Interface
                 SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18")
             };
             Add(Field);
-            Field.ReturnKeyPressed += delegate(object sender, SignalArgsString s)
+
+            void OnValidated(object sender, SignalArgsString s)
             {
                 if (deci)
                 {
                     if (float.TryParse(s.Value, out var res))
+                    {
                         Value = res;
+                        return;
+                    }
                 }
                 else
                 {
                     if (int.TryParse(s.Value, out var res))
+                    {
                         Value = res;
+                        return;
+                    }
                 }
-            };
+
+                try
+                {
+                    var val = CSharpScript.EvaluateAsync(s.Value).Result;
+                    Value = Convert.ToSingle(val, CultureInfo.CurrentCulture);
+                }
+                catch
+                {
+                    //
+                }
+            }
+            
+            Field.ReturnKeyPressed += OnValidated;
+
             float smin, smax;
             if (Log)
             {

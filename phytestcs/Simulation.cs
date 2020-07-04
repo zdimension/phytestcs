@@ -11,7 +11,7 @@ namespace phytestcs
 {
     public static class Simulation
     {
-        [ObjProp("Accélération de pesanteur", "m/s²")]
+        [ObjProp("Gravity strength", "m/s²")]
         public static float Gravity
         {
             get => _gravity;
@@ -19,18 +19,18 @@ namespace phytestcs
         }
 
         public static bool AirFriction { get; set; } = false;
-        [ObjProp("Coefficient de frottement", "x")]
+        [ObjProp("Multiplier", "x")]
         public static float AirFrictionMultiplier { get; set; } = 1;
-        [ObjProp("Modèle linéaire", "N/(m²/s)")]
+        [ObjProp("Linear term", "N/(m²/s)")]
         public static float AirFrictionLinear { get; set; } = 0.1f;
-        [ObjProp("Modèle quadratique", "N/(m³/s²)")]
+        [ObjProp("Quadratic term", "N/(m³/s²)")]
         public static float AirFrictionQuadratic { get; set; } = 0.01f;
-        [ObjProp("Densité de l'air", "kg/m²")]
+        [ObjProp("Air density", "kg/m²")]
         public static float AirDensity { get; set; } = 0.01f;
         [ObjProp("Amortissement de rotation", "s⁻¹")]
         public static float RotFrictionLinear { get; set; } = 0.0314f;
 
-        [ObjProp("Vent", "m/s")]
+        [ObjProp("Wind speed", "m/s")]
         public static float WindSpeed { get; set; } = 0;
         [ObjProp("Angle du vent", "rad")]
         public static float WindAngle { get; set; } = 0;
@@ -39,7 +39,7 @@ namespace phytestcs
 
         public static Vector2f GravityVector { get; private set; }
         public static Transform GravityTransform = Transform.Identity;
-        [ObjProp("Angle du champ", "rad")]
+        [ObjProp("Gravity angle", "rad")]
         public static float GravityAngle
         {
             get => _gravityAngle;
@@ -48,14 +48,14 @@ namespace phytestcs
                 _gravityAngle = value;
                 UpdateGravity();
             }
-        } // 0 = vers le bas
+        }
 
 
         private static void UpdateGravity()
         {
             GravityTransform = Transform.Identity;
             GravityTransform.Rotate(_gravityAngle);
-            GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(0, -_gravity)) : default;
+            GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
         }
 
         static Simulation()
@@ -78,7 +78,7 @@ namespace phytestcs
         public static float EscapeVelocity = 55;
         public static float Jump = 40;
         public static float Walk = 15;
-        [ObjProp("Vitesse de la simulation", "x")]
+        [ObjProp("Simulation speed", "x")]
         public static float TimeScale { get; set; } = 1;
         public static bool Pause = true;
         public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
@@ -110,7 +110,7 @@ namespace phytestcs
             UI.btnPlay.SetRenderer(!Pause ? UI.brRed : UI.brGreen);
         }
 
-        private static float _gravityAngle;
+        private static float _gravityAngle = -90;
         private static float _gravity = 9.81f;
         private static bool _gravityEnabled = true;
         public static event Action AfterUpdate;

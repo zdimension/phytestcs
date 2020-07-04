@@ -12,7 +12,7 @@ namespace phytestcs.Interface.Windows
             Add(new TextField<Vector2f>(-180, 180, unit: "°", bindProp: () => obj.Velocity, conv: PropConverter.VectorAngleDeg));
             Add(new TextField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter.VectorX));
             Add(new TextField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter.VectorY));
-            Add(new TextField<float>(0, 25, bindProp: () => obj.AngularVelocity));
+            Add(new TextField<float>(0, 25, unit: "°", bindProp: () => obj.AngularVelocity, conv: PropConverter.AngleDegrees));
             
             Show();
         }

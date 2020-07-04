@@ -15,6 +15,7 @@ using ComboBox = TGUI.ComboBox;
 using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
 using View = SFML.Graphics.View;
+using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {
@@ -39,7 +40,7 @@ namespace phytestcs.Interface.Windows
             nameof(PhysicalObject.Acceleration),
             nameof(PhysicalObject.NetForce),
             nameof(PhysicalObject.AttractionEnergy),
-            nameof(PhysicalObject.KineticEnergy),
+            nameof(PhysicalObject.LinearKineticEnergy),
             nameof(PhysicalObject.GravityEnergy),
             nameof(PhysicalObject.TotalEnergy)
         };
@@ -133,7 +134,7 @@ namespace phytestcs.Interface.Windows
         private void DrawPlot()
         {
             _canvas.Clear(Color.Black);
-            Vector2f[] cache = _points.ToArrayLocked();
+            var cache = _points.ToArrayLocked();
 
             if (cache.Length > 0)
             {
@@ -256,7 +257,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
         {
             var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};
 
-            var btnClear = new BitmapButton("Effacer")
+            var btnClear = new BitmapButton(L["Clear"])
             {
                 Image = new Texture("icones/clear.png"),
                 PositionLayout = new Layout2d(margeX, 0),
@@ -293,7 +294,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
             Simulation.AfterUpdate += UpdatePlot;
             UI.Drawn += DrawPlot;
 
-            var btnCSV = new BitmapButton("Exporter en CSV")
+            var btnCSV = new BitmapButton(L["Export to CSV"])
             {
                 Image = new Texture("icones/csv.png"),
                 SizeLayout = new Layout2d(largeurBtn, hauteurBtn),
@@ -322,7 +323,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
                 CheckPathExists = true,
                 AutoUpgradeEnabled = true,
                 DefaultExt = "csv",
-                Filter = "Fichier CSV (*.csv)|*.csv",
+                Filter = $"{L["CSV file"]} (*.csv)|*.csv",
                 InitialDirectory = Environment.CurrentDirectory
             };
 
@@ -330,7 +331,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Temps (s);{props[drop.GetSelectedItemIndex()].Item1} ({props[drop.GetSelectedItemIndex()].Item2.Unit})");
+            sb.AppendLine($"{L["Time"]} (s);{props[drop.GetSelectedItemIndex()].Item1} ({props[drop.GetSelectedItemIndex()].Item2.Unit})");
 
             lock (_points.SyncRoot)
             {

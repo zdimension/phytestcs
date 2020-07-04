@@ -6,6 +6,7 @@ using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using static phytestcs.Global;
 
 namespace phytestcs
 {
@@ -142,7 +143,7 @@ namespace phytestcs
 
         public static void DrawStatistics()
         {
-            var ecin = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.KineticEnergy ?? 0);
+            var ecin = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
             var epes = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.GravityEnergy ?? 0);
             var eela = Simulation.WorldCache.Sum(o => (o as Spring)?.ElasticEnergy ?? 0);
 
@@ -153,20 +154,15 @@ namespace phytestcs
 
             Statistics.DisplayedString =
                 $@"
-{Simulation.FPS,4:#} fps  (temps x{Simulation.TimeScale:F4}) zoom {Camera.CameraZoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz (physique) - simulation : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.CameraZoom,5:F1}
+{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
-{Simulation.WorldCache.Length,5} objets
-Énergie totale = {etot,9:F2} J
-- potentielle  = {epot,9:F2} J
- - pesanteur   = {epes,9:F2} J
- - élastique   = {eela,9:F2} J
-- cinétique    = {ecin,9:F2} J
+{Simulation.WorldCache.Length,5} {L["objects"]}
 ";
             if (Drawing.SelectedObject == null)
             {
-                Statistics.DisplayedString += "Pas d'objet sélectionné";
+                Statistics.DisplayedString += L["No selected object"];
             }
             else
             {
@@ -180,12 +176,12 @@ ID          = {Drawing.SelectedObject.ID}";
                     {
                         Statistics.DisplayedString +=
                             $@"
-Position    = {objPhy.Position.DisplayPoint()}
-Vitesse     = {objPhy.Velocity.Display()}
-Angle       = {objPhy.Angle,7:F2} rad
-Vitesse ang = {objPhy.AngularVelocity,7:F2} rad/s
-Masse       = {objPhy.Mass,7:F2} kg
-Forces :
+P = {objPhy.Position.DisplayPoint()}
+V = {objPhy.Velocity.Display()}
+θ = {objPhy.Angle,7:F2} rad
+ω = {objPhy.AngularVelocity,7:F2} rad/s
+m       = {objPhy.Mass,7:F2} kg
+{L["Forces"]} :
 R = {objPhy.NetForce.Display()}
 ";
                         foreach (var force in objPhy.Forces.ToArrayLocked())
@@ -196,21 +192,9 @@ R = {objPhy.NetForce.Display()}
 
                         Statistics.DisplayedString +=
                             $@"
-Moments :
+{L["Torques"]} :
 R = {objPhy.NetTorque,7:F2} 
 ";
-
-                        foreach (var obj in Simulation.WorldCache.OfType<PhysicalObject>())
-                        {
-                            if (obj == objPhy)
-                                continue;
-
-                            if (obj.Shape.GetGlobalBounds().CollidesX(objPhy.Shape.GetGlobalBounds()))
-                                Statistics.DisplayedString += $"Touche {obj.Name} en X\n";
-
-                            if (obj.Shape.GetGlobalBounds().CollidesY(objPhy.Shape.GetGlobalBounds()))
-                                Statistics.DisplayedString += $"Touche {obj.Name} en Y\n";
-                        }
 
                         break;
                     }
@@ -249,7 +233,7 @@ R = {objPhy.NetTorque,7:F2}
             return (factor, ruler);
         }
 
-        [ObjProp("Afficher le champ")]
+        [ObjProp("Show gravity field")]
         public static bool ShowGravityField { get; set; } = false;
 
         public static void DrawGravityField()

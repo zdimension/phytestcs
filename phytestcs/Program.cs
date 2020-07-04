@@ -49,7 +49,7 @@ namespace phytestcs
                     sw.Restart();
                     Simulation.UpdatePhysics();
                     
-                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 *0.975f;
+                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
                     if (delta > 0)
                     {
                         Thread.Sleep((int) delta);
@@ -388,7 +388,7 @@ namespace phytestcs
             }
         }
 
-        public static Force MoveForce = new Force(ForceType.External, new Vector2f(0, 0), default);
+        public static Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
 
         private static void Window_KeyPressed(object sender, KeyEventArgs e)
         {

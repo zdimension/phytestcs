@@ -8,6 +8,7 @@ using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using Object = phytestcs.Objects.Object;
+using static phytestcs.Global;
 
 namespace phytestcs
 {
@@ -58,9 +59,9 @@ namespace phytestcs
             }
             catch (Exception e)
             {
-                var text = "Erreur de chargement :\n" + e;
+                var text = L["Error while loading script:"] + "\n" + e;
                 Console.WriteLine(text);
-                var msgbox = new MessageBox("Erreur", text, new[] {"OK"});
+                var msgbox = new MessageBox(L["Error"], text, new[] {"OK"});
                 UI.GUI.Add(msgbox);
                 msgbox.SizeLayout = new Layout2d("800", "200");
                 msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
@@ -71,7 +72,7 @@ namespace phytestcs
                 };
             }
 
-            Console.WriteLine("Fin exécution");
+            Console.WriteLine(L["Script finished"]);
 
             Simulation.Player?.Forces.Add(Program.MoveForce);
             Simulation.UpdatePhysicsInternal(0);

@@ -35,6 +35,9 @@ namespace phytestcs
             }
         }
 
+        /// <summary>
+        /// Pixels par mètre
+        /// </summary>
         public static float CameraZoom => Render.Width / GameView.Size.X;
         public static Vector2f OldSize;
         public static Vector2f OldPos;

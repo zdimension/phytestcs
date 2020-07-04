@@ -1,30 +1,33 @@
 ﻿using phytestcs.Objects;
 using SFML.System;
 using TGUI;
+using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {
     public class WndInfos : WndBase
     {
         public WndInfos(Object obj, Vector2f pos)
-            : base(obj, obj.Name, 410, pos)
+            : base(obj, obj.Name, 440, pos)
         {
             var header = new Label();
             if (obj is PhysicalObject)
-                header.Text += @"Aire :
-Masse :
-Moment d'inertie :
-Position :
-Vitesse :
-Moment linéaire :
+                header.Text += $@"{L["Area"]} :
+{L["Mass"]} :
+{L["Moment of inertia"]} :
+{L["Position"]} :
+{L["Velocity"]} :
+{L["Momentum"]} :
 ";
 
-            header.Text += @"Énergie :
-- cinétique :
-- potentielle :
-  - gravité :
-  - attraction :
-  - élastique :";
+            header.Text += $@"{L["Energy"]} :
+- {L["Kinetic"]} :
+  - {L["Linear"]} :
+  - {L["Angular"]}
+- {L["Potential"]} :
+  - {L["Gravity"]} :
+  - {L["Attraction"]} :
+  - {L["Spring"]} :";
             header.SizeLayout = new Layout2d(130, header.Size.Y);
             var val = new Label {SizeLayout = new Layout2d(280, header.Size.Y), PositionLayout = new Layout2d(130, 0)};
 
@@ -33,12 +36,14 @@ Moment linéaire :
                 var text = "";
                 var epes = 0f;
                 var eela = 0f;
-                var ecin = 0f;
+                var ecinl = 0f;
+                var ecina = 0f;
                 var eatt = 0f;
                 switch (obj)
                 {
                     case PhysicalObject objPhy:
-                        ecin += objPhy.KineticEnergy;
+                        ecinl += objPhy.LinearKineticEnergy;
+                        ecina += objPhy.AngularKineticEnergy;
                         epes += objPhy.GravityEnergy;
                         eatt += objPhy.AttractionEnergy;
                         text +=
@@ -56,10 +61,14 @@ Moment linéaire :
                 }
 
                 var epot = epes + eela;
+                var ecin = ecinl + ecina;
                 var etot = epot + ecin;
+                
 
                 text += $@"{etot,10:F3} J
 {ecin,10:F3} J
+{ecinl,10:F3} J
+{ecina,10:F3} J
 {epot,10:F3} J
 {epes,10:F3} J
 {eatt,10:F3} J

@@ -83,7 +83,7 @@ namespace phytestcs.Interface
                         CheckPathExists = true,
                         AutoUpgradeEnabled = true,
                         DefaultExt = "csx",
-                        Filter = L["Scène"] + " (*.csx)|*.csx",
+                        Filter = $"{L["Scene"]} (*.csx)|*.csx",
                         InitialDirectory = Path.Combine(Environment.CurrentDirectory, "scenes")
                     };
 
@@ -181,7 +181,7 @@ namespace phytestcs.Interface
                 Simulation.AirFriction = !Simulation.AirFriction;
                 btnAirFr.SetRenderer(Simulation.AirFriction ? brToggle : brDef);
             };
-            var wndAirFr = new ChildWindowEx(L["Air friction"], 250)
+            var wndAirFr = new ChildWindowEx(L["Air friction"], 250, true, false)
             {
                 new TextField<float>(0.01f, 100,
                     bindProp: () => Simulation.AirDensity, log: true),
@@ -261,7 +261,7 @@ namespace phytestcs.Interface
 
             Vector2f posEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
 
-            var btnEff = new BitmapButton {Text = "Effacer", Image = new Texture("icones/delete.png")};
+            var btnEff = new BitmapButton {Text = L["Clear"], Image = new Texture("icones/delete.png")};
             btnEff.Clicked += delegate { obj.Delete(); };
             wnd.Add(btnEff);
 
@@ -272,14 +272,14 @@ namespace phytestcs.Interface
                 wnd.Add(btn);
             }
 
-            btnFen<WndInfos>(obj, "Informations", "icones/info.png");
+            btnFen<WndInfos>(obj, L["Informations"], "icones/info.png");
 
             if (obj is PhysicalObject op)
             {
-                btnFen<WndMaterial>(op, "Matériau", "icones/settings.png");
-                btnFen<WndAppearance>(op, "Apparence", "icones/settings.png");
-                btnFen<WndSpeeds>(op, "Vitesse", "icones/speed.png");
-                btnFen<WndPlot>(op, "Graphique", "icones/sine.png");
+                btnFen<WndMaterial>(op, L["Material"], "icones/settings.png");
+                btnFen<WndAppearance>(op, L["Appearance"], "icones/settings.png");
+                btnFen<WndSpeeds>(op, L["Velocities"], "icones/speed.png");
+                btnFen<WndPlot>(op, L["Plot"], "icones/sine.png");
             }
 
             wnd.Show();

@@ -1,4 +1,5 @@
-﻿using phytestcs.Objects;
+﻿using System.Diagnostics;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Global;
@@ -17,8 +18,14 @@ namespace phytestcs
         {
             Type = type;
             Value = val;
+            Debug.Assert(!pos.IsNaN());
             Position = pos;
             TimeToLive = ttl;
+        }
+
+        public override string ToString()
+        {
+            return $"{Type} = {Value} N @ {Position} ({TimeToLive} s)";
         }
     }
 
@@ -45,5 +52,10 @@ namespace phytestcs
         public static readonly ForceType Drag = new ForceType(L["Drag"], "h", Color.Yellow);
         public static readonly ForceType Hinge = new ForceType(L["Hinge"], "o", Color.Cyan);
         public static readonly ForceType Thruster = new ForceType(L["Thruster"], "e", Color.Yellow);
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

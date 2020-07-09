@@ -441,6 +441,7 @@ namespace phytestcs.Objects
                     {
                         forceName.FillColor = color;
                         forceName.DisplayedString = f.Type.ShortName;
+                        forceName.OutlineThickness = forceName.CharacterSize / 20f;
                         if (Render.ShowForcesValues)
                             forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
                         forceName.Position = tip.ToScreen().F();
@@ -581,6 +582,8 @@ namespace phytestcs.Objects
                         var dpa = new Vector2f();
                         var dpb = new Vector2f();
 
+                        // répartition des vitesses de séparation
+                        // si un des deux est fixe, l'autre prend tout
                         if (a.Fixed)
                         {
                             dpb = -mtv;
@@ -591,7 +594,8 @@ namespace phytestcs.Objects
                         }
                         else
                         {
-                            var vs = v1p + v2p;
+                            // sinon on répartit proportionnellement
+                            var vs = Math.Abs(v1p) + Math.Abs(v2p);
                             dpa = mtv * v1p / vs;
                             dpb = mtv * v2p / vs;
                         }

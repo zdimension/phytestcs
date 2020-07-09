@@ -418,5 +418,10 @@ namespace phytestcs
         {
             return prop.GetObjProp()?.DisplayName ?? prop!.Name;
         }
+
+        public static bool IsNaN(this Vector2f v)
+        {
+            return float.IsNaN(v.X) || float.IsNaN(v.Y);
+        }
     }
 }

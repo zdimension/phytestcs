@@ -19,38 +19,12 @@ namespace phytestcs.Interface
 
             if (bindProp != null)
             {
-                var expr = ((MemberExpression) bindProp.Body);
-                var BindPropInfo = expr.Member as PropertyInfo;
-
-                if (BindPropInfo != null)
-                {
-                    var getMethod = BindPropInfo.GetGetMethod() ?? throw new ArgumentNullException(nameof(bindProp));
-                    object target = null;
-
-                    if (!getMethod.IsStatic)
-                    {
-                        var fieldOnClosureExpression = (MemberExpression) expr.Expression;
-                        target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
-                            ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
-                    }
-
-                    _getter = (Func<T>) getMethod.CreateDelegate(typeof(Func<T>), target);
-                    _setter = (Action<T>) BindPropInfo.GetSetMethod().CreateDelegate(typeof(Action<T>), target);
-
-                    UI.Drawn += Update;
-
-                    var attr = BindPropInfo.GetCustomAttribute<ObjPropAttribute>();
-
-                    if (attr != null)
-                    {
-                        name ??= attr.DisplayName;
-                        unit ??= attr.Unit;
-                    }
-
-                    name ??= BindPropInfo.Name;
-
-                    converter = conv ?? PropConverter.Default<T, float>();
-                }
+                (_getter, _setter) = bindProp.GetAccessors();
+                name ??= bindProp.GetDisplayName();
+                unit ??= bindProp.GetObjProp()?.Unit;
+                converter = conv ?? PropConverter.Default<T, float>();
+                
+                UI.Drawn += Update;
             }
 
             name ??= "";

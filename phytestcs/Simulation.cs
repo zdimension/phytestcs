@@ -93,6 +93,25 @@ namespace phytestcs
         public const float TargetDT = 1 / TargetUPS;
         public static float ActualDT => TargetDT * TimeScale;
 
+        public static void Add(Object obj)
+        {
+            World.Add(obj);
+
+            foreach (var par in obj.Parents)
+                if (!World.Contains(par))
+                    World.Add(par);
+        }
+
+        public static void Clear()
+        {
+            World.Clear();
+        }
+
+        public static void Remove(Object obj)
+        {
+            World.Remove(obj);
+        }
+
 
         public static void TogglePause()
         {

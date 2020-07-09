@@ -33,24 +33,20 @@ namespace phytestcs
 
             (int, byte) thickness(decimal coord)
             {
-                var w = 1;
-                byte a = 0;
+                var w = 3;
+                byte a = 40;
                 if (Math.Abs(coord) < fd)
                 {
-                    w = (int)Math.Round(6 / Camera.CameraZoom * 200 / f);
-                    a = 255;
+                    w = (int)Math.Round(6 / Camera.Zoom * 45 / f);
+                    a = 160;
                 }
                 else if (coord % (5 * fd) == 0)
                 {
-                    w = coord % (10 * fd) == 0 ? 3 : 2;
+                    w = coord % (10 * fd) == 0 ? 9 : 6;
+                    a = 80;
                 }
 
-                if (a == 0)
-                {
-                    a = (byte)(80 + w * 20);
-                }
-
-                return (w, (byte)(a / 2));
+                return (w, a);
             }
 
             for (var x = Math.Round((decimal)start.X / fd) * fd; x < (decimal)end.X; x += fd / 100)
@@ -59,7 +55,7 @@ namespace phytestcs
                     continue;
                 
                 var (w, a) = thickness(x);
-                lines.AddRange(Tools.VertexLine(new Vector2f((float)x, start.Y), new Vector2f((float)x, end.Y), new Color(255, 255, 255, a), w, false, f / 400));
+                lines.AddRange(Tools.VertexLine(new Vector2f((float)x, start.Y), new Vector2f((float)x, end.Y), new Color(255, 255, 255, a), w * f / 100, false));
             }
 
             for (var y = Math.Round((decimal)start.Y / fd) * fd; y > (decimal)end.Y; y -= fd / 100)
@@ -68,10 +64,10 @@ namespace phytestcs
                     continue;
 
                 var (h, a) = thickness(y);
-                lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float)y), new Vector2f(end.X, (float)y), new Color(255, 255, 255, a), h, true, f / 400));
+                lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float)y), new Vector2f(end.X, (float)y), new Color(255, 255, 255, a), h * f / 100, true));
             }
 
-            Window.Draw(lines.ToArray(), PrimitiveType.Lines, new RenderStates(BlendMode.Alpha));
+            Window.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
         }
 
         public static RectangleShape DrawRectangle = new RectangleShape();
@@ -154,7 +150,7 @@ namespace phytestcs
 
             Statistics.DisplayedString =
                 $@"
-{Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.CameraZoom,5:F1}
+{Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}
 {(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
@@ -220,7 +216,7 @@ R = {objPhy.NetTorque,7:F2}
 
             while (true)
             {
-                ruler = Camera.CameraZoom * factor;
+                ruler = Camera.Zoom * factor;
 
                 if (ruler < min)
                     factor *= 10;
@@ -265,6 +261,41 @@ R = {objPhy.NetTorque,7:F2}
         private static readonly Text txtXAxis = new Text("x", UI.Font, 15);
         private static readonly Text txtYAxis = new Text("y", UI.Font, 15);
 
+        public static void DrawAxes(Vector2f pos, float axis=30, float tri=4, float angle=0)
+        {
+            var d = 1;
+            var tr = Transform.Identity;
+            tr.Rotate(-angle.Degrees());
+            Vector2f V(float x, float y)
+            {
+                return tr.TransformPoint(new Vector2f(x, y)) + pos;
+            }
+            
+            foreach (var col in new[] { Color.Black, Color.White })
+            {
+                Window.Draw(new[]{
+                    new Vertex(V(d, d), col),
+                    new Vertex(V(d + axis, d), col), 
+
+                    new Vertex(V(d, d), col), 
+                    new Vertex(V(d, d - axis), col) 
+                }, PrimitiveType.Lines);
+
+                Window.Draw(new []
+                {
+                    new Vertex(V(d + axis, d - tri), col),
+                    new Vertex(V(d + axis, d + tri), col),
+                    new Vertex(V(d + axis + tri, d), col),
+
+                    new Vertex(V(d - tri, - axis), col),
+                    new Vertex(V(d      , - axis - tri), col),
+                    new Vertex(V(d + tri, - axis), col)
+                }, PrimitiveType.Triangles);
+
+                d--;
+            }
+        }
+
         public static void DrawLegend()
         {
             var margin = 30;
@@ -282,27 +313,12 @@ R = {objPhy.NetTorque,7:F2}
                     new Vertex(new Vector2f(d + Width - margin - r, d + Height - margin + 5), col),
                     new Vertex(new Vector2f(d + Width - margin, d + Height - margin - 5), col),
                     new Vertex(new Vector2f(d + Width - margin, d + Height - margin + 5), col),
-
-                    new Vertex(new Vector2f(d + margin, d + Height - margin), col),
-                    new Vertex(new Vector2f(d + margin + axis, d + Height - margin), col), 
-
-                    new Vertex(new Vector2f(d + margin, d + Height - margin), col), 
-                    new Vertex(new Vector2f(d + margin, d + Height - margin - axis), col) 
                 }, PrimitiveType.Lines);
-
-                Window.Draw(new []
-                {
-                    new Vertex(new Vector2f(d + margin + axis, d + Height - margin - tri), col),
-                    new Vertex(new Vector2f(d + margin + axis, d + Height - margin + tri), col),
-                    new Vertex(new Vector2f(d + margin + axis + tri, d + Height - margin), col),
-
-                    new Vertex(new Vector2f(d + margin - tri, d + Height - margin - axis), col),
-                    new Vertex(new Vector2f(d + margin      , d + Height - margin - axis - tri), col),
-                    new Vertex(new Vector2f(d + margin + tri, d + Height - margin - axis), col)
-                }, PrimitiveType.Triangles);
 
                 d--;
             }
+            
+            DrawAxes(new Vector2f(margin, Height - margin), 30);
 
             txtScale.Position = new Vector2f(Width - margin - 3, Height - margin - 25);
             txtScale.Origin = new Vector2f(txtScale.GetLocalBounds().Width, 0);
@@ -331,5 +347,57 @@ R = {objPhy.NetTorque,7:F2}
         public static Vector2f WindowF => new Vector2f(Width, Height);
         public static RenderWindow Window;
         public static Color Background = new Color(0x73, 0x8c, 0xff);
+
+        public static void ResizeTextures()
+        {
+            //TracersTexture = new RenderTexture(Width, Height, Window.Settings);
+        }
+
+        static Render()
+        {
+            ResizeTextures();
+        }
+
+        public static void DrawRotation()
+        {
+            if (Program._rotating)
+            {
+                Program._rotCircle.OutlineThickness = 4 / Camera.Zoom;
+                Window.Draw(Program._rotCircle);
+
+                var curAngle = ((IRotatable) Drawing.SelectedObject).Angle;
+                var thick = 4 / Camera.Zoom;
+
+                Window.Draw(
+                    Tools.CircleOutline(
+                        Program._rotCircle.Position,
+                        Program._rotCircle.Radius + Program._rotCircle.OutlineThickness,
+                        thick,
+                        new Color(255, 255, 255, 100),
+                        curAngle));
+
+                Window.Draw(
+                    Tools.CircleSector(
+                        Program._rotCircle.Position,
+                        (Mouse.GetPosition(Window).ToWorld() - Program._rotCircle.Position).Norm(),
+                        new Color(255, 0, 255, 100),
+                        Program._rotDeltaAngle,
+                        Program._rotStartAngle));
+                
+                Window.SetView(Camera.MainView);
+                DrawAxes(Program._rotCircle.Position.ToScreen().F(), 20, angle: curAngle);
+                Program._rotText.DisplayedString = $"{curAngle.Degrees():0.#}°";
+                Window.Draw(Program._rotText);
+                Window.SetView(Camera.GameView);
+            }
+        }
+
+        public static uint _rotCirclePointCount = 360;
+
+        public static readonly Vector2f[] _rotCirclePoints = (
+            from i in Enumerable.Range(0, (int) _rotCirclePointCount)
+            let angle = i * 2 * Math.PI / _rotCirclePointCount
+            select new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle))
+        ).ToArray();
     }
 }

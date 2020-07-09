@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -36,14 +37,14 @@ namespace phytestcs
         {
             var loc = pos.ToWorld();
 
-            return Simulation.WorldCache.FirstOrDefault(o => o.Contains(loc));
+            return Simulation.WorldCache.LastOrDefault(o => o.Contains(loc));
         }
 
-        public static PhysicalObject PhysObjectAtPosition(Vector2i pos)
+        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject excl=null)
         {
             var loc = pos.ToWorld();
 
-            return Simulation.WorldCache.OfType<PhysicalObject>().FirstOrDefault(o => o.Contains(loc));
+            return Simulation.WorldCache.OfType<PhysicalObject>().LastOrDefault(o => o != excl && o.Contains(loc));
         }
 
         public static T Average<T>(T a, T b)
@@ -51,7 +52,7 @@ namespace phytestcs
             return a + ((dynamic) b - a) / 2;
         }
 
-        public static IEnumerable<Vertex> VertexLine(Vector2f a, Vector2f b, Color c, int w = 1, bool horiz = false, float wf=1)
+        public static IEnumerable<Vertex> VertexLine2(Vector2f a, Vector2f b, Color c, int w = 1, bool horiz = false, float wf=1)
         {
             var dx = horiz ? 0 : 1;
             var dy = horiz ? 1 : 0;
@@ -60,6 +61,109 @@ namespace phytestcs
                 new Vertex(new Vector2f(a.X + dx * i * wf, a.Y + dy * i * wf), c),
                 new Vertex(new Vector2f(b.X + dx * i * wf, b.Y + dy * i * wf), c)
             });
+        }
+        
+        public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
+        {
+            var edge = (b - a).Ortho().Normalize() * w;
+            return new[]
+            {
+                new Vertex(a - edge / 2, c),
+                new Vertex(a + edge / 2, c),
+                new Vertex(b + edge / 2, c),
+                new Vertex(b - edge / 2, c),
+            };
+        }
+        
+        public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend=false, int? upto=null)
+        {
+            if (points.Length <= 1 || (upto != null && upto <= 1))
+                return new VertexArray(PrimitiveType.TriangleStrip, 0);
+            
+            var a = points[0];
+            var b = points[1];
+            var edge = (b - a).Ortho().Normalize();
+            var end = points.Length;
+            if (upto != null)
+                end = Math.Min(upto.Value, points.Length);
+            var res = new VertexArray(PrimitiveType.TriangleStrip, (uint) (2 * end));
+            var pos = 0u;
+            var col = c;
+            float A = 0, dA = 0;
+            if (blend)
+            {
+                col.A = 0;
+                dA = (float) c.A / res.VertexCount;
+            }
+
+            res[pos++] = new Vertex(a - w * edge / 2, col);
+            res[pos++] = new Vertex(a + w * edge / 2, col);
+            
+            for (var i = 1; i < end - 1; i++)
+            {
+                var p0 = points[i - 1];
+                var p1 = points[i];
+                var p2 = points[i + 1];
+                edge = (p2 - p1).Ortho().Normalize();
+                var tangent = ((p2 - p1).Normalize() + (p1 - p0).Normalize()).Normalize();
+                var miter = tangent.Ortho();
+                var length = w / miter.Dot(edge);
+                col = c;
+                if (blend)
+                {
+                    col.A = (byte) (A += dA);
+                }
+                res[pos++] = new Vertex(p1 - length * miter, col);
+                res[pos++] = new Vertex(p1 + length * miter, col);
+            }
+
+            a = points[end - 1];
+            res[pos++] = new Vertex(a - w * edge / 2, c);
+            res[pos++] = new Vertex(a + w * edge / 2, c);
+
+            return res;
+        }
+
+        public static VertexArray CircleOutline(Vector2f center, float radius, float width, Color c, float? angle=null)
+        {
+            var pts = new Vector2f[Render._rotCirclePointCount];
+            var rad = radius + width / 2;
+            for (var i = 0; i < Render._rotCirclePointCount; i++)
+            {
+                var pt = Render._rotCirclePoints[i];
+                if (angle < 0)
+                    pt.Y = -pt.Y;
+                pts[i] = center + pt * rad;
+            }
+
+            return VertexLineTri(
+                    pts,
+                    c,
+                    width,
+                    upto: angle == null ? (int?)null : (int) Math.Round(Math.Abs(angle.Value) * Render._rotCirclePointCount / Math.PI / 2));
+        }
+
+        public static VertexArray CircleSector(Vector2f center, float radius, Color c, float angle, float startAngle = 0)
+        {
+            var start = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
+            var numP = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
+            var res = new VertexArray(PrimitiveType.TriangleFan, numP + 1);
+            res[0] = new Vertex(center, c);
+            
+            for (uint i = 0; i < numP; i++)
+            {
+                var idx = (int) start;
+                if (angle > 0)
+                    idx += (int) i;
+                else
+                    idx -= (int) i;
+                idx %= (int)Render._rotCirclePointCount;
+                if (idx < 0)
+                    idx += (int) Render._rotCirclePointCount;
+                res[i + 1] = new Vertex(center + Render._rotCirclePoints[idx] * radius, c);
+            }
+
+            return res;
         }
 
         public static Color RandomColor()
@@ -106,17 +210,9 @@ namespace phytestcs
         private readonly Func<Color> getter;
         private readonly Action<Color> setter;
 
-        public ColorWrapper(Func<Color> getter, Action<Color> setter)
+        public ColorWrapper(Expression<Func<Color>> bindProp)
         {
-            this.getter = getter;
-            this.setter = setter;
-        }
-
-        public ColorWrapper(object obj, string prop)
-        {
-            var pi = obj.GetType().GetProperty(prop);
-            getter = () => (Color)pi.GetValue(obj);
-            setter = c => pi.SetValue(obj, c);
+            (getter, setter) = bindProp.GetAccessors();
         }
 
         public byte R

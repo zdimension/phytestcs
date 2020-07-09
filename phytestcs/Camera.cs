@@ -38,7 +38,7 @@ namespace phytestcs
         /// <summary>
         /// Pixels par mètre
         /// </summary>
-        public static float CameraZoom => Render.Width / GameView.Size.X;
+        public static float Zoom => Render.Width / GameView.Size.X;
         public static Vector2f OldSize;
         public static Vector2f OldPos;
         public static bool ZoomTransition;
@@ -73,7 +73,7 @@ namespace phytestcs
         public static void CalculateWindow()
         {
             Render.Window.Size = new Vector2u(Render.Width, Render.Height);
-            SetZoomAbsolute(CameraZoom);
+            SetZoomAbsolute(Zoom);
             MainView.Size = Render.WindowF;
             MainView.Center = Render.WindowF / 2;
             UI.GUI.View = MainView;

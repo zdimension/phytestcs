@@ -19,7 +19,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndPlot : WndBase
+    public class WndPlot : WndBase<Object>
     {
         private const int lGauche = 200;
         private const int lGraphe = 400;
@@ -259,7 +259,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             var btnClear = new BitmapButton(L["Clear"])
             {
-                Image = new Texture("icones/clear.png"),
+                Image = new Texture("icones/small/clear.png"),
                 PositionLayout = new Layout2d(margeX, 0),
                 SizeLayout = new Layout2d(largeurBtn, hauteurBtn)
             };
@@ -296,7 +296,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             var btnCSV = new BitmapButton(L["Export to CSV"])
             {
-                Image = new Texture("icones/csv.png"),
+                Image = new Texture("icones/small/csv.png"),
                 SizeLayout = new Layout2d(largeurBtn, hauteurBtn),
                 PositionLayout = new Layout2d(margeX, 2 * hauteurLigne)
             };

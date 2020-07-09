@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndSpeeds : WndBase
+    public class WndSpeeds : WndBase<PhysicalObject>
     {
         public WndSpeeds(PhysicalObject obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -78,14 +79,18 @@ namespace phytestcs
             return Tools.FromPolar(vec.Norm(), angle);
         }
 
+        public static float ClampWrap(this float angle, float bound)
+        {
+            if (angle > bound)
+                angle = -bound + (angle % bound);
+            else if (angle < -bound)
+                angle = bound + (angle % bound);
+            return angle;
+        }
+
         public static float Degrees(this float f)
         {
-            var angle = (float) (f * 180 / Math.PI);
-            if (angle > 180)
-                angle = 180 - (angle % 180);    
-            else if (angle < -180)
-                angle = 180 + (angle % 180);
-            return angle;
+            return ((float)(f * 180 / Math.PI)).ClampWrap(180);
         }
 
         public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) => a(t.i0, t.i1, t.i2);
@@ -117,7 +122,7 @@ namespace phytestcs
 
         public static float Radians(this float f)
         {
-            return (float)(f * Math.PI / 180);
+            return ((float)(f * Math.PI / 180)).ClampWrap((float)Math.PI);
         }
 
         public static RenderTexture RenderTexture(this Canvas c)
@@ -256,7 +261,7 @@ namespace phytestcs
 
         public static bool Contains(this CircleShape c, Vector2f p)
         {
-            return (p - c.Position - new Vector2f(c.Radius, c.Radius)).Norm() <= c.Radius;
+            return (p - c.Position - c.Origin + new Vector2f(c.Radius, c.Radius)).Norm() <= c.Radius;
         }
 
         public static Vector2f Normalize(this Vector2f vec)
@@ -352,9 +357,66 @@ namespace phytestcs
             return Math.Abs(total_angle) > 1;
         }
 
+        public static bool Contains(this FloatRect r, Vector2f p)
+        {
+            return r.Contains(p.X, p.Y);
+        }
+
         public static bool Contains(this Shape s, Vector2f p)
         {
-            return s.PointsGlobal().ContainsPoint(p);
+            return s switch
+            {
+                CircleShape c => c.Contains(p),
+                RectangleShape r => r.GetLocalBounds().Contains(r.InverseTransform.TransformPoint(p)),
+                _ => s.PointsGlobal().ContainsPoint(p)
+            };
+        }
+
+        public static CircleShape CenterOrigin(this CircleShape c)
+        {
+            c.Origin = new Vector2f(c.Radius, c.Radius);
+            return c;
+        }
+
+        public static T CenterOrigin<T>(this T shape)
+            where T : Shape
+        {
+            shape.Origin = shape.GetLocalBounds().Size() / 2;
+            return shape;
+        }
+
+        public static (Func<T> getter, Action<T> setter) GetAccessors<T>(this Expression<Func<T>> prop)
+        {
+            var expr = ((MemberExpression) prop.Body);
+            var BindPropInfo = (PropertyInfo) expr.Member;
+            var getMethod = BindPropInfo.GetGetMethod();
+            object target = null;
+
+            if (!getMethod!.IsStatic)
+            {
+                var fieldOnClosureExpression = (MemberExpression) expr.Expression;
+                target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
+                    ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
+            }
+
+            var setMethod = BindPropInfo.GetSetMethod();
+
+            return (
+                (Func<T>)getMethod.CreateDelegate(typeof(Func<T>), target),
+                (Action<T>)setMethod!.CreateDelegate(typeof(Action<T>), target)
+                );
+        }
+
+        public static ObjPropAttribute GetObjProp<T>(this Expression<Func<T>> prop)
+        {
+            var expr = ((MemberExpression) prop.Body);
+            var BindPropInfo = (PropertyInfo) expr.Member;
+            return BindPropInfo.GetCustomAttribute<ObjPropAttribute>();
+        }
+
+        public static string? GetDisplayName<T>(this Expression<Func<T>> prop)
+        {
+            return prop.GetObjProp()?.DisplayName ?? prop!.Name;
         }
     }
 }

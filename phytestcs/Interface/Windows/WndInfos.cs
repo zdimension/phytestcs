@@ -5,7 +5,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndInfos : WndBase
+    public class WndInfos : WndBase<Object>
     {
         public WndInfos(Object obj, Vector2f pos)
             : base(obj, obj.Name, 440, pos)

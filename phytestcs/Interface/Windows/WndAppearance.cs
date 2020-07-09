@@ -3,12 +3,12 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndAppearance : WndBase
+    public class WndAppearance : WndBase<PhysicalObject>
     {
         public WndAppearance(PhysicalObject obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)
         {
-            var wrapper = new ColorWrapper(obj.Shape, nameof(PhysicalObject.Shape.FillColor));
+            var wrapper = new ColorWrapper(() => obj.Color);
 
             Add(new TextField<byte>(0, 255, deci: false, bindProp: () => wrapper.R));
             Add(new TextField<byte>(0, 255, deci: false, bindProp: () => wrapper.G));

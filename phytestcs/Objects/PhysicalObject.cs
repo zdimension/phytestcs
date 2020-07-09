@@ -8,7 +8,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Objects
 {
-    public class PhysicalObject : Object
+    public class PhysicalObject : Object, IMoveable, IHasShape
     {
         private Vector2f _position;
         private float _angle;
@@ -78,7 +78,7 @@ namespace phytestcs.Objects
 
         [ObjProp("Total energy", "J", unitDeriv: "W")]
         public float TotalEnergy => KineticEnergy + PotentialEnergy;
-        public bool Fixed => Wall || IsMoving || HasFixate;
+        public bool Fixed => Wall || IsMoving || HasFixate || UserFix;
         public bool Wall { get; set; }
         public bool IsMoving { get; set; }
 
@@ -92,6 +92,7 @@ namespace phytestcs.Objects
         public float Friction { get; set; } = 0.5f;
         public bool Killer { get; set; }
         public bool HasFixate { get; set; } = false;
+        public bool UserFix { get; set; } = false;
         [ObjProp("Attraction", "Nm²/kg²")]
         public float Attraction { get; set; } = 0;
         public bool AttractionIsLinear = false;
@@ -146,7 +147,9 @@ namespace phytestcs.Objects
 
         public delegate void CollisionHandler(PhysicalObject source);
 
-        public event CollisionHandler ObjectCollided; 
+        public event CollisionHandler ObjectCollided;
+
+        public override IEnumerable<Shape> Shapes => new[] {Shape};
 
         public override void UpdatePhysics(float dt)
         {
@@ -202,15 +205,15 @@ namespace phytestcs.Objects
             if (!Fixed)
             {
                 _position += Velocity * dt;
-                _angle += AngularVelocity * dt;
-                _angle = (float) Math.Round(_angle, 2);
+
+                var dA = AngularVelocity * dt;
+                var center = RotationPoint;
+                center.Rotate(dA);
+                _position += RotationPoint - center;
+                _angle += dA;
+                _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float)Math.PI);
                 UpdatePosition();
             }
-        }
-
-        public override bool Contains(Vector2f point)
-        {
-            return Shape.GetGlobalBounds().Contains(point.X, point.Y);
         }
 
         private void UpdatePosition()
@@ -269,6 +272,8 @@ namespace phytestcs.Objects
             {
                 lock (Forces.SyncRoot)
                 {
+                    if (Forces.Count <= 1)
+                        return default;
                     var sum = Forces.Sum(f => f.Value.Norm());
                     if (sum == default)
                         return default;
@@ -305,16 +310,6 @@ namespace phytestcs.Objects
 
         [ObjProp("Angular momentum", "J⋅s")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
-        
-        public Vector2f Map(Vector2f point)
-        {
-            return Shape.Transform.TransformPoint(Shape.Origin + point);
-        }
-
-        public Vector2f MapInv(Vector2f point)
-        {
-            return Shape.InverseTransform.TransformPoint(point) - Shape.Origin;
-        }
 
         private void ApplyForces(float dt)
         {
@@ -330,15 +325,29 @@ namespace phytestcs.Objects
             }
             //_angVel *= (float)Math.Exp(-0.031 * dt);
 
+            _collIgnore.Clear();
+            
             lock (Forces.SyncRoot)
             {
                 for (var i = Forces.Count - 1; i >= 0; i--)
                 {
                     if ((Forces[i].TimeToLive -= dt) <= 0)
                         Forces.RemoveAt(i);
+                    else
+                    {
+                        if (Forces[i].Source is Hinge h)
+                        {
+                            if (h.End1.Object == this)
+                                _collIgnore.Add(h.End2.Object);
+                            else
+                                _collIgnore.Add(h.End1.Object);
+                        }
+                    }
                 }
             }
         }
+        
+        private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();
 
         public PhysicalObject(Vector2f pos, Shape shape, bool wall=false, string name="")
         {
@@ -375,7 +384,17 @@ namespace phytestcs.Objects
 
         private readonly CircleShape rotCenter = new CircleShape(CircleSize)
             { FillColor = Color.Red, Origin = new Vector2f(CircleSize, CircleSize) };
-        private static readonly Text forceName = new Text("", UI.Font);
+        private static readonly Text forceName = new Text("", UI.Font) {OutlineThickness = 2, OutlineColor = Color.Black};
+        
+        public Vector2f Map(Vector2f local)
+        {
+            return Shape.Transform.TransformPoint(Shape.Origin + local);
+        }
+
+        public Vector2f MapInv(Vector2f @global)
+        {
+            return Shape.InverseTransform.TransformPoint(global) - Shape.Origin;
+        }
 
         public override void DrawOverlay()
         {
@@ -550,6 +569,9 @@ namespace phytestcs.Objects
                     if (a.Fixed && b.Fixed)
                         continue;
 
+                    if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
+                        continue;
+
                     if (OBB.testCollision(a.Shape, b.Shape, out var mtv))
                     {
                         var unitMtv = mtv.Normalize();
@@ -616,8 +638,8 @@ namespace phytestcs.Objects
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
-                            a.Forces.Add(new Force(ForceType.Normal, fA * w[i1], a.MapInv(colls[i1]), ttl: dt));
-                            b.Forces.Add(new Force(ForceType.Normal, fB * w[i1], b.MapInv(colls[i1]), ttl: dt));
+                            a.Forces.Add(new Force(ForceType.Normal, fA * w[i1], a.MapInv(colls[i1]), ttl: dt){Source=b});
+                            b.Forces.Add(new Force(ForceType.Normal, fB * w[i1], b.MapInv(colls[i1]), ttl: dt){Source=a});
                         }
 
                         var friction = (float)Math.Sqrt(a.Friction * b.Friction);
@@ -630,8 +652,7 @@ namespace phytestcs.Objects
 
                             for (var i1 = 0; i1 < np; i1++)
                             {
-                                a.Forces.Add(new Force(ForceType.Friction, ff * w[i1], a.MapInv(colls[i1]), ttl: dt));
-
+                                a.Forces.Add(new Force(ForceType.Friction, ff * w[i1], a.MapInv(colls[i1]), ttl: dt){Source=b});
                             }
                         }
 
@@ -642,7 +663,7 @@ namespace phytestcs.Objects
 
                             for (var i1 = 0; i1 < np; i1++)
                             {
-                                b.Forces.Add(new Force(ForceType.Friction, ff * w[i1], b.MapInv(colls[i1]), ttl: dt));
+                                b.Forces.Add(new Force(ForceType.Friction, ff * w[i1], b.MapInv(colls[i1]), ttl: dt){Source=a});
                             }
                         }
 

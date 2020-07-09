@@ -12,7 +12,9 @@ namespace phytestcs
         Spring,
         Fixate,
         Hinge,
-        Move
+        Move,
+        Tracer,
+        Thruster
     }
 
     public sealed class Drawing
@@ -20,7 +22,7 @@ namespace phytestcs
         public static float DragConstant = 1e3f;
         public static DrawingType DrawMode;
         public static Color DrawColor;
-        public static PhysicalObject DragObject;
+        public static IMoveable DragObject;
         public static Spring DragSpring;
         public static Vector2f DragObjectRelPos;
 
@@ -56,9 +58,10 @@ namespace phytestcs
         private static void UpdateThickness()
         {
             if (SelectedObject is PhysicalObject @new)
-                @new.Shape.OutlineThickness = GetThickness(Camera.CameraZoom);
+                @new.Shape.OutlineThickness = GetThickness(Camera.Zoom);
         }
 
-        public static Object SelectedObject { get; set; }
+        public static Object SelectedObject { get; private set; }
+        public static Vector2f DragObjectRelPosDirect { get; set; }
     }
 }

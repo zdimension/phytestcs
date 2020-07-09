@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using phytestcs.Objects;
+using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Global;
 
@@ -6,10 +7,11 @@ namespace phytestcs
 {
     public class Force
     {
-        public ForceType Type { get; }
+        public ForceType Type { get; set; }
         public Vector2f Value { get; set; }
         public Vector2f Position { get; set; }
         public float TimeToLive { get; set; }
+        public Object Source { get; set; }
 
         public Force(ForceType type, Vector2f val, Vector2f pos, float ttl=float.PositiveInfinity)
         {
@@ -42,5 +44,6 @@ namespace phytestcs
         public static readonly ForceType User = new ForceType(L["User"], "u", Color.Blue);
         public static readonly ForceType Drag = new ForceType(L["Drag"], "h", Color.Yellow);
         public static readonly ForceType Hinge = new ForceType(L["Hinge"], "o", Color.Cyan);
+        public static readonly ForceType Thruster = new ForceType(L["Thruster"], "e", Color.Yellow);
     }
 }

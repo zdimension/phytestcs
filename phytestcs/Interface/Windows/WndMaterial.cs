@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndMaterial : WndBase
+    public class WndMaterial : WndBase<PhysicalObject>
     {
         public WndMaterial(PhysicalObject obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)

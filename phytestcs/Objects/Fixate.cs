@@ -1,49 +1,46 @@
-﻿using phytestcs.Interface;
+﻿using System.Collections.Generic;
+using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public sealed class Fixate : VirtualObject
+    public sealed class Fixate : PinnedShapedVirtualObject
     {
-        public PhysicalObject Object { get; }
-        public Vector2f ObjectRelPos { get; }
+        public float Size { get; }
 
-        public Fixate(PhysicalObject @object, Vector2f objectRelPos)
+        public Fixate(PhysicalObject @object, Vector2f relPos, float size)
+            : base(@object, relPos)
         {
-            Object = @object;
             Object.HasFixate = true;
-            ObjectRelPos = objectRelPos;
-
-            DependsOn(@object);
+            Size = size;
+            rect1.Scale = rect2.Scale = new Vector2f(size, size);
         }
 
-        public Vector2f ObjetPosRel => Object.Position + ObjectRelPos;
 
-        public override void Delete()
+        public override void Delete(Object source=null)
         {
             Object.HasFixate = false;
 
-            base.Delete();
+            base.Delete(source);
         }
 
-        private readonly Sprite _sprite = new Sprite(UI.actions[5].Item4.Value){Scale=new Vector2f(0.5f, 0.5f), Origin = new Vector2f(25, 25)};
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            _sprite.Dispose();
-        }
+        private readonly RectangleShape rect1 = new RectangleShape(new Vector2f(5, 1)){Rotation = +45, FillColor = Color.Black}.CenterOrigin();
+        private readonly RectangleShape rect2 = new RectangleShape(new Vector2f(5, 1)){Rotation = -45, FillColor = Color.Black}.CenterOrigin();
+        public override IEnumerable<Shape> Shapes => new[] {rect1, rect2};
 
         public override void DrawOverlay()
         {
             base.DrawOverlay();
-
-            Render.Window.SetView(Camera.MainView);
-            _sprite.Position = ObjetPosRel.ToScreen().F();
-            Render.Window.Draw(_sprite);
+            
+            using var view = new View(Camera.GameView);
+            view.Rotate(Object.Angle);
+            Render.Window.SetView(view);
+            Render.Window.Draw(rect1);
+            Render.Window.Draw(rect2);
             Render.Window.SetView(Camera.GameView);
         }
+
+        public override Shape Shape => rect1;
     }
 }

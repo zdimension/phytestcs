@@ -327,4 +327,16 @@
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
   </data>
+  <data name="Spring constant" xml:space="preserve">
+    <value>Raideur</value>
+  </data>
+  <data name="Damping" xml:space="preserve">
+    <value>Amortissement</value>
+  </data>
+  <data name="Target length" xml:space="preserve">
+    <value>Longueur cible</value>
+  </data>
+  <data name="Thruster" xml:space="preserve">
+    <value>Propulseur</value>
+  </data>
 </root>

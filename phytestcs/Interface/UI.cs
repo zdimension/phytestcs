@@ -18,8 +18,8 @@ namespace phytestcs.Interface
     public static class UI
     {
         public static BitmapButton btnPlay;
-        public static readonly Texture imgPlay = new Texture("icones/play.png");
-        public static readonly Texture imgPause = new Texture("icones/pause.png");
+        public static readonly Texture imgPlay = new Texture("icones/big/play.png");
+        public static readonly Texture imgPause = new Texture("icones/big/pause.png");
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
         public static Gui GUI;
 
@@ -31,7 +31,9 @@ namespace phytestcs.Interface
             (DrawingType.Circle, "circle", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Spring, "coil", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Fixate, "fix", new Ref<BitmapButton>(), new Ref<Texture>()),
-            (DrawingType.Hinge, "hinge", new Ref<BitmapButton>(), new Ref<Texture>())
+            (DrawingType.Hinge, "hinge", new Ref<BitmapButton>(), new Ref<Texture>()),
+            (DrawingType.Tracer, "tracer", new Ref<BitmapButton>(), new Ref<Texture>()),
+            (DrawingType.Thruster, "thruster", new Ref<BitmapButton>(), new Ref<Texture>()),
         };
         
         public static void SetDrawMode(DrawingType mode)
@@ -70,7 +72,7 @@ namespace phytestcs.Interface
             var menu = new MenuBar();
             menu.AddMenu( L["Exit"]);
             menu.AddMenu(L["Open"]);
-            menu.MenuItemClicked += (sender, s) =>
+            menu.MenuItemClicked += async (sender, s) =>
             {
                 if (s.Value == L["Exit"])
                     Environment.Exit(0);
@@ -89,7 +91,7 @@ namespace phytestcs.Interface
 
                     if (ofp.ShowDialog() == DialogResult.OK)
                     {
-                        Scene.Load(Scene.LoadScript(ofp.FileName));
+                        await Scene.Load(Scene.LoadScript(ofp.FileName)).ConfigureAwait(true);
                     }
                 }
             };
@@ -133,7 +135,7 @@ namespace phytestcs.Interface
             btnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
             foreach (var (dess, img, bref, text) in actions)
             {
-                var btn = new BitmapButton {Image = text.Value = new Texture($"icones/{img}.png")};
+                var btn = new BitmapButton {Image = text.Value = new Texture($"icones/big/{img}.png")};
                 btn.Clicked += delegate { SetDrawMode(dess); };
                 buttons.Add(btn);
                 bref.Value = btn;
@@ -149,14 +151,14 @@ namespace phytestcs.Interface
             space();
 
             buttons.Add(btnPlay);
-            var btnRestart = new BitmapButton {Image = new Texture("icones/reset.png")};
+            var btnRestart = new BitmapButton {Image = new Texture("icones/big/reset.png")};
             btnRestart.SetRenderer(brDef);
-            btnRestart.Clicked += (sender, f) => { Scene.Restart(); };
+            btnRestart.Clicked += async (sender, f) => { await Scene.Restart().ConfigureAwait(true); };
             buttons.Add(btnRestart);
 
             space();
 
-            var btnGrav = new BitmapButton {Image = new Texture("icones/gravity.png")};
+            var btnGrav = new BitmapButton {Image = new Texture("icones/big/gravity.png")};
             btnGrav.SetRenderer(brToggle);
             btnGrav.MouseReleased += (sender, f) =>
             {
@@ -174,7 +176,7 @@ namespace phytestcs.Interface
             connectButton(btnGrav, wndGrav, true);
             buttons.Add(btnGrav);
 
-            var btnAirFr = new BitmapButton {Image = new Texture("icones/wind.png")};
+            var btnAirFr = new BitmapButton {Image = new Texture("icones/big/wind.png")};
             btnAirFr.SetRenderer(brDef);
             btnAirFr.MouseReleased += (sender, f) =>
             {
@@ -202,7 +204,7 @@ namespace phytestcs.Interface
             connectButton(btnAirFr, wndAirFr, true);
             buttons.Add(btnAirFr);
 
-            var btnSettings = new BitmapButton { Image = new Texture("icones/options.png") };
+            var btnSettings = new BitmapButton { Image = new Texture("icones/big/options.png") };
             btnSettings.SetRenderer(brDef);
             var wndSettings = new ChildWindowEx(L["Settings"], 320, true, false)
             {
@@ -217,7 +219,7 @@ namespace phytestcs.Interface
 
             GUI.Add(buttons);
 
-            buttons.SizeLayout = new Layout2d((11 + numSpaces * 0.25f) * 60, 60);
+            buttons.SizeLayout = new Layout2d((buttons.Widgets.Count + numSpaces * 0.25f) * 60, 60);
             buttons.PositionLayout = new Layout2d("50% - w / 2", "&.h - h");
         }
 
@@ -261,25 +263,30 @@ namespace phytestcs.Interface
 
             Vector2f posEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
 
-            var btnEff = new BitmapButton {Text = L["Clear"], Image = new Texture("icones/delete.png")};
+            var btnEff = new BitmapButton {Text = L["Clear"], Image = new Texture("icones/small/delete.png")};
             btnEff.Clicked += delegate { obj.Delete(); };
             wnd.Add(btnEff);
 
-            void btnFen<Tfen>(Object o, string nom, string image)
+            var windows = new[]
             {
-                var btn = new BitmapButton {Text = nom, Image = new Texture(image)};
-                btn.Clicked += delegate { Activator.CreateInstance(typeof(Tfen), o, posEnfant()); };
+                (typeof(WndInfos), L["Informations"], "icones/small/info.png"),
+                (typeof(WndAppearance), L["Appearance"], "icones/small/settings.png"),
+                (typeof(WndSpeeds), L["Material"], "icones/small/settings.png"),
+                (typeof(WndPlot), L["Plot"], "icones/small/plot.png"),
+                (typeof(WndSpring), L["Spring"], "icones/small/spring.png"),
+                (typeof(WndHinge), L["Hinge"], "icones/small/spring.png"),
+                (typeof(WndTracer), L["Tracer"], "icones/small/tracer.png"),
+                (typeof(WndThruster), L["Thruster"], "icones/small/thruster.png"),
+            };
+
+            foreach (var (type, name, icon) in windows)
+            {
+                if (!type.BaseType.GenericTypeArguments[0].IsAssignableFrom(obj.GetType()))
+                    continue;
+                
+                var btn = new BitmapButton {Text = name, Image = new Texture(icon)};
+                btn.Clicked += delegate { Activator.CreateInstance(type, obj, posEnfant()); };
                 wnd.Add(btn);
-            }
-
-            btnFen<WndInfos>(obj, L["Informations"], "icones/info.png");
-
-            if (obj is PhysicalObject op)
-            {
-                btnFen<WndMaterial>(op, L["Material"], "icones/settings.png");
-                btnFen<WndAppearance>(op, L["Appearance"], "icones/settings.png");
-                btnFen<WndSpeeds>(op, L["Velocities"], "icones/speed.png");
-                btnFen<WndPlot>(op, L["Plot"], "icones/sine.png");
             }
 
             wnd.Show();
@@ -341,6 +348,12 @@ namespace phytestcs.Interface
                 BackPanel.MousePressed -= ClickClose;
                 CloseAll(true);
             };
+        }
+
+        public static T W<T>(this T o)
+        {
+            GC.KeepAlive(o);
+            return o;
         }
 
         public static void ClearPropertyWindows()

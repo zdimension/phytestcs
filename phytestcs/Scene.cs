@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Interface;
@@ -17,45 +18,48 @@ namespace phytestcs
         public static volatile bool Loaded;
         public static Script<object> Script;
 
-        public static void Restart()
+        public static async Task Restart()
         {
-            Load(Script);
+            await Load(Script).ConfigureAwait(true);
         }
 
         public static Script<object> LoadScript(string file="scenes/energie.csx")
         {
-            return CSharpScript.Create(
+            var scr = CSharpScript.Create(
                 File.ReadAllText(file),
                 ScriptOptions.Default
                     .AddReferences(typeof(Scene).Assembly, typeof(Color).Assembly,
                         typeof(Vector2f).Assembly)
                     .AddImports("phytestcs", "phytestcs.Objects", "SFML.Graphics", "SFML.System",
                         "System"));
+            scr.Compile();
+            return scr;
         }
 
-        public static void Load(Script<object> scr =null)
+        public static async Task Load(Script<object> scr =null)
         {
             Simulation.Pause = true;
             Simulation.GravityEnabled = true;
 
             Simulation.SimDuration = 0;
             UI.ClearPropertyWindows();
-            Simulation.World.Clear();
+            Simulation.Clear();
             Simulation.WorldCache = Array.Empty<Object>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
 
-            Simulation.World.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
-            Simulation.World.Add(PhysicalObject.Rectangle(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));
-            Simulation.World.Add(PhysicalObject.Rectangle(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
-            Simulation.World.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
+            Simulation.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
+            Simulation.Add(PhysicalObject.Rectangle(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));
+            Simulation.Add(PhysicalObject.Rectangle(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
+            Simulation.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
 
             Console.WriteLine("Début compilation");
             Script = scr ?? LoadScript();
             Console.WriteLine("Fin compilation et début exécution");
             try
             {
-                Script.CreateDelegate()();
+                await Script.RunAsync().ConfigureAwait(true);
+                //Script.CreateDelegate()();
             }
             catch (Exception e)
             {
@@ -92,7 +96,7 @@ namespace phytestcs
 
             void r(int x1, int y1, int x2, int y2)
             {
-                Simulation.World.Add(new Spring(spring, dist, square[y1][x1], new Vector2f(0.5f, 0.5f), square[y2][x2],
+                Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], new Vector2f(0.5f, 0.5f), square[y2][x2],
                         new Vector2f(0.5f, 0.5f))
                     { ShowInfos = false });
             }
@@ -103,7 +107,7 @@ namespace phytestcs
                 for (var j = 0; j < N - i % 2; j++)
                 {
                     square[i][j] = PhysicalObject.Rectangle(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan, name: "Softbody");
-                    Simulation.World.Add(square[i][j]);
+                    Simulation.Add(square[i][j]);
 
                     if (j > 0)
                     {
@@ -143,29 +147,29 @@ namespace phytestcs
                 for (var j = 0; j < N; j++)
                 {
                     square[i][j] = PhysicalObject.Rectangle(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
-                    Simulation.World.Add(square[i][j]);
+                    Simulation.Add(square[i][j]);
 
                     if (j > 0)
                     {
-                        Simulation.World.Add(new Spring(spring, dist, square[i][j - 1], new Vector2f(0.5f, 0.5f), square[i][j],
+                        Simulation.Add(new Spring(spring, dist, 0.1f, square[i][j - 1], new Vector2f(0.5f, 0.5f), square[i][j],
                                 new Vector2f(0.5f, 0.5f))
                             { ShowInfos = false });
                     }
 
                     if (i > 0)
                     {
-                        Simulation.World.Add(new Spring(spring, dist, square[i - 1][j], new Vector2f(0.5f, 0.5f), square[i][j],
+                        Simulation.Add(new Spring(spring, dist, 0.1f, square[i - 1][j], new Vector2f(0.5f, 0.5f), square[i][j],
                                 new Vector2f(0.5f, 0.5f))
                             { ShowInfos = false });
 
                         if (j > 0)
                         {
-                            Simulation.World.Add(new Spring(spring, diago, square[i - 1][j - 1], new Vector2f(0.5f, 0.5f),
+                            Simulation.Add(new Spring(spring, diago, 0.1f, square[i - 1][j - 1], new Vector2f(0.5f, 0.5f),
                                     square[i][j],
                                     new Vector2f(0.5f, 0.5f))
                                 { ShowInfos = false });
 
-                            Simulation.World.Add(new Spring(spring, diago, square[i - 1][j], new Vector2f(0.5f, 0.5f),
+                            Simulation.Add(new Spring(spring, diago, 0.1f, square[i - 1][j], new Vector2f(0.5f, 0.5f),
                                     square[i][j - 1],
                                     new Vector2f(0.5f, 0.5f))
                                 { ShowInfos = false });

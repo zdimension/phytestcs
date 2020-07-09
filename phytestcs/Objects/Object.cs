@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Global;
 
@@ -24,6 +25,16 @@ namespace phytestcs.Objects
         private readonly SynchronizedCollection<Object> dependents = new SynchronizedCollection<Object>();
 
         public string Name { get; set; }
+        
+        public abstract IEnumerable<Shape> Shapes { get; }
+        public virtual Color Color {
+            get => Shapes.First().FillColor;
+            set
+            {
+                foreach (var s in Shapes)
+                    s.FillColor = value;
+            }
+        }
 
         public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
 
@@ -35,12 +46,24 @@ namespace phytestcs.Objects
             parents.Add(other);
         }
 
+        public void BothDepends(Object other)
+        {
+            DependsOn(other);
+            other.DependsOn(this);
+        }
+
         public event Action Deleted;
 
-        public virtual void Delete()
+        public virtual void Delete(Object source=null)
         {
             while (dependents.Any())
-                dependents.FirstOrDefault()?.Delete();
+            {
+                var first = dependents.FirstOrDefault();
+                if (first == source)
+                    dependents.Remove(first);
+                else
+                    first.Delete(this);
+            }
 
             lock (parents.SyncRoot)
             {
@@ -48,13 +71,13 @@ namespace phytestcs.Objects
                     obj.dependents.Remove(this);
             }
 
-            Simulation.World.Remove(this);
+            Simulation.Remove(this);
             Simulation.UpdatePhysicsInternal(0);
 
             InvokeDeleted();
 
             if (Drawing.SelectedObject == this)
-                Drawing.SelectedObject = null;
+                Drawing.SelectObject(null);
 
             Dispose();
         }
@@ -81,7 +104,7 @@ namespace phytestcs.Objects
 
         public virtual bool Contains(Vector2f point)
         {
-            return false;
+            return Shapes.Any(s => s.Contains(point));
         }
 
         public virtual void Dispose()

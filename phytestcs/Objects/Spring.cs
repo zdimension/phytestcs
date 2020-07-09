@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using phytestcs.Interface;
 using SFML.Graphics;
@@ -9,44 +10,51 @@ namespace phytestcs.Objects
     [Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public class Spring : VirtualObject
     {
+        [ObjProp("Spring constant", "N/m")]
         public float Constant { get; set; }
+        [ObjProp("Target length", "m")]
         public float TargetLength { get; set; }
+        [ObjProp("Damping")]
         public float Damping { get; set; } = 0.10f;
-        public PhysicalObject Object1 { get; }
-        public Vector2f Object1RelPos { get; set; }
-        public PhysicalObject Object2 { get; }
-        public Vector2f Object2RelPos { get; set; }
+        public SpringEnd End1 { get; }
+        public SpringEnd End2 { get; }
         protected readonly Force _force1;
         protected readonly Force _force2;
 
-        public Vector2f Object1AbsPos => Object1.Map(Object1RelPos);
-        public Vector2f Object2AbsPos => Object2?.Map(Object2RelPos) ?? Object2RelPos;
-
-        public Vector2f Delta => Object1AbsPos - Object2AbsPos;
+        public Vector2f Delta => End1.Position - End2.Position;
 
         public bool ShowInfos { get; set; } = true;
+        public float Size
+        {
+            get => End1.Size;
+            set => End1.Size = End2.Size = value;
+        }
 
-        public Spring(float constant, float targetLength, PhysicalObject object1, Vector2f object1RelPos,
+        public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
         {
             Constant = constant;
             TargetLength = targetLength;
-            Object1 = object1;
-            Object1RelPos = object1RelPos;
-            Object2 = object2;
-            Object2RelPos = object2RelPos;
+            
             type ??= ForceType.Spring;
 
-            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos);
-            Object1.Forces.Add(_force1);
-            DependsOn(Object1);
-
-            if (Object2 != null)
+            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos){Source=this};
+            End1 = new SpringEnd(object1, object1RelPos, size);
+            End1.Object.Forces.Add(_force1);
+            BothDepends(End1);
+            
+            End2 = new SpringEnd(object2, object2RelPos, size);
+            
+            if (object2 != null)
             {
-                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos);
-                Object2.Forces.Add(_force2);
-                DependsOn(Object2);
+                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos){Source=this};
+                End2.Object.Forces.Add(_force2);
             }
+            
+            BothDepends(End2);
+            
+            Size = size;
+            Color = Color.Black;
 
             UpdateForce();
         }
@@ -78,10 +86,10 @@ namespace phytestcs.Objects
             {
                 var unit = UnitVector;
 
-                var dhdt = Object1.Velocity.Dot(unit);
+                var dhdt = End1.Object.Velocity.Dot(unit);
 
-                if (Object2 != null)
-                    dhdt += Object2.Velocity.Dot(-unit);
+                if (End2.Object != null)
+                    dhdt += End2.Object.Velocity.Dot(-unit);
 
                 return dhdt;
             }
@@ -97,13 +105,13 @@ namespace phytestcs.Objects
             var unit = UnitVector;
             var force = Force;
 
-            if (Object2 != null)
+            if (End2.Object != null)
             {
-                if (!Object1.Fixed && !Object2.Fixed)
+                if (!End1.Object.Fixed && !End2.Object.Fixed)
                     force /= 2;
-                if (!Object1.Fixed)
+                if (!End1.Object.Fixed)
                     _force1.Value = unit * force;
-                if (!Object2.Fixed)
+                if (!End2.Object.Fixed)
                     _force2.Value = -unit * force;
             }
             else
@@ -112,22 +120,17 @@ namespace phytestcs.Objects
             }
         }
 
-        public override void Delete()
+        public override IEnumerable<Shape> Shapes => new[] {End1.Shape, End2.Shape};
+
+        public override void Delete(Object source=null)
         {
-            Object1.Forces.Remove(_force1);
+            End1.Object.Forces.Remove(_force1);
 
-            Object2?.Forces.Remove(_force2);
+            End2.Object?.Forces.Remove(_force2);
 
-            base.Delete();
+            base.Delete(source);
         }
-
-        public const float CircleSize = 0.1f;
-
-        private readonly CircleShape circle1 = new CircleShape(CircleSize)
-            {FillColor = Color.Black, Origin = new Vector2f(CircleSize, CircleSize) };
-
-        private readonly CircleShape circle2 = new CircleShape(CircleSize)
-            {FillColor = Color.Black, Origin = new Vector2f(CircleSize, CircleSize) };
+        
         private readonly Text _legende = new Text("", UI.Font, 13){FillColor = Color.Black};
 
         public override void DrawOverlay()
@@ -138,8 +141,8 @@ namespace phytestcs.Objects
             {
                 Render.Window.Draw(new[]
                 {
-                    new Vertex(Object1AbsPos, Color.Black),
-                    new Vertex(Object2AbsPos, Color.Black)
+                    new Vertex(End1.Position, Color.Black),
+                    new Vertex(End2.Position, Color.Black)
                 }, PrimitiveType.Lines);
             }
             else
@@ -147,16 +150,16 @@ namespace phytestcs.Objects
                 var angle = -Delta.Angle();
 
                 var transform = Transform.Identity;
-                transform.Rotate(180 - angle.Degrees(), Object1AbsPos);
+                transform.Rotate(180 - angle.Degrees(), End1.Position);
 
                 var d = 2 * (int) Math.Ceiling(2 * Math.Round(TargetLength / 2, MidpointRounding.AwayFromZero));
                 var dx = Delta.Norm() / d;
                 var dy = 0.5f;
 
-                var p = Object1AbsPos;
+                var p = End1.Position;
                 var hd = new Vector2f(dx / 2, -dy / 2);
 
-                var color = Color.Black;
+                var color = Color;
 
                 var lines = new Vertex[2 + d];
                 lines[0] = new Vertex(p, color);
@@ -178,28 +181,39 @@ namespace phytestcs.Objects
                 Render.Window.Draw(lines, PrimitiveType.LineStrip);
             }
 
-            circle1.Position = Object1AbsPos;
-            circle2.Position = Object2AbsPos;
-
-            Render.Window.Draw(circle1);
-            Render.Window.Draw(circle2);
-
             if (ShowInfos)
             {
                 Render.Window.SetView(Camera.MainView);
 
                 _legende.DisplayedString = $"{Force,8:F2} N\n{Delta.Norm(),8:F2} m\n{Speed,8:F2} m/s";
                 _legende.Origin = _legende.GetGlobalBounds().Size() / 2;
-                _legende.Position = Tools.Average(Object1AbsPos, Object2AbsPos).ToScreen().F();
+                _legende.Position = Tools.Average(End1.Position, End2.Position).ToScreen().F();
                 Render.Window.Draw(_legende);
 
                 Render.Window.SetView(Camera.GameView);
             }
         }
+    }
 
-        public override bool Contains(Vector2f point)
+    public class SpringEnd : PinnedShapedVirtualObject
+    {
+        public float Size
         {
-            return circle1.Contains(point) || circle2.Contains(point);
+            get => _shape.Radius * 2;
+            set
+            {
+                _shape.Radius = value / 2;
+                _shape.CenterOrigin();
+            } 
+        }
+
+        public override Shape Shape => _shape;
+        private readonly CircleShape _shape = new CircleShape();
+        public override IEnumerable<Shape> Shapes => new[] {_shape};
+        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size)
+            : base(@object, relPos)
+        {
+            Size = size;
         }
     }
 }

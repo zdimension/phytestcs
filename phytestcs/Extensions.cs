@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using phytestcs.Interface.Windows;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -95,6 +98,7 @@ namespace phytestcs
 
         public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) => a(t.i0, t.i1, t.i2);
         public static T Scatter<T0, T1, T2, T>(in this (T0 i0, T1 i1, T2 i2) t, Func<T0, T1, T2, T> a) => a(t.i0, t.i1, t.i2);
+        public static T Scatter<T0, T1, T>(in this (T0 i0, T1 i1) t, Func<T0, T1, T> a) => a(t.i0, t.i1);
 
         public static void Deconstruct(this Color c, out byte r, out byte g, out byte b)
         {
@@ -385,36 +389,29 @@ namespace phytestcs
             return shape;
         }
 
-        public static (Func<T> getter, Action<T> setter) GetAccessors<T>(this Expression<Func<T>> prop)
+        public static PropertyInfo GetPropertyInfo<T>(this Expression<Func<T>> prop)
         {
-            var expr = ((MemberExpression) prop.Body);
-            var BindPropInfo = (PropertyInfo) expr.Member;
-            var getMethod = BindPropInfo.GetGetMethod();
-            object target = null;
-
-            if (!getMethod!.IsStatic)
-            {
-                var fieldOnClosureExpression = (MemberExpression) expr.Expression;
-                target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
-                    ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
-            }
-
-            var setMethod = BindPropInfo.GetSetMethod();
-
-            return (
-                (Func<T>)getMethod.CreateDelegate(typeof(Func<T>), target),
-                (Action<T>)setMethod!.CreateDelegate(typeof(Action<T>), target)
-                );
+            return (PropertyInfo) ((MemberExpression) prop.Body).Member;
+        }
+        
+        public static ObjPropAttribute GetObjProp(this PropertyInfo prop)
+        {
+            return prop.GetCustomAttribute<ObjPropAttribute>();
         }
 
-        public static ObjPropAttribute GetObjProp<T>(this Expression<Func<T>> prop)
+        public static T Eval<T>(this string s)
         {
-            var expr = ((MemberExpression) prop.Body);
-            var BindPropInfo = (PropertyInfo) expr.Member;
-            return BindPropInfo.GetCustomAttribute<ObjPropAttribute>();
+            return CSharpScript.EvaluateAsync<T>(s).Result;
         }
 
-        public static string? GetDisplayName<T>(this Expression<Func<T>> prop)
+        public static string? ToString<Ta, Tb>(this (Ta, Tb) tuple, CultureInfo culture)
+        where Ta: IFormattable
+        where Tb: IFormattable
+        {
+            return $"({tuple.Item1.ToString(null, culture)}, {tuple.Item2.ToString(null, culture)})";
+        }
+
+        public static string? GetDisplayName(this PropertyInfo prop)
         {
             return prop.GetObjProp()?.DisplayName ?? prop!.Name;
         }

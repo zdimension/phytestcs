@@ -38,7 +38,7 @@ namespace phytestcs
         public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);
 
         public static Vector2f GravityVector { get; private set; }
-        public static Transform GravityTransform = Transform.Identity;
+        private static Transform GravityTransform = Transform.Identity;
         [ObjProp("Gravity angle", "rad")]
         public static float GravityAngle
         {
@@ -91,7 +91,7 @@ namespace phytestcs
 
         public const float TargetUPS = 100;
         public const float TargetDT = 1 / TargetUPS;
-        public static float ActualDT => TargetDT * TimeScale;
+        private static float ActualDT => TargetDT * TimeScale;
 
         public static void Add(Object obj)
         {

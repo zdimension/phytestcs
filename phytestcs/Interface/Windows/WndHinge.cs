@@ -11,8 +11,8 @@ namespace phytestcs.Interface.Windows
             Add(new CheckField(bindProp: () => obj.Motor));
             Add(new CheckField(bindProp: () => obj.AutoBrake));
             Add(new CheckField(bindProp: () => obj.Reversed));
-            Add(new TextField<float>(0.1f, 450, bindProp: () => obj.MotorSpeed, log: true) {LeftValue = 0});
-            Add(new TextField<float>(0.1f, 50000, bindProp: () => obj.MotorTorque));
+            Add(new NumberField<float>(0.1f, 450, bindProp: () => obj.MotorSpeed, log: true) {LeftValue = 0});
+            Add(new NumberField<float>(0.1f, 50000, bindProp: () => obj.MotorTorque));
             Show();
         }
     }

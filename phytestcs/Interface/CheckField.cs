@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using phytestcs.Interface.Windows;
 using phytestcs.Objects;
 using TGUI;
 
@@ -8,12 +9,17 @@ namespace phytestcs.Interface
 {
     public class CheckField : Panel
     {
-        public CheckField(string name=null, Expression<Func<bool>> bindProp=null)
+        public CheckField(string name = null, Expression<Func<bool>> bindProp = null)
+        : this(name, PropertyReference.FromExpression(bindProp))
+        {
+        }
+        
+        public CheckField(string name=null, PropertyReference<bool> bindProp=null)
         {
             if (bindProp != null)
             {
                 (_getter, _setter) = bindProp.GetAccessors();
-                name ??= bindProp.GetDisplayName();
+                name ??= bindProp.Property.GetDisplayName();
 
                 UI.Drawn += Update;
             }
@@ -26,6 +32,11 @@ namespace phytestcs.Interface
 
                 Value = f.Value;
             };
+
+            if (bindProp != null && _setter == null)
+            {
+                Field.Enabled = false;
+            }
 
             Add(Field);
 

@@ -143,7 +143,7 @@ namespace phytestcs.Interface
 
             var wndSim = new ChildWindowEx(L["Simulation"], 250, true, false)
             {
-                new TextField<float>(0.1f, 10.0f, log: true, bindProp: () => Simulation.TimeScale)
+                new NumberField<float>(0.1f, 10.0f, log: true, bindProp: () => Simulation.TimeScale)
             };
             GUI.Add(wndSim);
             connectButton(btnPlay, wndSim, true, true);
@@ -167,8 +167,8 @@ namespace phytestcs.Interface
             };
             var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
-                new TextField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
-                new TextField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle,
+                new NumberField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
+                new NumberField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle,
                     conv: PropConverter.AngleDegrees),
                 new CheckField(bindProp: () => Render.ShowGravityField)
             };
@@ -185,17 +185,17 @@ namespace phytestcs.Interface
             };
             var wndAirFr = new ChildWindowEx(L["Air friction"], 250, true, false)
             {
-                new TextField<float>(0.01f, 100,
+                new NumberField<float>(0.01f, 100,
                     bindProp: () => Simulation.AirDensity, log: true),
-                new TextField<float>(0.01f, 100,
+                new NumberField<float>(0.01f, 100,
                     bindProp: () => Simulation.AirFrictionMultiplier, log: true),
-                new TextField<float>(0.0001f, 10,
+                new NumberField<float>(0.0001f, 10,
                     bindProp: () => Simulation.AirFrictionLinear, log: true) {LeftValue = 0},
-                new TextField<float>(0.0001f, 1,
+                new NumberField<float>(0.0001f, 1,
                     bindProp: () => Simulation.AirFrictionQuadratic, log: true) {LeftValue = 0},
-                new TextField<float>(0, 50,
+                new NumberField<float>(0, 50,
                     bindProp: () => Simulation.WindSpeed),
-                new TextField<float>(-180, 180, unit: "°",
+                new NumberField<float>(-180, 180, unit: "°",
                     bindProp: () => Simulation.WindAngle, conv: PropConverter.AngleDegrees)
             };
 
@@ -211,7 +211,7 @@ namespace phytestcs.Interface
                 new CheckField(bindProp: () => Render.ShowForces),
                 new CheckField(bindProp: () => Render.ShowForcesValues),
                 new CheckField(bindProp: () => Render.ShowForcesComponents),
-                new TextField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
+                new NumberField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
             };
             GUI.Add(wndSettings);
             connectButton(btnSettings, wndSettings);
@@ -277,6 +277,7 @@ namespace phytestcs.Interface
                 (typeof(WndHinge), L["Hinge"], "icones/small/spring.png"),
                 (typeof(WndTracer), L["Tracer"], "icones/small/tracer.png"),
                 (typeof(WndThruster), L["Thruster"], "icones/small/thruster.png"),
+                (typeof(WndScript), L["Script"], "icones/small/script.png"),
             };
 
             foreach (var (type, name, icon) in windows)

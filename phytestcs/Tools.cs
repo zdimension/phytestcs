@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using phytestcs.Interface.Windows;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -16,6 +17,12 @@ namespace phytestcs
 {
     public sealed class Tools
     {
+        /// <summary>
+        /// Creates a vector from its polar form
+        /// </summary>
+        /// <param name="r">Magnitude</param>
+        /// <param name="theta">Angle</param>
+        /// <returns>Vector</returns>
         public static Vector2f FromPolar(float r, float theta)
         {
             return new Vector2f((float) (r * Math.Cos(theta)), (float) (r * Math.Sin(theta)));
@@ -27,9 +34,10 @@ namespace phytestcs
         }
 
         public static T Clamp<T>(T x, T a, T b)
+            where T : IComparable
         {
-            if ((dynamic)x < a) return a;
-            if ((dynamic)x > b) return b;
+            if (x.CompareTo(a) < 0) return a;
+            if (x.CompareTo(b) > 0) return b;
             return x;
         }
 
@@ -50,17 +58,6 @@ namespace phytestcs
         public static T Average<T>(T a, T b)
         {
             return a + ((dynamic) b - a) / 2;
-        }
-
-        public static IEnumerable<Vertex> VertexLine2(Vector2f a, Vector2f b, Color c, int w = 1, bool horiz = false, float wf=1)
-        {
-            var dx = horiz ? 0 : 1;
-            var dy = horiz ? 1 : 0;
-            return Enumerable.Range(0, w).SelectMany(i => new[]
-            {
-                new Vertex(new Vector2f(a.X + dx * i * wf, a.Y + dy * i * wf), c),
-                new Vertex(new Vector2f(b.X + dx * i * wf, b.Y + dy * i * wf), c)
-            });
         }
         
         public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
@@ -124,6 +121,15 @@ namespace phytestcs
             return res;
         }
 
+        /// <summary>
+        /// Returns the outline for a circle
+        /// </summary>
+        /// <param name="center">Circle center</param>
+        /// <param name="radius">Distance from the center to the inner side of the outline</param>
+        /// <param name="width">Thickness of the outline</param>
+        /// <param name="c">Color</param>
+        /// <param name="angle">Arc length. Default is full circle</param>
+        /// <returns>Triangle list (strip)</returns>
         public static VertexArray CircleOutline(Vector2f center, float radius, float width, Color c, float? angle=null)
         {
             var pts = new Vector2f[Render._rotCirclePointCount];
@@ -143,6 +149,15 @@ namespace phytestcs
                     upto: angle == null ? (int?)null : (int) Math.Round(Math.Abs(angle.Value) * Render._rotCirclePointCount / Math.PI / 2));
         }
 
+        /// <summary>
+        /// Returns a circle sector
+        /// </summary>
+        /// <param name="center">Circle center</param>
+        /// <param name="radius">Radius</param>
+        /// <param name="c">Color</param>
+        /// <param name="angle">Arc length</param>
+        /// <param name="startAngle">Start angle</param>
+        /// <returns>Triangle list (fan)</returns>
         public static VertexArray CircleSector(Vector2f center, float radius, Color c, float angle, float startAngle = 0)
         {
             var start = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
@@ -166,6 +181,10 @@ namespace phytestcs
             return res;
         }
 
+        /// <summary>
+        /// Returns a random color uniformly from the RGB space
+        /// </summary>
+        /// <returns>Color</returns>
         public static Color RandomColor()
         {
             return new Color((byte) RNG.Next(256), (byte) RNG.Next(256), (byte) RNG.Next(256));
@@ -181,23 +200,6 @@ namespace phytestcs
                 BackgroundColorDown = c.Subtract(delta)
             }.Data;
         }
-
-        public static event PropertyChangedEventHandler StaticPropertyChanged;
-
-        public static void NotifyStaticPropertyChanged([CallerMemberName] string name = null)
-        {
-            StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(name));
-        }
-
-        public static bool SetField<T>(ref T field, T value,
-            [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value))
-                return false;
-            field = value;
-            NotifyStaticPropertyChanged(propertyName);
-            return true;
-        }
     }
 
     public class Ref<T>
@@ -211,6 +213,11 @@ namespace phytestcs
         private readonly Action<Color> setter;
 
         public ColorWrapper(Expression<Func<Color>> bindProp)
+            : this(PropertyReference.FromExpression(bindProp))
+        {
+        }
+        
+        public ColorWrapper(PropertyReference<Color> bindProp)
         {
             (getter, setter) = bindProp.GetAccessors();
         }
@@ -269,7 +276,7 @@ namespace phytestcs
         private (double h, double s, double v) ValueHSV => getter().ToDouble().Scatter(RgbToHsv);
 
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-        public static (double h, double s, double v) RgbToHsv(double r, double g, double b)
+        private static (double h, double s, double v) RgbToHsv(double r, double g, double b)
         {
             r /= 255.0;
             g /= 255.0;

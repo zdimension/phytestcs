@@ -82,7 +82,6 @@ namespace phytestcs
         public static float TimeScale { get; set; } = 1;
         public static bool Pause = true;
         public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
-        public static Object[] WorldCache = null;
         public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
         public static PhysicalObject Player;
         public static float FPS;
@@ -93,13 +92,16 @@ namespace phytestcs
         public const float TargetDT = 1 / TargetUPS;
         private static float ActualDT => TargetDT * TimeScale;
 
-        public static void Add(Object obj)
+        public static T Add<T>(T obj)
+            where T : Object
         {
             World.Add(obj);
 
             foreach (var par in obj.Parents)
                 if (!World.Contains(par))
                     World.Add(par);
+
+            return obj;
         }
 
         public static void Clear()
@@ -151,20 +153,23 @@ namespace phytestcs
             AfterUpdate?.Invoke();
         }
 
+        public static Object[] WorldCache = null;
+        public static PhysicalObject[] WorldCachePhy = null;
+
         public static void UpdatePhysicsInternal(float dt)
         {
-            var _cache = World.ToArrayLocked();
-            var phy = _cache.OfType<PhysicalObject>().ToArray();
+            WorldCache = World.ToArrayLocked();
+            WorldCachePhy = WorldCache.OfType<PhysicalObject>().ToArray();
 
-            AttractorsCache = phy.Where(o => o.Attraction != 0f).ToArray();
+            AttractorsCache = WorldCachePhy.Where(o => o.Attraction != 0f).ToArray();
 
             SimDuration += dt;
 
-            foreach (var o in _cache)
+            foreach (var o in WorldCache)
                 o.UpdatePhysics(dt);
 
             if (dt != 0)
-                PhysicalObject.ProcessPairs(dt, phy);
+                PhysicalObject.ProcessPairs(dt, WorldCachePhy);
         }
 
         public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject excl = null)

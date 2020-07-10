@@ -38,6 +38,11 @@ namespace phytestcs.Interface
             return new PropConverter<Torig, Tdisp>(o => (Tdisp)Convert.ChangeType(o, typeof(Tdisp), CultureInfo.CurrentCulture),
                 (value, old) => (Torig)Convert.ChangeType(value, typeof(Torig), CultureInfo.CurrentCulture));
         }
+
+        public static PropConverter<T, string> EvalString<T>()
+        {
+            return new PropConverter<T, string>(o => o.ToString(), (value, old) => value.Eval<T>());
+        }
     }
 
     public class PropConverter<Torig, Tdisp>

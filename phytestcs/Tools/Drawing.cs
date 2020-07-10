@@ -1,63 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using phytestcs.Interface.Windows;
-using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using static phytestcs.Global;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
-    public sealed class Tools
+    public static partial class Tools
     {
-        /// <summary>
-        /// Creates a vector from its polar form
-        /// </summary>
-        /// <param name="r">Magnitude</param>
-        /// <param name="theta">Angle</param>
-        /// <returns>Vector</returns>
-        public static Vector2f FromPolar(float r, float theta)
+        public static Color ToColor(this (byte r, byte g, byte b) v)
         {
-            return new Vector2f((float) (r * Math.Cos(theta)), (float) (r * Math.Sin(theta)));
+            return new Color(v.r, v.g, v.b);
+        }
+        
+        public static void Deconstruct(this Color c, out byte r, out byte g, out byte b)
+        {
+            r = c.R;
+            g = c.G;
+            b = c.B;
         }
 
-        public static T Transition<T>(T a, T b, DateTime start, float duration)
+        public static void Deconstruct(this Color c, out double r, out double g, out double b)
         {
-            return a + ((dynamic)b - (dynamic)a) * (float)(DateTime.Now - start).TotalSeconds / duration;
+            r = c.R;
+            g = c.G;
+            b = c.B;
         }
 
-        public static T Clamp<T>(T x, T a, T b)
-            where T : IComparable
+        public static (double r, double g, double b) ToDouble(this Color c)
         {
-            if (x.CompareTo(a) < 0) return a;
-            if (x.CompareTo(b) > 0) return b;
-            return x;
+            return (c.R, c.G, c.B);
+        }
+        
+        public static Color Add(this Color a, Color b)
+        {
+            return new Color(
+                (byte) Tools.Clamp(a.R + b.R, 0, 255), 
+                (byte) Tools.Clamp(a.G + b.G, 0, 255),
+                (byte) Tools.Clamp(a.B + b.B, 0, 255));
         }
 
-        public static Object ObjectAtPosition(Vector2i pos)
+        public static Color Subtract(this Color a, Color b)
         {
-            var loc = pos.ToWorld();
-
-            return Simulation.WorldCache.LastOrDefault(o => o.Contains(loc));
+            return new Color(
+                (byte)Tools.Clamp(a.R - b.R, 0, 255),
+                (byte)Tools.Clamp(a.G - b.G, 0, 255),
+                (byte)Tools.Clamp(a.B - b.B, 0, 255));
         }
 
-        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject excl=null)
+        public static Color Multiply(this Color a, float f)
         {
-            var loc = pos.ToWorld();
-
-            return Simulation.WorldCache.OfType<PhysicalObject>().LastOrDefault(o => o != excl && o.Contains(loc));
-        }
-
-        public static T Average<T>(T a, T b)
-        {
-            return a + ((dynamic) b - a) / 2;
+            return new Color(
+                (byte)Tools.Clamp(a.R * f, 0, 255),
+                (byte)Tools.Clamp(a.G * f, 0, 255),
+                (byte)Tools.Clamp(a.B * f, 0, 255));
         }
         
         public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
@@ -199,141 +195,6 @@ namespace phytestcs
                 BackgroundColor = c,
                 BackgroundColorDown = c.Subtract(delta)
             }.Data;
-        }
-    }
-
-    public class Ref<T>
-    {
-        public T Value { get; set; }
-    }
-
-    public class ColorWrapper
-    {
-        private readonly Func<Color> getter;
-        private readonly Action<Color> setter;
-
-        public ColorWrapper(Expression<Func<Color>> bindProp)
-            : this(PropertyReference.FromExpression(bindProp))
-        {
-        }
-        
-        public ColorWrapper(PropertyReference<Color> bindProp)
-        {
-            (getter, setter) = bindProp.GetAccessors();
-        }
-
-        public byte R
-        {
-            get => getter().R;
-            set => setter(new Color(getter()) {R = value});
-        }
-
-        public byte G
-        {
-            get => getter().G;
-            set => setter(new Color(getter()) { G = value });
-        }
-
-        public byte B
-        {
-            get => getter().B;
-            set => setter(new Color(getter()) { B = value });
-        }
-
-        public double H
-        {
-            get => ValueHSV.h;
-            set
-            {
-                var hsv = ValueHSV;
-                hsv.h = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
-            }
-        }
-
-        public double S
-        {
-            get => ValueHSV.s;
-            set
-            {
-                var hsv = ValueHSV;
-                hsv.s = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
-            }
-        }
-
-        public double V
-        {
-            get => ValueHSV.v;
-            set
-            {
-                var hsv = ValueHSV;
-                hsv.v = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
-            }
-        }
-
-        private (double h, double s, double v) ValueHSV => getter().ToDouble().Scatter(RgbToHsv);
-
-        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-        private static (double h, double s, double v) RgbToHsv(double r, double g, double b)
-        {
-            r /= 255.0;
-            g /= 255.0;
-            b /= 255.0;
-            var max = new[] { r, g, b }.Max();
-            var min = new[] { r, g, b }.Min();
-            var delta = max - min;
-            var h = 0.0;
-            var s = max != 0 ? delta / max : 0;
-            var v = max;
-            if (s == 0)
-            {
-                return (h, s, v);
-            }
-            if (r == max)
-            {
-                h = (g - b) / delta;
-            }
-            else if (g == max)
-            {
-                h = (b - r) / delta + 2.0;
-            }
-            else if (b == max)
-            {
-                h = (r - g) / delta + 4.0;
-            }
-            h *= 60.0;
-            if (h < 0)
-            {
-                h += 360.0;
-            }
-            return (h, s, v);
-        }
-
-        public static (byte r, byte g, byte b) HsvToRgb(double h, double s, double v)
-        {
-            var r = 0d;
-            var g = 0d;
-            var b = 0d;
-
-            var i = Math.Floor(h / 60);
-            var f = h / 60 - i;
-            var p = v * (1 - s);
-            var q = v * (1 - f * s);
-            var t = v * (1 - (1 - f) * s);
-
-            switch (i % 6)
-            {
-                case 0: r = v; g = t; b = p; break;
-                case 1: r = q; g = v; b = p; break;
-                case 2: r = p; g = v; b = t; break;
-                case 3: r = p; g = q; b = v; break;
-                case 4: r = t; g = p; b = v; break;
-                case 5: r = v; g = p; b = q; break;
-            }
-
-            return ((byte) (r * 255), (byte) (g * 255), (byte) (b * 255));
         }
     }
 }

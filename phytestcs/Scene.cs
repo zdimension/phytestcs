@@ -23,7 +23,7 @@ namespace phytestcs
             await Load(Script).ConfigureAwait(true);
         }
 
-        public static Script<object> LoadScript(string file="scenes/energie.csx")
+        public static Script<object> LoadScript(string file)
         {
             var scr = CSharpScript.Create(
                 File.ReadAllText(file),
@@ -36,7 +36,7 @@ namespace phytestcs
             return scr;
         }
 
-        public static async Task Load(Script<object> scr =null)
+        public static async Task Load(Script<object> scr)
         {
             Simulation.Pause = true;
             Simulation.GravityEnabled = true;
@@ -44,7 +44,7 @@ namespace phytestcs
             Simulation.SimDuration = 0;
             UI.ClearPropertyWindows();
             Simulation.Clear();
-            Simulation.WorldCache = Array.Empty<Object>();
+            Render.WorldCache = Array.Empty<Object>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
 
@@ -54,7 +54,7 @@ namespace phytestcs
             Simulation.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
 
             Console.WriteLine("Début compilation");
-            Script = scr ?? LoadScript();
+            Script = scr;
             Console.WriteLine("Fin compilation et début exécution");
             try
             {

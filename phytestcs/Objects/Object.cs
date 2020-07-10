@@ -33,6 +33,16 @@ namespace phytestcs.Objects
             {
                 foreach (var s in Shapes)
                     s.FillColor = value;
+                OutlineColor = value.Multiply(0.5f);
+            }
+        }
+        
+        public virtual Color OutlineColor {
+            get => Shapes.First().OutlineColor;
+            set
+            {
+                foreach (var s in Shapes)
+                    s.OutlineColor = value;
             }
         }
 

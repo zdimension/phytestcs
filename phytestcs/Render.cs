@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using phytestcs.Interface;
 using phytestcs.Objects;
@@ -7,6 +8,7 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using static phytestcs.Global;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -121,14 +123,14 @@ namespace phytestcs
         {
             Window.Clear(Background);
 
-            foreach (var obj in Simulation.WorldCache)
+            foreach (var obj in WorldCache)
             {
                 obj.Draw();
             }
 
             DrawGrid();
 
-            foreach (var obj in Simulation.WorldCache)
+            foreach (var obj in WorldCache)
             {
                 obj.DrawOverlay();
             }
@@ -139,9 +141,9 @@ namespace phytestcs
 
         public static void DrawStatistics()
         {
-            var ecin = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
-            var epes = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.GravityEnergy ?? 0);
-            var eela = Simulation.WorldCache.Sum(o => (o as Spring)?.ElasticEnergy ?? 0);
+            var ecin = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
+            var epes = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as PhysicalObject)?.GravityEnergy ?? 0);
+            var eela = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as Spring)?.ElasticEnergy ?? 0);
 
             var epot = epes + eela;
             var etot = epot + ecin;
@@ -154,7 +156,7 @@ namespace phytestcs
 {(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
-{Simulation.WorldCache.Length,5} {L["objects"]}
+{WorldCache.Length,5} {L["objects"]}
 ";
             if (Drawing.SelectedObject == null)
             {
@@ -164,7 +166,8 @@ Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
             {
                 Statistics.DisplayedString +=
                     $@"
-ID          = {Drawing.SelectedObject.ID}";
+ID          = {Drawing.SelectedObject.ID}
+";
 
                 switch (Drawing.SelectedObject)
                 {
@@ -194,6 +197,23 @@ R = {objPhy.NetTorque,7:F2}
 
                         break;
                     }
+                    case Laser laser:
+                    {
+                        Statistics.DisplayedString +=
+                            $@"
+Laser
+Rayons :
+";
+                        var rays = laser.Rays.ToArrayLocked();
+                        for (var index = 0; index < rays.Length; index++)
+                        {
+                            var ray = rays[index];
+                            Statistics.DisplayedString +=
+                                $"  - {index,3} ({ray.Start.DisplayPoint()}) θ={ray.Angle.Degrees(),6:F1}° L={ray.Length,6:F3}m de {(ray.Source == null ? -1 : Array.IndexOf(rays, ray.Source))} {ray.DebugInfo ?? ""}\n";
+                        }
+
+                        break;
+                    }
                     default:
                         Statistics.DisplayedString += Drawing.SelectedObject.GetType().Name;
                         break;
@@ -217,7 +237,10 @@ R = {objPhy.NetTorque,7:F2}
             while (true)
             {
                 ruler = Camera.Zoom * factor;
-
+                if (ruler < 0)
+                {
+                    Debug.Assert(false);
+                }
                 if (ruler < min)
                     factor *= 10;
                 else if (ruler > max)
@@ -399,5 +422,7 @@ R = {objPhy.NetTorque,7:F2}
             let angle = i * 2 * Math.PI / _rotCirclePointCount
             select new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle))
         ).ToArray();
+
+        public static Object[] WorldCache = null;
     }
 }

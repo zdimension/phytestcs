@@ -19,12 +19,12 @@ namespace phytestcs.Interface
             if (bindProp != null)
             {
                 (_getter, _setter) = bindProp.GetAccessors();
-                name ??= bindProp.Property.GetDisplayName();
+                name ??= bindProp.DisplayName;
 
                 UI.Drawn += Update;
             }
 
-            Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 5)};
+            Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3)};
             Field.Toggled += (sender, f) =>
             {
                 if (_uiLoading)
@@ -40,7 +40,7 @@ namespace phytestcs.Interface
 
             Add(Field);
 
-            SizeLayout = new Layout2d("100%", "30");
+            SizeLayout = new Layout2d("100%", "24");
         }
 
         public CheckBox Field { get; }

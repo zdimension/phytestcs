@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
@@ -50,6 +51,7 @@ namespace phytestcs
 
         public static void SetZoom(float val, Vector2f? pos = null, bool abs=false)
         {
+            Debug.Assert(val > 0);
             OldSize = GameView.Size;
             OldPos = GameView.Center;
             ZoomTransition = true;

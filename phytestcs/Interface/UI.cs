@@ -18,8 +18,8 @@ namespace phytestcs.Interface
     public static class UI
     {
         public static BitmapButton btnPlay;
-        public static readonly Texture imgPlay = new Texture("icones/big/play.png");
-        public static readonly Texture imgPause = new Texture("icones/big/pause.png");
+        public static readonly Texture imgPlay = new Texture("icons/big/play.png");
+        public static readonly Texture imgPause = new Texture("icons/big/pause.png");
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
         public static Gui GUI;
 
@@ -135,7 +135,7 @@ namespace phytestcs.Interface
             btnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
             foreach (var (dess, img, bref, text) in actions)
             {
-                var btn = new BitmapButton {Image = text.Value = new Texture($"icones/big/{img}.png")};
+                var btn = new BitmapButton {Image = text.Value = new Texture($"icons/big/{img}.png")};
                 btn.Clicked += delegate { SetDrawMode(dess); };
                 buttons.Add(btn);
                 bref.Value = btn;
@@ -151,14 +151,14 @@ namespace phytestcs.Interface
             space();
 
             buttons.Add(btnPlay);
-            var btnRestart = new BitmapButton {Image = new Texture("icones/big/reset.png")};
+            var btnRestart = new BitmapButton {Image = new Texture("icons/big/reset.png")};
             btnRestart.SetRenderer(brDef);
             btnRestart.Clicked += async (sender, f) => { await Scene.Restart().ConfigureAwait(true); };
             buttons.Add(btnRestart);
 
             space();
 
-            var btnGrav = new BitmapButton {Image = new Texture("icones/big/gravity.png")};
+            var btnGrav = new BitmapButton {Image = new Texture("icons/big/gravity.png")};
             btnGrav.SetRenderer(brToggle);
             btnGrav.MouseReleased += (sender, f) =>
             {
@@ -176,7 +176,7 @@ namespace phytestcs.Interface
             connectButton(btnGrav, wndGrav, true);
             buttons.Add(btnGrav);
 
-            var btnAirFr = new BitmapButton {Image = new Texture("icones/big/wind.png")};
+            var btnAirFr = new BitmapButton {Image = new Texture("icons/big/wind.png")};
             btnAirFr.SetRenderer(brDef);
             btnAirFr.MouseReleased += (sender, f) =>
             {
@@ -204,7 +204,7 @@ namespace phytestcs.Interface
             connectButton(btnAirFr, wndAirFr, true);
             buttons.Add(btnAirFr);
 
-            var btnSettings = new BitmapButton { Image = new Texture("icones/big/options.png") };
+            var btnSettings = new BitmapButton { Image = new Texture("icons/big/options.png") };
             btnSettings.SetRenderer(brDef);
             var wndSettings = new ChildWindowEx(L["Settings"], 320, true, false)
             {
@@ -263,21 +263,33 @@ namespace phytestcs.Interface
 
             Vector2f posEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
 
-            var btnEff = new BitmapButton {Text = L["Clear"], Image = new Texture("icones/small/delete.png")};
+            var btnEff = new BitmapButton {Text = L["Clear"], Image = new Texture("icons/small/delete.png")};
             btnEff.Clicked += delegate { obj.Delete(); };
             wnd.Add(btnEff);
+            
+            // liquify
+            // spongify
+            // clone
+            // mirror
 
             var windows = new[]
             {
-                (typeof(WndInfos), L["Informations"], "icones/small/info.png"),
-                (typeof(WndAppearance), L["Appearance"], "icones/small/settings.png"),
-                (typeof(WndSpeeds), L["Material"], "icones/small/settings.png"),
-                (typeof(WndPlot), L["Plot"], "icones/small/plot.png"),
-                (typeof(WndSpring), L["Spring"], "icones/small/spring.png"),
-                (typeof(WndHinge), L["Hinge"], "icones/small/spring.png"),
-                (typeof(WndTracer), L["Tracer"], "icones/small/tracer.png"),
-                (typeof(WndThruster), L["Thruster"], "icones/small/thruster.png"),
-                (typeof(WndScript), L["Script"], "icones/small/script.png"),
+                (typeof(WndPlot), L["Plot"], "icons/small/plot.png"),
+                (typeof(WndAppearance), L["Appearance"], "icons/small/settings.png"),
+                // text
+                (typeof(WndMaterial), L["Material"], "icons/small/settings.png"),
+                (typeof(WndSpeeds), L["Velocities"], "icons/small/settings.png"),
+                (typeof(WndSpring), L["Spring"], "icons/small/spring.png"),
+                (typeof(WndHinge), L["Hinge"], "icons/small/spring.png"),
+                (typeof(WndTracer), L["Tracer"], "icons/small/tracer.png"),
+                (typeof(WndLaser), L["Laser"], "icons/small/tracer.png"),
+                (typeof(WndThruster), L["Thruster"], "icons/small/thruster.png"),
+                (typeof(WndInfos), L["Informations"], "icons/small/info.png"),
+                (typeof(WndCollision), L["Collision layers"], "icons/small/settings.png"),
+                (typeof(WndActions), L["Geometry actions"], "icons/small/settings.png"),
+                // csg
+                // controller
+                (typeof(WndScript), L["Script"], "icons/small/script.png"),
             };
 
             foreach (var (type, name, icon) in windows)

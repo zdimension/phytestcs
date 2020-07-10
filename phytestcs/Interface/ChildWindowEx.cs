@@ -65,12 +65,15 @@ namespace phytestcs.Interface
 
         private float _height;
 
-        public void Add(Widget w)
+        public T Add<T>(T w)
+            where T : Widget
         {
             _height += w.Size.Y;
             Container.Add(w, w.Size.Y);
 
             UpdateSize();
+
+            return w;
         }
 
         public void Show()

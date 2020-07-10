@@ -65,7 +65,7 @@ namespace phytestcs
 
             Task.Run(async () =>
             {
-                await Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/energie.csx")).ConfigureAwait(true);
+                await Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/laser.csx")).ConfigureAwait(true);
                 //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();
@@ -80,7 +80,7 @@ namespace phytestcs
 
                 if (Scene.Loaded)
                 {
-                    Simulation.WorldCache = Simulation.World.ToArrayLocked();
+                    Render.WorldCache = Simulation.World.ToArrayLocked();
 
                     Camera.UpdateZoom();
 
@@ -193,7 +193,7 @@ namespace phytestcs
                     Drawing.DragObject.Position = e.Position().ToWorld() - Drawing.DragObjectRelPosDirect;
                     Simulation.UpdatePhysicsInternal(0);
                 }
-                else
+                else if (Drawing.DragSpring != null)
                 {
                     Drawing.DragSpring.End2.RelPos = e.Position().ToWorld();
                     if (Drawing.DrawMode == DrawingType.Spring)
@@ -229,7 +229,7 @@ namespace phytestcs
         {
             var moved = pos != ClickPosition;
 
-            if (!moved)
+            if (!moved && !_rotating)
             {
                 Drawing.SelectObject(ObjectAtPosition(pos));
             }
@@ -384,8 +384,7 @@ namespace phytestcs
                             }
 
                             Simulation.Add(new Spring(Drawing.DragSpring.Constant,
-                                Drawing.DragSpring.TargetLength,
-                                DefaultSpringSize,
+                                Drawing.DragSpring.TargetLength, DefaultSpringSize,
                                 Drawing.DragSpring.End1.Object, Drawing.DragSpring.End1.RelPos, obj2, obj2Pos));
                         }
                     }
@@ -469,10 +468,6 @@ namespace phytestcs
                 }
             }
         }
-
-        private const float DefaultObjectSizeFactor = 68.3366809f;
-        private static float DefaultObjectSize => DefaultObjectSizeFactor / Camera.Zoom;
-        private static float DefaultSpringSize => DefaultObjectSize * 0.4f;
 
         private static void Window_KeyReleased(object sender, KeyEventArgs e)
         {
@@ -561,8 +556,16 @@ namespace phytestcs
                 case Keyboard.Key.S:
                     Simulation.UpdatePhysics(true);
                     break;
+                case Keyboard.Key.U:
+                    NumRays--;
+                    break;
+                case Keyboard.Key.I:
+                    NumRays++;
+                    break;
             }
         }
+
+        public static int NumRays = 10;
 
         private static void Window_Resized(object sender, SizeEventArgs e)
         {

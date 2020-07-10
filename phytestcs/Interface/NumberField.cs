@@ -28,8 +28,8 @@ namespace phytestcs.Interface
             if (bindProp != null)
             {
                 (_getter, _setter) = bindProp.GetAccessors();
-                name ??= bindProp.Property.GetDisplayName();
-                unit ??= bindProp.Property.GetObjProp()?.Unit;
+                name ??= bindProp.DisplayName;
+                unit ??= bindProp.Unit;
                 converter = conv ?? PropConverter.Default<T, float>();
                 
                 UI.Drawn += Update;

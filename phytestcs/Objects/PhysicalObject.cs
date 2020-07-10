@@ -8,7 +8,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Objects
 {
-    public class PhysicalObject : Object, IMoveable, IHasShape
+    public class PhysicalObject : Object, IMoveable, IHasShape, ICollides
     {
         private Vector2f _position;
         private float _angle;
@@ -112,6 +112,8 @@ namespace phytestcs.Objects
                 };
             }
         }
+
+        public uint CollideSet { get; set; } = 1;
 
         public float FieldNorm(float masse = 1f)
         {
@@ -301,6 +303,21 @@ namespace phytestcs.Objects
             }
         }
 
+        private float _globalPointsCacheTime = -1;
+        private Vector2f[] _globalPointsCache = null;
+        public Vector2f[] GlobalPointsCache
+        {
+            get
+            {
+                if (_globalPointsCache == null || Simulation.SimDuration != _globalPointsCacheTime)
+                {
+                    _globalPointsCache = Shape.PointsGlobal();
+                }
+
+                return _globalPointsCache;
+            }
+        }
+
         [ObjProp("Acceleration", "m/s²", "m/s", "m/s³")]
         public Vector2f Acceleration => Fixed ? default : (NetForce / Mass);
 
@@ -311,6 +328,8 @@ namespace phytestcs.Objects
         [ObjProp("Angular momentum", "J⋅s")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
 
+        [ObjProp("Refractive index")]
+        public float RefractiveIndex { get; set; } = 1.5f;
         private void ApplyForces(float dt)
         {
             if (Fixed)
@@ -365,18 +384,19 @@ namespace phytestcs.Objects
 
         public static PhysicalObject Rectangle(float x, float y, float w, float h, Color col, bool wall=false, string name="", bool killer=false)
         {
-            return new PhysicalObject(new Vector2f(x, y), new RectangleShape(new Vector2f(w, h)){FillColor = col}, wall, name){Killer=killer};
+            return new PhysicalObject(new Vector2f(x, y), new RectangleShape(new Vector2f(w, h)), wall, name){Killer=killer, Color = col};
         }
 
         public static PhysicalObject Cercle(float x, float y, float r, Color col)
         {
-            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r) { FillColor = col });
+            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r)){Color = col};
         }
 
         public override void Draw()
         {
             base.Draw();
 
+            Shape.OutlineThickness = 2 / Camera.Zoom;
             Render.Window.Draw(Shape);
         }
 
@@ -458,8 +478,8 @@ namespace phytestcs.Objects
 
         private static (Vector2f[], bool, PhysicalObject, PhysicalObject, Vector2f, Vector2f) GetForcePoints(PhysicalObject a, PhysicalObject b, Vector2f dpa, Vector2f dpb, bool second=false)
         {
-            var ap = a.Shape.PointsGlobal();
-            var bp = b.Shape.PointsGlobal();
+            var ap = a.GlobalPointsCache;
+            var bp = b.GlobalPointsCache;
 
             var colls = new Vector2f[2];
             var inds = new int[2];
@@ -491,45 +511,17 @@ namespace phytestcs.Objects
                 var pprev = ap[iprev];
                 var pnext = ap[inext];
 
-                static bool Intersects((Vector2f, Vector2f) a, (Vector2f, Vector2f) b,
-                    out Vector2f inter)
-                {
-                    inter = default;
-
-                    var (a1, a2) = a;
-                    var (b1, b2) = b;
-
-                    var aD = a2 - a1;
-                    var bD = b2 - b1;
-
-                    var cr = aD.Cross(bD);
-
-                    if (cr != 0)
-                    {
-                        var t = (b1 - a1).Cross(bD) / cr;
-                        var u = (b1 - a1).Cross(aD) / cr;
-
-                        if (t.IsBetween(0, 1) && u.IsBetween(0, 1))
-                        {
-                            inter = a1 + t * aD;
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }
-
                 for (var k = 0; k < bp.Length; k++)
                 {
                     var cur = bp[k];
                     var nex = bp[(k + 1) % bp.Length];
 
-                    if (Intersects((cur, nex), (colls[0], pprev), out var inter1))
+                    if (Tools.Intersects((cur, nex), (colls[0], pprev), out var inter1, out _))
                     {
                         inters[intersn++] = inter1;
                     }
 
-                    if (Intersects((cur, nex), (colls[0], pnext), out var inter2))
+                    if (Tools.Intersects((cur, nex), (colls[0], pnext), out var inter2, out _))
                     {
                         inters[intersn++] = inter2;
                     }
@@ -568,6 +560,9 @@ namespace phytestcs.Objects
                     var b = phy[j];
 
                     if (a.Fixed && b.Fixed)
+                        continue;
+
+                    if ((a.CollideSet & b.CollideSet) == 0)
                         continue;
 
                     if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))

@@ -11,12 +11,10 @@ namespace phytestcs.Interface
         public TextField(PropertyReference<T> bindProp, string name, PropConverter<T, string> conv = null)
         {
             (_getter, _setter) = bindProp.GetAccessors();
-            name ??= bindProp.Property.GetDisplayName();
+            name ??= bindProp.DisplayName;
             converter = conv ?? PropConverter.Default<T, string>();
 
             UI.Drawn += Update;
-
-            name ??= bindProp.Property.Name;
 
             SizeLayout = new Layout2d("100%", "24");
             var lblName = new Label(name) {PositionLayout = new Layout2d("0", "3")};

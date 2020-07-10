@@ -1,5 +1,7 @@
 ﻿using phytestcs.Objects;
+using SFML.Graphics;
 using SFML.System;
+using TGUI;
 
 namespace phytestcs.Interface.Windows
 {
@@ -10,6 +12,7 @@ namespace phytestcs.Interface.Windows
         {
             var wrapper = new ColorWrapper(() => obj.Color);
 
+            Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.A));
             Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.R));
             Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.G));
             Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.B));
@@ -17,7 +20,7 @@ namespace phytestcs.Interface.Windows
             Add(new NumberField<double>(0, 360, unit: "°", bindProp: () => wrapper.H));
             Add(new NumberField<double>(0, 1, bindProp: () => wrapper.S));
             Add(new NumberField<double>(0, 1, bindProp: () => wrapper.V));
-
+            
             Show();
         }
     }

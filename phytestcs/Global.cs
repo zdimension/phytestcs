@@ -16,5 +16,9 @@ namespace phytestcs
         public static readonly IStringLocalizer L = new ResourceManagerStringLocalizerFactory(
             new OptionsWrapper<LocalizationOptions>(new LocalizationOptions { ResourcesPath = "Resources" }),
             NullLoggerFactory.Instance).Create(typeof(Global));
+
+        private const float DefaultObjectSizeFactor = 68.3366809f;
+        public static float DefaultObjectSize => DefaultObjectSizeFactor / Camera.Zoom;
+        public static float DefaultSpringSize => DefaultObjectSize * 0.4f;
     }
 }

@@ -396,7 +396,7 @@ namespace phytestcs.Objects
         {
             base.Draw();
 
-            Shape.OutlineThickness = 2 / Camera.Zoom;
+            Shape.OutlineThickness = (Selected ? -7 : -2) / Camera.Zoom;
             Render.Window.Draw(Shape);
         }
 
@@ -525,6 +525,9 @@ namespace phytestcs.Objects
                     {
                         inters[intersn++] = inter2;
                     }
+
+                    if (intersn == 2)
+                        break;
                 }
             }
             
@@ -571,7 +574,7 @@ namespace phytestcs.Objects
                     if (OBB.testCollision(a.Shape, b.Shape, out var mtv))
                     {
                         var unitMtv = mtv.Normalize();
-                        var v1p = a.Velocity.Dot(unitMtv);
+                        var v1p = -a.Velocity.Dot(unitMtv);
                         var v2p = b.Velocity.Dot(unitMtv);
 
                         var dpa = new Vector2f();
@@ -626,7 +629,9 @@ namespace phytestcs.Objects
                         {
                             if (p2out)
                             {
-
+                                w[0] = 0.5f;
+                                w[1] = 0.5f;
+                                Console.WriteLine("not implemented");
                             }
                             else
                             {
@@ -670,7 +675,7 @@ namespace phytestcs.Objects
                         //    obj.Forces.Add(new Force("Friction Y", new Vector2f(0, (float)(Math.Abs(obj.NetForce.X) * Math.Sqrt(Friction * obj.Friction) * -Math.Sign(obj._velocity.Y))), -1));
 
 
-                        //Simulation.Pause = true;
+                        //Simulation.SetPause(true);
 
                         /*(a._velocity.X, b._velocity.X) = (
                             ElasticCollision(a.Mass, b.Mass, a._velocity.X, b._velocity.X, a.Restitution, b.Restitution),

@@ -65,6 +65,12 @@ namespace phytestcs
             }
         }
 
+        public static T With<T>(this T obj, Action<T> map)
+        {
+            map(obj);
+            return obj;
+        }
+
 
 
         public static bool IsBetween<T>(this T x, T a, T b)

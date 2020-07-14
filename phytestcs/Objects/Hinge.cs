@@ -26,7 +26,7 @@ namespace phytestcs.Objects
         {
             // Algodoo: 1e8 Nm, 0.5
             Damping = 1f;
-            
+            type ??= ForceType.Hinge;
             _torque1 = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)){Source=this};
             _torque2 = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)){Source=this};
             object1.Forces.Add(_torque1);

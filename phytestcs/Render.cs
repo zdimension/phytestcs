@@ -179,7 +179,7 @@ P = {objPhy.Position.DisplayPoint()}
 V = {objPhy.Velocity.Display()}
 θ = {objPhy.Angle,7:F2} rad
 ω = {objPhy.AngularVelocity,7:F2} rad/s
-m       = {objPhy.Mass,7:F2} kg
+m = {objPhy.Mass,7:F2} kg
 {L["Forces"]} :
 R = {objPhy.NetForce.Display()}
 ";

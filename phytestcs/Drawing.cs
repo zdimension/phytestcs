@@ -28,37 +28,13 @@ namespace phytestcs
 
         public static void SelectObject(Object obj)
         {
-            if (SelectedObject != null && SelectedObject is PhysicalObject old)
-            {
-                old.Shape.OutlineThickness = 0;
-            }
+            if (SelectedObject != null) 
+                SelectedObject.Selected = false;
 
             SelectedObject = obj;
-
-            if (obj != null && obj is PhysicalObject @new)
-            {
-                UpdateThickness();
-                @new.Shape.OutlineColor = Color.White;
-            }
-        }
-
-        static Drawing()
-        {
-            Camera.ZoomChanged += zoom =>
-            {
-                UpdateThickness();
-            };
-        }
-
-        private static float GetThickness(float zoom)
-        {
-            return -7 / zoom;
-        }
-
-        private static void UpdateThickness()
-        {
-            if (SelectedObject is PhysicalObject @new)
-                @new.Shape.OutlineThickness = GetThickness(Camera.Zoom);
+            
+            if (SelectedObject != null)
+                SelectedObject.Selected = true;
         }
 
         public static Object SelectedObject { get; private set; }

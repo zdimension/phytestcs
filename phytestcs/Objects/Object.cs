@@ -33,10 +33,25 @@ namespace phytestcs.Objects
             {
                 foreach (var s in Shapes)
                     s.FillColor = value;
-                OutlineColor = value.Multiply(0.5f);
+                UpdateOutline();
             }
         }
-        
+
+        public bool Selected
+        {
+            get => _selected;
+            set
+            {
+                _selected = value;
+                UpdateOutline();
+            }
+        }
+
+        private void UpdateOutline()
+        {
+            OutlineColor = Selected ? Color.White : Color.Multiply(0.5f);
+        }
+
         public virtual Color OutlineColor {
             get => Shapes.First().OutlineColor;
             set
@@ -154,6 +169,7 @@ namespace phytestcs.Objects
         }
 
         private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
+        private bool _selected;
     }
 
     public class ObjPropAttribute : DisplayNameAttribute

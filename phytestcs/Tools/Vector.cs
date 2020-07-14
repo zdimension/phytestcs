@@ -37,6 +37,20 @@ namespace phytestcs
             return a.X * b.Y - a.Y * b.X;
         }
         
+        public static bool IsOnLine(this Vector2f p, Vector2f v, Vector2f w)
+        {
+            const float tol = 1e-8f;
+            var l2 = (w-v).NormSquared();  // i.e. |w-v|^2 -  avoid a sqrt
+            if (l2 == 0.0) return (v-p).Norm() <= tol;   // v == w case
+            // Consider the line extending the segment, parameterized as v + t (w - v).
+            // We find projection of point p onto the line. 
+            // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+            // We clamp t from [0,1] to handle points outside the segment vw.
+            var t = Math.Max(0, Math.Min(1, (p - v).Dot(w - v) / l2));
+            var projection = v + t * (w - v);  // Projection falls on the segment
+            return (p-projection).Norm() <= tol;
+        }
+        
         public static void Deconstruct(this Vector2i vec, out int x, out int y)
         {
             x = vec.X;

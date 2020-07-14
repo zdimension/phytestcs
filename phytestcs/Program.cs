@@ -65,7 +65,7 @@ namespace phytestcs
 
             Task.Run(async () =>
             {
-                await Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/laser.csx")).ConfigureAwait(true);
+                await Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/boing.csx")).ConfigureAwait(true);
                 //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();

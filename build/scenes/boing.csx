@@ -13,7 +13,7 @@ testt.Velocity = new Vector2f(9, 0);
 Simulation.Add(testt);
 
 
-var testt2 = PhysicalObject.Rectangle(5, 0.5f, 1, 1, Color.Blue);
+var testt2 = PhysicalObject.Rectangle(5, 0.5f, 1, 1, Color.Red);
 testt2.Restitution = 1;
 testt2.Friction = 0;
 Simulation.Add(testt2);

@@ -29,32 +29,40 @@ namespace phytestcs
             return points;
         }
 
-        // http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
-        public static bool ContainsPoint(this Vector2f[] points, Vector2f p)
+        // http://geomalgorithms.com/a03-_inclusion.html#wn_PnPoly()
+        public static bool ContainsPoint(this Vector2f[] V, Vector2f P)
         {
-            static float GetAngle(Vector2f a, Vector2f b, Vector2f c)
+            static double isLeft(Vector2f p0, Vector2f p1, Vector2f p2)
             {
-                var ab = a - b;
-                var bc = c - b;
-
-                return (float)Math.Atan2(ab.Cross(bc), ab.Dot(bc));
+                return ((p1.X - p0.X) * (p2.Y - p0.Y)
+                        - (p2.X - p0.X) * (p1.Y - p0.Y));
             }
 
-            var max_point = points.Length - 1;
-            var total_angle = GetAngle(
-                points[max_point],
-                p,
-                points[0]);
-
-            for (var i = 0; i < max_point; i++)
+            var wn = 0; // the  winding number counter
+            var j = V.Length - 1;
+            
+            // loop through all edges of the polygon
+            for (var i = 0; i < V.Length; j = i++)
             {
-                total_angle += GetAngle(
-                    points[i],
-                    p,
-                    points[i + 1]);
+                if (P.IsOnLine(V[i], V[j]))
+                    return true;
+                if (V[i].Y <= P.Y)
+                {
+                    // start y <= P.y
+                    if (V[j].Y > P.Y) // an upward crossing
+                        if (isLeft(V[i], V[j], P) > 0) // P left of  edge
+                            ++wn; // have  a valid up intersect
+                }
+                else
+                {
+                    // start y > P.y (no test needed)
+                    if (V[j].Y <= P.Y) // a downward crossing
+                        if (isLeft(V[i], V[j], P) < 0) // P right of  edge
+                            --wn; // have  a valid down intersect
+                }
             }
 
-            return Math.Abs(total_angle) > 1;
+            return wn != 0;
         }
 
         public static bool Contains(this FloatRect r, Vector2f p)

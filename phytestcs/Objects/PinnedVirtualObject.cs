@@ -43,9 +43,10 @@ namespace phytestcs.Objects
         public override void Draw()
         {
             base.Draw();
-
-            Shape.Position = Position;
+            
             Shape.Rotation = ActualAngle.Degrees();
+            Shape.Position = Position;
+            
             Render.Window.Draw(Shape);
         }
         

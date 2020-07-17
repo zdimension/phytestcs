@@ -70,11 +70,14 @@ namespace phytestcs.Interface
         {
             _height += w.Size.Y;
             Container.Add(w, w.Size.Y);
+            _children.Add(w);
 
             UpdateSize();
 
             return w;
         }
+        
+        private readonly List<Widget> _children = new List<Widget>();
 
         public void Show()
         {

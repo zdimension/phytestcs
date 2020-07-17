@@ -283,17 +283,17 @@ namespace phytestcs.Interface
             var windows = new[]
             {
                 (typeof(WndPlot), L["Plot"], "icons/small/plot.png"),
-                (typeof(WndAppearance), L["Appearance"], "icons/small/settings.png"),
+                (typeof(WndAppearance), L["Appearance"], "icons/small/appearance.png"),
                 // text
                 (typeof(WndMaterial), L["Material"], "icons/small/settings.png"),
-                (typeof(WndSpeeds), L["Velocities"], "icons/small/settings.png"),
+                (typeof(WndSpeeds), L["Velocities"], "icons/small/speed.png"),
                 (typeof(WndSpring), L["Spring"], "icons/small/spring.png"),
                 (typeof(WndHinge), L["Hinge"], "icons/small/spring.png"),
                 (typeof(WndTracer), L["Tracer"], "icons/small/tracer.png"),
-                (typeof(WndLaser), L["Laser"], "icons/small/tracer.png"),
+                (typeof(WndLaser), L["Laser"], "icons/small/laser.png"),
                 (typeof(WndThruster), L["Thruster"], "icons/small/thruster.png"),
                 (typeof(WndInfos), L["Informations"], "icons/small/info.png"),
-                (typeof(WndCollision), L["Collision layers"], "icons/small/settings.png"),
+                (typeof(WndCollision), L["Collision layers"], "icons/small/layers.png"),
                 (typeof(WndActions), L["Geometry actions"], "icons/small/settings.png"),
                 // csg
                 // controller

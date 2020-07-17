@@ -96,8 +96,8 @@ namespace phytestcs
 
             void r(int x1, int y1, int x2, int y2)
             {
-                Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], new Vector2f(0.5f, 0.5f), square[y2][x2],
-                        new Vector2f(0.5f, 0.5f))
+                Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], default, square[y2][x2],
+                        default)
                     { ShowInfos = false });
             }
 
@@ -151,28 +151,30 @@ namespace phytestcs
 
                     if (j > 0)
                     {
-                        Simulation.Add(new Spring(spring, dist, 0.1f, square[i][j - 1], new Vector2f(0.5f, 0.5f), square[i][j],
-                                new Vector2f(0.5f, 0.5f))
+                        Simulation.Add(new Spring(spring, dist, 0.1f, 
+                                square[i][j - 1], default, 
+                                square[i][j], default)
                             { ShowInfos = false });
                     }
 
                     if (i > 0)
                     {
-                        Simulation.Add(new Spring(spring, dist, 0.1f, square[i - 1][j], new Vector2f(0.5f, 0.5f), square[i][j],
-                                new Vector2f(0.5f, 0.5f))
-                            { ShowInfos = false });
+                        Simulation.Add(new Spring(spring, dist, 0.1f,
+                                square[i - 1][j], default,
+                                square[i][j], default)
+                            {ShowInfos = false});
 
                         if (j > 0)
                         {
-                            Simulation.Add(new Spring(spring, diago, 0.1f, square[i - 1][j - 1], new Vector2f(0.5f, 0.5f),
-                                    square[i][j],
-                                    new Vector2f(0.5f, 0.5f))
-                                { ShowInfos = false });
+                            Simulation.Add(new Spring(spring, diago, 0.1f,
+                                    square[i - 1][j - 1], default,
+                                    square[i][j], default)
+                                {ShowInfos = false});
 
-                            Simulation.Add(new Spring(spring, diago, 0.1f, square[i - 1][j], new Vector2f(0.5f, 0.5f),
-                                    square[i][j - 1],
-                                    new Vector2f(0.5f, 0.5f))
-                                { ShowInfos = false });
+                            Simulation.Add(new Spring(spring, diago, 0.1f,
+                                    square[i - 1][j], default,
+                                    square[i][j - 1], default)
+                                {ShowInfos = false});
                         }
                     }
                 }

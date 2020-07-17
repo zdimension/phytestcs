@@ -182,6 +182,8 @@ ID          = {Drawing.SelectedObject.ID}
                             $@"
 P = {objPhy.Position.DisplayPoint()}
 V = {objPhy.Velocity.Display()}
+P0 = {objPhy.GlobalPointsCache[0].DisplayPoint()}
+Vp0 = {objPhy.SpeedAtPoint(objPhy.MapInv(objPhy.GlobalPointsCache[0])).Display()}
 θ = {objPhy.Angle,7:F2} rad
 ω = {objPhy.AngularVelocity,7:F2} rad/s
 m = {objPhy.Mass,7:F2} kg

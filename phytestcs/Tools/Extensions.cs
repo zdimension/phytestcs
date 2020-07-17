@@ -24,6 +24,15 @@ namespace phytestcs
                 angle = bound + (angle % bound);
             return angle;
         }
+        
+        public static float ClampWrapPositive(this float angle, float bound)
+        {
+            if (angle > bound)
+                return angle % bound;
+            if (angle < 0)
+                return bound + angle % bound;
+            return angle;
+        }
 
         public static float Degrees(this float f)
         {
@@ -98,7 +107,7 @@ namespace phytestcs
             return (PropertyInfo) ((MemberExpression) prop.Body).Member;
         }
 
-        public static ObjPropAttribute GetObjProp(this PropertyInfo prop)
+        public static ObjPropAttribute GetObjProp(this MemberInfo prop)
         {
             return prop.GetCustomAttribute<ObjPropAttribute>();
         }

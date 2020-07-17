@@ -121,7 +121,7 @@ namespace phytestcs
 
         public static void DrawGame()
         {
-            Window.Clear(Background);
+            Window.Clear(Program.CurrentPalette.SkyColor);
 
             foreach (var obj in WorldCache)
             {
@@ -369,7 +369,6 @@ Rayons :
         public static uint Height = 550;
         public static Vector2f WindowF => new Vector2f(Width, Height);
         public static RenderWindow Window;
-        public static Color Background = new Color(0x73, 0x8c, 0xff);
 
         public static void ResizeTextures()
         {

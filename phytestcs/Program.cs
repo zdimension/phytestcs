@@ -20,6 +20,8 @@ namespace phytestcs
         [STAThread]
         static void Main(string[] args)
         {
+            CurrentPalette = Palette.Default;
+            
             Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default, new ContextSettings {AntialiasingLevel = 4});
             //Render.Window.SetVerticalSyncEnabled(true);
             //Window.SetFramerateLimit(240);
@@ -182,7 +184,7 @@ namespace phytestcs
             {
                 _moving = true;
                 Camera.GameView.Center = Camera.CameraMoveOrigin.Value +
-                                       (ClickPosition - e.Position()).F().InvertY() / Camera.Zoom;
+                                         (ClickPosition - e.Position()).F().InvertY() / Camera.Zoom;
                 _lastMove = (DateTime.Now, e.Position());
             }
 
@@ -594,5 +596,7 @@ namespace phytestcs
         {
             Environment.Exit(0);
         }
+
+        public static Palette CurrentPalette;
     }
 }

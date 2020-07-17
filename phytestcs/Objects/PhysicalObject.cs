@@ -395,8 +395,8 @@ namespace phytestcs.Objects
         public override void Draw()
         {
             base.Draw();
-
-            Shape.OutlineThickness = (Selected ? -7 : -2) / Camera.Zoom;
+            
+            Shape.OutlineThickness = (Selected ? -7 : Appearance.Borders ? -2 : 0) / Camera.Zoom;
             Render.Window.Draw(Shape);
         }
 
@@ -404,6 +404,7 @@ namespace phytestcs.Objects
 
         private readonly CircleShape rotCenter = new CircleShape(CircleSize)
             { FillColor = Color.Red, Origin = new Vector2f(CircleSize, CircleSize) };
+
         private static readonly Text forceName = new Text("", UI.Font) {OutlineThickness = 2, OutlineColor = Color.Black};
         
         public Vector2f Map(Vector2f local)
@@ -420,7 +421,7 @@ namespace phytestcs.Objects
         {
             base.DrawOverlay();
 
-            if (Render.ShowForces)
+            if (Render.ShowForces || Appearance.ShowForces)
             {
                 foreach (var f in Forces.ToArrayLocked())
                 {

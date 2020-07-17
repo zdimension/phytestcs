@@ -49,7 +49,17 @@ namespace phytestcs.Objects
 
         private void UpdateOutline()
         {
-            OutlineColor = Selected ? Color.White : Color.Multiply(0.5f);
+            Color color;
+            if (Selected)
+                color = Color.White;
+            else
+            {
+                color = Color.Multiply(0.5f);
+                if (Appearance.OpaqueBorders)
+                    color.A = 255;
+            }
+
+            OutlineColor = color;
         }
 
         public virtual Color OutlineColor {
@@ -64,6 +74,7 @@ namespace phytestcs.Objects
         public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
 
         public IReadOnlyList<Object> Dependents => dependents.ToList().AsReadOnly();
+        public ref ObjectAppearance Appearance => ref _appearance;
 
         public void DependsOn(Object other)
         {
@@ -170,6 +181,7 @@ namespace phytestcs.Objects
 
         private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
         private bool _selected;
+        private ObjectAppearance _appearance = Program.CurrentPalette.Appearance;
     }
 
     public class ObjPropAttribute : DisplayNameAttribute

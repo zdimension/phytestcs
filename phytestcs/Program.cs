@@ -355,14 +355,18 @@ namespace phytestcs
         {
             var mouse = Mouse.GetPosition(Render.Window);
             var moved = mouse != ClickPosition;
-
+            Object? added = null;
             switch (Drawing.DrawMode)
             {
                 case DrawingType.Rectangle when moved:
-                    Simulation.Add(new PhysicalObject(Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2, new RectangleShape(Render.DrawRectangle)));
+                    added = Drawing.SelectObject(Simulation.Add(new PhysicalObject(
+                        Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2,
+                        new RectangleShape(Render.DrawRectangle))));
                     break;
                 case DrawingType.Circle when moved:
-                    Simulation.Add(new PhysicalObject(Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2, new CircleShape(Render.DrawCircle)));
+                    added = Drawing.SelectObject(Simulation.Add(new PhysicalObject(
+                        Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2,
+                        new CircleShape(Render.DrawCircle))));
                     break;
                 case DrawingType.Spring:
                 {
@@ -385,7 +389,7 @@ namespace phytestcs
                                 obj2Pos = mouse.ToWorld();
                             }
 
-                            Simulation.Add(new Spring(Drawing.DragSpring.Constant,
+                            added = Simulation.Add(new Spring(Drawing.DragSpring.Constant,
                                 Drawing.DragSpring.TargetLength, DefaultSpringSize,
                                 Drawing.DragSpring.End1.Object, Drawing.DragSpring.End1.RelPos, obj2, obj2Pos));
                         }
@@ -404,7 +408,7 @@ namespace phytestcs
 
                         if (obj != null && !obj.HasFixate)
                         {
-                            Simulation.Add(new Fixate(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
+                            added = Simulation.Add(new Fixate(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
                         }
                     }
 
@@ -422,7 +426,8 @@ namespace phytestcs
                             var obj2pos = mouse.ToWorld();
                             if (obj2 != null)
                                 obj2pos = obj2.MapInv(obj2pos);
-                            Simulation.Add(new Hinge(obj, obj.MapInv(mouse.ToWorld()), DefaultSpringSize, obj2, obj2pos));
+                            added = Simulation.Add(
+                                new Hinge(obj, obj.MapInv(mouse.ToWorld()), DefaultSpringSize, obj2, obj2pos));
                         }
                     }
 
@@ -448,7 +453,8 @@ namespace phytestcs
 
                         if (obj != null && !obj.HasFixate)
                         {
-                            Simulation.Add(new Tracer(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize, RandomColor()));
+                            added = Simulation.Add(new Tracer(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize,
+                                RandomColor()));
                         }
                     }
 
@@ -462,7 +468,7 @@ namespace phytestcs
 
                         if (obj != null)
                         {
-                            Simulation.Add(new Thruster(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
+                            added = Simulation.Add(new Thruster(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
                         }
                     }
 
@@ -473,16 +479,19 @@ namespace phytestcs
                     if (!moved)
                     {
                         var obj = PhysObjectAtPosition(mouse);
+                        var pos = mouse.ToWorld();
 
                         if (obj != null)
-                        {
-                            Simulation.Add(new Laser(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
-                        }
+                            pos = obj.MapInv(pos);
+
+                        added = Simulation.Add(new Laser(obj, pos, DefaultObjectSize));
                     }
 
                     break;
                 }
             }
+
+            added?.UpdatePhysics(0);
         }
 
         private static void Window_KeyReleased(object sender, KeyEventArgs e)

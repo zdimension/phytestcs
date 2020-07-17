@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using phytestcs.Objects;
 using SFML.Graphics;
 using static phytestcs.Global;
 
@@ -6,13 +7,21 @@ namespace phytestcs
 {
     public struct ObjectAppearance
     {
+        [ObjProp("Opaque borders")]
         public bool OpaqueBorders;
+        [ObjProp("Draw circle cake")]
         public bool DrawCircleCakes;
+        [ObjProp("Ruler")]
         public bool Ruler;
+        [ObjProp("Show forces")]
         public bool ShowForces;
+        [ObjProp("Protractor")]
         public bool Protractor;
+        [ObjProp("Show momenta")]
         public bool ShowMomentums;
+        [ObjProp("Show velocities")]
         public bool ShowVelocities;
+        [ObjProp("Draw borders")]
         public bool Borders;
         
         public ObjectAppearance(bool fromDefault)

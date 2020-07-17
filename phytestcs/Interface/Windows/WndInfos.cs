@@ -8,7 +8,7 @@ namespace phytestcs.Interface.Windows
     public class WndInfos : WndBase<Object>
     {
         public WndInfos(Object obj, Vector2f pos)
-            : base(obj, obj.Name, 440, pos)
+            : base(obj, 440, pos)
         {
             var header = new Label();
             if (obj is PhysicalObject)

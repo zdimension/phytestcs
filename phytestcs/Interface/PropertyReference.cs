@@ -6,15 +6,15 @@ namespace phytestcs.Interface
 {
     public class PropertyReference<T>
     {
-        private readonly MemberInfo _property;
-        private readonly object _target;
+        private readonly MemberInfo? _property;
+        private readonly object? _target;
 
-        public PropertyReference(PropertyInfo property, object target)
+        public PropertyReference(PropertyInfo property, object? target)
         {
-            _property = property;
+            _property = property ?? throw new ArgumentNullException(nameof(property));
             _target = target;
-            Getter = (Func<T>) property!.GetGetMethod()!.CreateDelegate(typeof(Func<T>), _target);
-            Setter = (Action<T>) property!.GetSetMethod()?.CreateDelegate(typeof(Action<T>), _target);
+            Getter = (Func<T>) property.GetGetMethod()!.CreateDelegate(typeof(Func<T>), _target)!;
+            Setter = (Action<T>) property.GetSetMethod()?.CreateDelegate(typeof(Action<T>), _target)!;
         }
 
         public PropertyReference(Func<T> getter, Action<T>? setter = null, MemberInfo? member = null)
@@ -41,16 +41,18 @@ namespace phytestcs.Interface
         }
     }
 
-    public sealed class PropertyReference
+    public static class PropertyReference
     {
         public static PropertyReference<T> FromExpression<T>(Expression<Func<T>> property)
         {
+            if (property == null) throw new ArgumentNullException(nameof(property));
+            
             var member = (MemberExpression) property.Body;
 
             switch (member.Member)
             {
                 case PropertyInfo info:
-                    object target = null;
+                    object? target = null;
 
                     if (!info.GetGetMethod()!.IsStatic)
                     {

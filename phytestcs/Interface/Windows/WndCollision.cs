@@ -8,7 +8,7 @@ namespace phytestcs.Interface.Windows
     public class WndCollision : WndBase<PhysicalObject>
     {
         public WndCollision(PhysicalObject obj, Vector2f pos)
-            : base(obj, obj.Name, 250, pos)
+            : base(obj, 250, pos)
         {
             var wrapper = new BitFieldWrapper(() => obj.CollideSet);
             for (var i = 0; i < 16; i++)

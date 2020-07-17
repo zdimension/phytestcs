@@ -6,7 +6,7 @@ namespace phytestcs.Interface.Windows
     public class WndHinge : WndBase<Hinge>
     {
         public WndHinge(Hinge obj, Vector2f pos)
-            : base(obj, obj.Name, 250, pos)
+            : base(obj, 250, pos)
         {
             Add(new CheckField(bindProp: () => obj.Motor));
             Add(new CheckField(bindProp: () => obj.AutoBrake));

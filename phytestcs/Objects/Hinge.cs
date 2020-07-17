@@ -10,7 +10,7 @@ namespace phytestcs.Objects
         private readonly Force _torque2sup;
 
         public Hinge(PhysicalObject object1, Vector2f object1RelPos, float size,
-            PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
+            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
             : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type: type ?? ForceType.Hinge)
         {
             // Algodoo: 1e8 Nm, 0.5

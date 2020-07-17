@@ -13,12 +13,12 @@ namespace phytestcs.Interface
         private bool _uiLoading;
         private bool _value;
 
-        public CheckField(string name = null, Expression<Func<bool>> bindProp = null)
+        public CheckField(string? name = null, Expression<Func<bool>>? bindProp = null)
             : this(name, PropertyReference.FromExpression(bindProp))
         {
         }
 
-        public CheckField(string name = null, PropertyReference<bool> bindProp = null)
+        public CheckField(string? name = null, PropertyReference<bool>? bindProp = null)
         {
             if (bindProp != null)
             {

@@ -6,7 +6,7 @@ namespace phytestcs.Interface.Windows
     public class WndAppearance : WndBase<PhysicalObject>
     {
         public WndAppearance(PhysicalObject obj, Vector2f pos)
-            : base(obj, obj.Name, 250, pos)
+            : base(obj, 250, pos)
         {
             var wrapper = new ColorWrapper(() => obj.Color);
 

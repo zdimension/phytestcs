@@ -76,25 +76,15 @@ namespace phytestcs.Interface.Windows
         };
 
         public WndMaterial(PhysicalObject obj, Vector2f pos)
-            : base(obj, obj.Name, 250, pos)
+            : base(obj, 250, pos)
         {
-            HorizontalLayout cur = null;
-            var wrap = new HorizontalWrap();
             for (var i = 0; i < Materials.Length; i++)
             {
-                if (i % 2 == 0)
-                {
-                    cur = new HorizontalLayout();
-                    //Add(cur);
-                }
-
                 var (text, action) = Materials[i];
                 var btn = new Button(text);
                 btn.Clicked += delegate { action(obj); };
-                this.Add(btn);
+                Add(btn);
             }
-
-            //Add(wrap);
 
             Add(new NumberField<float>(0.001f, 100f, bindProp: () => obj.Density, log: true));
             Add(new NumberField<float>(0.001f, 1000f, bindProp: () => obj.Mass, log: true));

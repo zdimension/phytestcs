@@ -74,7 +74,6 @@ namespace phytestcs.Objects
         public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
 
         public IReadOnlyList<Object> Dependents => dependents.ToList().AsReadOnly();
-        public ref ObjectAppearance Appearance => ref _appearance;
 
         public void DependsOn(Object other)
         {
@@ -181,9 +180,10 @@ namespace phytestcs.Objects
 
         private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
         private bool _selected;
-        private ObjectAppearance _appearance = Program.CurrentPalette.Appearance;
+        public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
     }
-
+    
+    [AttributeUsageAttribute( AttributeTargets.All )]
     public class ObjPropAttribute : DisplayNameAttribute
     {
         public string Unit { get; set; }

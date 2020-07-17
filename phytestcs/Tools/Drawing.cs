@@ -159,8 +159,9 @@ namespace phytestcs
         /// <param name="angle">Arc length</param>
         /// <param name="startAngle">Start angle</param>
         /// <returns>Triangle list (fan)</returns>
-        public static VertexArray CircleSector(Vector2f center, float radius, Color c, float angle, float startAngle = 0)
+        public static VertexArray CircleSector(Vector2f center, float radius, Color c, double angle, float startAngle = 0)
         {
+            startAngle = startAngle.ClampWrapPositive((float)(2 * Math.PI));
             var start = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
             var numP = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
             var res = new VertexArray(PrimitiveType.TriangleFan, numP + 1);
@@ -177,6 +178,25 @@ namespace phytestcs
                 if (idx < 0)
                     idx += (int) Render._rotCirclePointCount;
                 res[i + 1] = new Vertex(center + Render._rotCirclePoints[idx] * radius, c);
+            }
+
+            return res;
+        }
+
+        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8, (float)(-Math.PI / 16));
+
+        public static VertexArray CircleCake(Vector2f center, float radius, Color c, float angle)
+        {
+            var res = new VertexArray(_cake);
+
+            for (uint i = 0; i < res.VertexCount; i++)
+            {
+                var vertex = res[i];
+                vertex.Position *= radius;
+                vertex.Position = vertex.Position.Rotate(angle);
+                vertex.Position += center;
+                vertex.Color = c;
+                res[i] = vertex;
             }
 
             return res;

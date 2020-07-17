@@ -14,7 +14,8 @@ namespace phytestcs
         Hinge,
         Move,
         Tracer,
-        Thruster
+        Thruster,
+        Laser
     }
 
     public sealed class Drawing

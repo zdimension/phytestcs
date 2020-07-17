@@ -34,6 +34,7 @@ namespace phytestcs.Interface
             (DrawingType.Hinge, "hinge", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Tracer, "tracer", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Thruster, "thruster", new Ref<BitmapButton>(), new Ref<Texture>()),
+            (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>()),
         };
         
         public static void SetDrawMode(DrawingType mode)
@@ -198,7 +199,6 @@ namespace phytestcs.Interface
                 new NumberField<float>(-180, 180, unit: "°",
                     bindProp: () => Simulation.WindAngle, conv: PropConverter.AngleDegrees)
             };
-
 
             GUI.Add(wndAirFr);
             connectButton(btnAirFr, wndAirFr, true);

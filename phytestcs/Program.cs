@@ -466,6 +466,20 @@ namespace phytestcs
 
                     break;
                 }
+                case DrawingType.Laser:
+                {
+                    if (!moved)
+                    {
+                        var obj = PhysObjectAtPosition(mouse);
+
+                        if (obj != null)
+                        {
+                            Simulation.Add(new Laser(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
+                        }
+                    }
+
+                    break;
+                }
             }
         }
 

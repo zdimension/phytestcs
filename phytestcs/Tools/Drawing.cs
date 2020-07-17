@@ -200,6 +200,16 @@ namespace phytestcs
             return new Color((byte) RNG.Next(256), (byte) RNG.Next(256), (byte) RNG.Next(256));
         }
 
+        public static Color WithAlpha(this Color c, byte a)
+        {
+            return new Color(c.R, c.G, c.B, a);
+        }
+        
+        public static Color MultiplyAlpha(this Color c, double a)
+        {
+            return new Color(c.R, c.G, c.B, (byte)(c.A * a));
+        }
+
         public static RendererData GenerateButtonColor(Color c)
         {
             var delta = new Color(20, 20, 20);

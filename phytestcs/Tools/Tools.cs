@@ -53,6 +53,30 @@ namespace phytestcs
         }
         
         public static Vector2i MousePos => Mouse.GetPosition(Render.Window);
+        
+        public static (double min, double max) Extrema(this IEnumerable<double> source)
+        {
+            var min = double.PositiveInfinity;
+            var max = double.NegativeInfinity;
+            
+            foreach (var item in source)
+            {
+                if (item > max)
+                    max = item;
+
+                if (item < min)
+                    min = item;
+            }
+
+            return (min, max);
+        }
+
+        public static double NextDouble(this Random rng, double start, double end)
+        {
+            if (end < start)
+                (start, end) = (end, start);
+            return rng.NextDouble() * (end - start) + start;
+        }
     }
 
     public class Ref<T>

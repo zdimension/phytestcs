@@ -93,39 +93,43 @@ namespace phytestcs.Objects
                     if (minDist != float.PositiveInfinity)
                     {
                         ray.Length = minDist;
-                        var a = ray.Angle;
-                        var (A, B) = minLine;
-                        var N = (B - A).Ortho();
-                        var aI = N.Angle();
-                        var dA = a - aI;
-                        if (dA > (Math.PI / 2))
-                            dA -= (float) Math.PI;
-                        else if (dA < -(Math.PI / 2))
-                            dA += (float) Math.PI;
-                        var newAngle = aI - dA;
-                        ray.DebugInfo += $"i={dA.Degrees(),6:F3}° D={minDist:F8}m";
+                        
+                        var (sideStart, sideEnd) = minLine;
+                        var normal = (sideEnd - sideStart).Ortho();
+                        var normalAngle = normal.Angle();
+                        
+                        var incidenceAngle = ray.Angle - normalAngle;
+                        if (incidenceAngle > (Math.PI / 2))
+                            incidenceAngle -= (float) Math.PI;
+                        else if (incidenceAngle < -(Math.PI / 2))
+                            incidenceAngle += (float) Math.PI;
+                        
+                        // reflected ray angle
+                        var reflectedAngle = normalAngle - incidenceAngle;
+                        
+                        ray.DebugInfo += $"i={incidenceAngle.Degrees(),6:F3}° D={minDist:F8}m";
 
-                        var refOpac = Math.Exp(-Math.Log10(minObj.RefractiveIndex));
-                        var nexOpac = 1 - refOpac;
+                        var opacityRefracted = Math.Exp(-Math.Log10(minObj.RefractiveIndex));
+                        var opacityReflected = 1 - opacityRefracted;
 
-                        var next = new LaserRay(minInter, newAngle, float.PositiveInfinity,
-                            ray.Color.MultiplyAlpha(nexOpac), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
-                        next.Source = ray;
-                        ShootRay(next, depth + 1);
+                        var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
+                            ray.Color.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
+                        reflectedRay.Source = ray;
+                        ShootRay(reflectedRay, depth + 1);
 
                         if (minObj.RefractiveIndex != float.PositiveInfinity)
                         {
                             // refraction
-                            var refAngle =
-                                aI + (float) Math.Asin(Math.Sin(dA) * ray.RefractiveIndex / minObj.RefractiveIndex) +
+                            var refractionAngle =
+                                normalAngle + (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / minObj.RefractiveIndex) +
                                 (float) Math.PI;
                             var newColor = ray.Color;
-                            newColor.A = (byte) (refOpac * newColor.A * (255 - minObj.Color.A) / 255d);
-                            var refra = new LaserRay(minInter, refAngle, float.PositiveInfinity, newColor,
+                            newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
+                            var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
                                 LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
-                            refra.DebugInfo = "ref ";
-                            refra.Source = ray;
-                            ShootRay(refra, depth + 1);
+                            refractedRay.DebugInfo = "ref ";
+                            refractedRay.Source = ray;
+                            ShootRay(refractedRay, depth + 1);
                         }
                     }
                 }

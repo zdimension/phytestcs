@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using phytestcs.Objects;
@@ -37,17 +36,6 @@ namespace phytestcs
             return ((float) (f * 180 / Math.PI)).ClampWrap(180);
         }
 
-        public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) =>
-            a(t.i0, t.i1, t.i2);
-
-        public static T Scatter<T0, T1, T2, T3, T>(in this (T0 i0, T1 i1, T2 i2, T3 i3) t, Func<T0, T1, T2, T3, T> a) =>
-            a(t.i0, t.i1, t.i2, t.i3);
-
-        public static T Scatter<T0, T1, T2, T>(in this (T0 i0, T1 i1, T2 i2) t, Func<T0, T1, T2, T> a) =>
-            a(t.i0, t.i1, t.i2);
-
-        public static T Scatter<T0, T1, T>(in this (T0 i0, T1 i1) t, Func<T0, T1, T> a) => a(t.i0, t.i1);
-
         public static float Radians(this float f)
         {
             return ((float) (f * Math.PI / 180)).ClampWrap((float) Math.PI);
@@ -55,21 +43,17 @@ namespace phytestcs
 
         public static RenderTexture RenderTexture(this Canvas c)
         {
-            return c?.GetType().GetField("myRenderTexture", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.GetValue(c) as RenderTexture;
+            if (c == null) throw new ArgumentNullException(nameof(c));
+            
+            return (RenderTexture)c.GetType().GetField("myRenderTexture", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(c)!;
         }
 
         public static T[] ToArrayLocked<T>(this SynchronizedCollection<T> coll)
         {
+            if (coll == null) throw new ArgumentNullException(nameof(coll));
+            
             lock (coll.SyncRoot)
-            {
-                return coll.ToArray();
-            }
-        }
-
-        public static T[] ToArrayLocked<T, Tc>(this IEnumerable<T> coll, SynchronizedCollection<Tc> c)
-        {
-            lock (c.SyncRoot)
             {
                 return coll.ToArray();
             }
@@ -77,6 +61,8 @@ namespace phytestcs
 
         public static T With<T>(this T obj, Action<T> map)
         {
+            if (map == null) throw new ArgumentNullException(nameof(map));
+            
             map(obj);
             return obj;
         }
@@ -91,19 +77,15 @@ namespace phytestcs
 
         public static CircleShape CenterOrigin(this CircleShape c)
         {
+            if (c == null) throw new ArgumentNullException(nameof(c));
+            
             c.Origin = new Vector2f(c.Radius, c.Radius);
             return c;
         }
 
-
-        public static PropertyInfo GetPropertyInfo<T>(this Expression<Func<T>> prop)
+        public static ObjPropAttribute? GetObjProp(this MemberInfo prop)
         {
-            return (PropertyInfo) ((MemberExpression) prop.Body).Member;
-        }
-
-        public static ObjPropAttribute GetObjProp(this MemberInfo prop)
-        {
-            return prop.GetCustomAttribute<ObjPropAttribute>();
+            return prop?.GetCustomAttribute<ObjPropAttribute>();
         }
 
         public static T Eval<T>(this string s)
@@ -111,16 +93,11 @@ namespace phytestcs
             return CSharpScript.EvaluateAsync<T>(s).Result;
         }
 
-        public static string? ToString<Ta, Tb>(this (Ta, Tb) tuple, CultureInfo culture)
-            where Ta : IFormattable
-            where Tb : IFormattable
+        public static string? ToString<T1, T2>(this (T1, T2) tuple, CultureInfo culture)
+            where T1 : IFormattable
+            where T2 : IFormattable
         {
             return $"({tuple.Item1.ToString(null, culture)}, {tuple.Item2.ToString(null, culture)})";
-        }
-
-        public static string? GetDisplayName(this PropertyInfo prop)
-        {
-            return prop.GetObjProp()?.DisplayName ?? prop!.Name;
         }
 
         public static bool IsNaN(this Vector2f v)

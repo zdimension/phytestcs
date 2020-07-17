@@ -78,9 +78,8 @@ namespace phytestcs.Interface.Windows
         public WndMaterial(PhysicalObject obj, Vector2f pos)
             : base(obj, 250, pos)
         {
-            for (var i = 0; i < Materials.Length; i++)
+            foreach (var (text, action) in Materials)
             {
-                var (text, action) = Materials[i];
                 var btn = new Button(text);
                 btn.Clicked += delegate { action(obj); };
                 Add(btn);

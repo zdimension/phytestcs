@@ -27,9 +27,14 @@ namespace phytestcs
             b = c.B;
         }
 
-        public static (double r, double g, double b) ToDouble(this Color c)
+        public static (double r, double g, double b, double a) ToDouble(this Color c)
         {
-            return (c.R, c.G, c.B);
+            return (c.R / 255d, c.G / 255d, c.B / 255d, c.A / 255d);
+        }
+        
+        public static void Deconstruct(this Color color, out double r, out double g, out double b, out double a)
+        {
+            (r, g, b, a) = color.ToDouble();
         }
         
         public static Color Add(this Color a, Color b)
@@ -182,6 +187,15 @@ namespace phytestcs
         /// </summary>
         /// <returns>Color</returns>
         public static Color RandomColor()
+        {
+            return Program.CurrentPalette.ColorRange.RandomColor();
+        }
+        
+        /// <summary>
+        /// Returns a random color uniformly from the RGB space
+        /// </summary>
+        /// <returns>Color</returns>
+        public static Color RandomColorGlobal()
         {
             return new Color((byte) RNG.Next(256), (byte) RNG.Next(256), (byte) RNG.Next(256));
         }

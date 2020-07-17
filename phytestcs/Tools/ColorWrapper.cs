@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -45,101 +47,137 @@ namespace phytestcs
             get => getter().A;
             set => setter(new Color(getter()) { A = value });
         }
+        
+        public double Ad
+        {
+            get => getter().A / 255d;
+            set => setter(new Color(getter()) { A = (byte)(value * 255) });
+        }
 
         public double H
         {
-            get => ValueHSV.h;
+            get => ValueHSV.H;
             set
             {
                 var hsv = ValueHSV;
-                hsv.h = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
+                hsv.H = value;
+                setter(hsv.ToColor());
             }
         }
 
         public double S
         {
-            get => ValueHSV.s;
+            get => ValueHSV.S;
             set
             {
                 var hsv = ValueHSV;
-                hsv.s = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
+                hsv.S = value;
+                setter(hsv.ToColor());
             }
         }
 
         public double V
         {
-            get => ValueHSV.v;
+            get => ValueHSV.V;
             set
             {
                 var hsv = ValueHSV;
-                hsv.v = value;
-                setter(hsv.Scatter(HsvToRgb).ToColor());
+                hsv.V = value;
+                setter(hsv.ToColor());
             }
         }
 
-        private (double h, double s, double v) ValueHSV => getter().ToDouble().Scatter(RgbToHsv);
+        private HSVA ValueHSV => getter();
+    }
 
-        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-        private static (double h, double s, double v) RgbToHsv(double r, double g, double b)
+    public struct HSVA
+    {
+        public void Deconstruct(out double h, out double s, out double v, out double a)
         {
-            r /= 255.0;
-            g /= 255.0;
-            b /= 255.0;
-            var max = new[] { r, g, b }.Max();
-            var min = new[] { r, g, b }.Min();
+            h = H;
+            s = S;
+            v = V;
+            a = A;
+        }
+
+        public double H;
+        public double S;
+        public double V;
+        public double A;
+
+        public HSVA(double h, double s, double v, double a)
+        {
+            H = h;
+            S = s;
+            V = v;
+            A = a;
+        }
+
+        private HSVA(Color color)
+        {
+            var (r, g, b, a) = color;
+            var (min, max) = new[] {r, g, b}.Extrema();
             var delta = max - min;
-            var h = 0.0;
-            var s = max != 0 ? delta / max : 0;
-            var v = max;
-            if (s == 0)
+            H = 0.0;
+            S = max != 0 ? delta / max : 0;
+            V = max;
+            A = a;
+            if (S == 0)
             {
-                return (h, s, v);
+                return;
             }
             if (r == max)
             {
-                h = (g - b) / delta;
+                H = (g - b) / delta;
             }
             else if (g == max)
             {
-                h = (b - r) / delta + 2.0;
+                H = (b - r) / delta + 2.0;
             }
             else if (b == max)
             {
-                h = (r - g) / delta + 4.0;
+                H = (r - g) / delta + 4.0;
             }
-            h *= 60.0;
-            if (h < 0)
+            H *= 60.0;
+            if (H < 0)
             {
-                h += 360.0;
+                H += 360.0;
             }
-            return (h, s, v);
         }
 
-        public static (byte r, byte g, byte b) HsvToRgb(double h, double s, double v)
+        public Color ToColor()
         {
             var r = 0d;
             var g = 0d;
             var b = 0d;
 
-            var i = Math.Floor(h / 60);
-            var f = h / 60 - i;
-            var p = v * (1 - s);
-            var q = v * (1 - f * s);
-            var t = v * (1 - (1 - f) * s);
+            var i = Math.Floor(H / 60);
+            var f = H / 60 - i;
+            var p = V * (1 - S);
+            var q = V * (1 - f * S);
+            var t = V * (1 - (1 - f) * S);
 
             switch (i % 6)
             {
-                case 0: r = v; g = t; b = p; break;
-                case 1: r = q; g = v; b = p; break;
-                case 2: r = p; g = v; b = t; break;
-                case 3: r = p; g = q; b = v; break;
-                case 4: r = t; g = p; b = v; break;
-                case 5: r = v; g = p; b = q; break;
+                case 0: r = V; g = t; b = p; break;
+                case 1: r = q; g = V; b = p; break;
+                case 2: r = p; g = V; b = t; break;
+                case 3: r = p; g = q; b = V; break;
+                case 4: r = t; g = p; b = V; break;
+                case 5: r = V; g = p; b = q; break;
             }
 
-            return ((byte) (r * 255), (byte) (g * 255), (byte) (b * 255));
+            return new Color((byte) (r * 255), (byte) (g * 255), (byte) (b * 255), (byte)(A * 255));
+        }
+
+        public static implicit operator HSVA(Color color)
+        {
+            return new HSVA(color);
+        }
+
+        public static implicit operator Color(HSVA hsva)
+        {
+            return hsva.ToColor();
         }
     }
 }

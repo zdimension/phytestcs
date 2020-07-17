@@ -32,6 +32,9 @@ namespace phytestcs
 
         public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) =>
             a(t.i0, t.i1, t.i2);
+        
+        public static T Scatter<T0, T1, T2, T3, T>(in this (T0 i0, T1 i1, T2 i2, T3 i3) t, Func<T0, T1, T2, T3, T> a) =>
+            a(t.i0, t.i1, t.i2, t.i3);
 
         public static T Scatter<T0, T1, T2, T>(in this (T0 i0, T1 i1, T2 i2) t, Func<T0, T1, T2, T> a) =>
             a(t.i0, t.i1, t.i2);

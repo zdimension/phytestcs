@@ -142,6 +142,8 @@ namespace phytestcs.Objects
                     laserRay.GetEndClipped()
                 }, laserRay.Color, laserRay.Thickness));
             }
+
+            Render.NumRays += cache.Length;
         }
     }
 

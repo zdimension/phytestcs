@@ -28,7 +28,7 @@ namespace phytestcs.Objects
             : base(@object, relPos)
         {
             Size = size;
-            
+
             UpdatePhysics(0);
         }
         
@@ -47,7 +47,7 @@ namespace phytestcs.Objects
 
                 void ShootRay(LaserRay ray, int depth = 0)
                 {
-                    if (depth > 10 || Rays.Count >= Program.NumRays)
+                    if (depth > 100 || Rays.Count >= Program.NumRays)
                         return;
 
                     if (ray.Color.A == 0)
@@ -101,8 +101,11 @@ namespace phytestcs.Objects
                             dA += (float) Math.PI;
                         var newAngle = aI - dA;
                         ray.DebugInfo += $"i={dA.Degrees(),6:F3}° D={minDist:F8}m";
+
+                        var refOpac = Math.Exp(-Math.Log10(minObj.RefractiveIndex));
+                        var nexOpac = 1 - refOpac;
                         
-                        var next = new LaserRay(minInter, newAngle, float.PositiveInfinity, ray.Color, LaserThickness, ray.EndDistance, ray.RefractiveIndex);
+                        var next = new LaserRay(minInter, newAngle, float.PositiveInfinity, ray.Color.MultiplyAlpha(nexOpac), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
                         next.Source = ray;
                         ShootRay(next, depth + 1);
 
@@ -111,7 +114,9 @@ namespace phytestcs.Objects
                             // refraction
                             var refAngle =
                                 aI + (float) Math.Asin(Math.Sin(dA) * ray.RefractiveIndex / minObj.RefractiveIndex) + (float)Math.PI;
-                            var refra = new LaserRay(minInter, refAngle, float.PositiveInfinity, new Color(0,0,255), LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
+                            var newColor = ray.Color;
+                            newColor.A = (byte) (refOpac * newColor.A * (255 - minObj.Color.A) / 255d);
+                            var refra = new LaserRay(minInter, refAngle, float.PositiveInfinity, newColor, LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
                             refra.DebugInfo = "ref ";
                             refra.Source = ray;
                             ShootRay(refra, depth + 1);

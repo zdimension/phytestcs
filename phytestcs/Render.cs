@@ -131,7 +131,8 @@ namespace phytestcs
                 obj.Draw();
             }
 
-            DrawGrid();
+            if (ShowGrid)
+                DrawGrid();
 
             foreach (var obj in WorldCache)
             {
@@ -139,6 +140,7 @@ namespace phytestcs
             }
         }
 
+        public static bool ShowGrid { get; set; } = true;
         public static Text Statistics;
         private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
 

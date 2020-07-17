@@ -158,6 +158,14 @@ namespace phytestcs.Interface
             buttons.Add(btnRestart);
 
             space();
+            
+            var btnGrid = new BitmapButton {Image = new Texture("icons/big/grid.png")};
+            btnGrid.SetRenderer(brToggle);
+            btnGrid.MouseReleased += (sender, f) =>
+            {
+                Render.ShowGrid = !Render.ShowGrid;
+                btnGrid.SetRenderer(Render.ShowGrid ? brToggle : brDef);
+            };
 
             var btnGrav = new BitmapButton {Image = new Texture("icons/big/gravity.png")};
             btnGrav.SetRenderer(brToggle);

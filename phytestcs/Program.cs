@@ -590,7 +590,7 @@ namespace phytestcs
             }
         }
 
-        public static int NumRays = 10;
+        public static int NumRays = 100;
 
         private static void Window_Resized(object sender, SizeEventArgs e)
         {

@@ -36,7 +36,21 @@ namespace phytestcs.Interface
             (DrawingType.Thruster, "thruster", new Ref<BitmapButton>(), new Ref<Texture>()),
             (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>()),
         };
-        
+
+        private static readonly RendererData brDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
+        private static readonly RendererData brToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
+        public static readonly RendererData brGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
+        public static readonly RendererData brRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
+
+        public static Panel BackPanel;
+
+
+        public static Vector2i ClickPosition;
+        public static DateTime MouseDownTime;
+        public static Vector2i LastClick;
+
+        public static Dictionary<Object, List<ChildWindowEx>> PropertyWindows = new Dictionary<Object, List<ChildWindowEx>>();
+
         public static void SetDrawMode(DrawingType mode)
         {
             Drawing.DrawMode = mode;
@@ -47,13 +61,6 @@ namespace phytestcs.Interface
                     Render.DrawSprite.Texture = text.Value;
             }
         }
-
-        private static readonly RendererData brDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
-        private static readonly RendererData brToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
-        public static readonly RendererData brGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
-        public static readonly RendererData brRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
-
-        public static Panel BackPanel;
 
         private static void InitBackPanel()
         {
@@ -384,13 +391,6 @@ namespace phytestcs.Interface
                 o.InvokeDeleted();
             }
         }
-
-
-        public static Vector2i ClickPosition;
-        public static DateTime MouseDownTime;
-        public static Vector2i LastClick;
-
-        public static Dictionary<Object, List<ChildWindowEx>> PropertyWindows = new Dictionary<Object, List<ChildWindowEx>>();
 
         public static event Action Drawn;
 

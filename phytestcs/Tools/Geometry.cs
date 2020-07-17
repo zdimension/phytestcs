@@ -33,14 +33,14 @@ namespace phytestcs
         {
             return new Vector2f(r.Width, r.Height);
         }
-        
+
         public static T CenterOrigin<T>(this T shape)
             where T : Shape
         {
             shape.Origin = shape.GetLocalBounds().Size() / 2;
             return shape;
         }
-        
+
         public static bool Intersects((Vector2f, Vector2f) a, (Vector2f, Vector2f) b,
             out Vector2f inter, out float distance)
         {

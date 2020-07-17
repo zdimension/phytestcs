@@ -14,9 +14,7 @@ namespace phytestcs.Objects
     }
 
     public interface IRotHasPos : IRotatable, IHasPosition
-    {
-        
-    }
+    {}
 
     public interface IHasLocalGeom
     {

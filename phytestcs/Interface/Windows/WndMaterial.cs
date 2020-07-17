@@ -74,7 +74,7 @@ namespace phytestcs.Interface.Windows
                 o.Color = new Color(255, 165, 63, 255);
             }),
         };
-        
+
         public WndMaterial(PhysicalObject obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)
         {

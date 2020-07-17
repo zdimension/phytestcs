@@ -17,6 +17,27 @@ namespace phytestcs
 {
     public static class Program
     {
+        public const float DoubleClickTime = 500; // millisecondes
+
+        private static (DateTime, Vector2i) _lastMove;
+
+        public static bool _rotating = false;
+        public static bool _moving = false;
+        private static float _rotatingAngle = 0;
+        public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount){FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180)};
+        public static Text _rotText = new Text("", UI.Font, 18){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
+
+        public static float _rotDeltaAngle = 0;
+        public static float _rotStartAngle = 0;
+
+        private static Vector2f CameraMoveVel;
+
+        public static Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
+
+        public static int NumRays = 100;
+
+        public static Palette CurrentPalette;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -138,16 +159,6 @@ namespace phytestcs
             }
         }
 
-        private static (DateTime, Vector2i) _lastMove;
-
-        public static bool _rotating = false;
-        public static bool _moving = false;
-        private static float _rotatingAngle = 0;
-        public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount){FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180)};
-        public static Text _rotText = new Text("", UI.Font, 18){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
-
-        public static float _rotDeltaAngle = 0;
-        public static float _rotStartAngle = 0;
         private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
         {
             if (!_rotating && !_moving && Mouse.IsButtonPressed(Mouse.Button.Right) && ObjectAtPosition(ClickPosition) is Object obj && obj is IRotHasPos rot)
@@ -216,8 +227,6 @@ namespace phytestcs
 
             Camera.SetZoom(factor, Camera.GameView.Center + dz * (e.Position().F() - Render.WindowF / 2).InvertY());
         }
-
-        public const float DoubleClickTime = 500; // millisecondes
 
         private static void Window_DoubleClick()
         {
@@ -295,8 +304,6 @@ namespace phytestcs
 
             LastClick = pos;
         }
-
-        private static Vector2f CameraMoveVel;
 
         public static void Window_MouseButtonPressed(Vector2i pos, Mouse.Button btn)
         {
@@ -508,8 +515,6 @@ namespace phytestcs
             }
         }
 
-        public static Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
-
         private static void Window_KeyPressed(object sender, KeyEventArgs e)
         {
             switch (e.Code)
@@ -590,8 +595,6 @@ namespace phytestcs
             }
         }
 
-        public static int NumRays = 100;
-
         private static void Window_Resized(object sender, SizeEventArgs e)
         {
             //SetZoom(CameraZoom * e.Width / Width);
@@ -605,7 +608,5 @@ namespace phytestcs
         {
             Environment.Exit(0);
         }
-
-        public static Palette CurrentPalette;
     }
 }

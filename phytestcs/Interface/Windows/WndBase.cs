@@ -7,8 +7,6 @@ namespace phytestcs.Interface.Windows
     public class WndBase<T> : ChildWindowEx
     where T : Object
     {
-        public T Object { get; }
-
         public WndBase(T obj, string name, int larg, Vector2f p)
         : base(name, larg)
         {
@@ -21,6 +19,8 @@ namespace phytestcs.Interface.Windows
                 PropertyWindows[obj].Remove(this);
             };
         }
+
+        public T Object { get; }
     }
 
     public class WndBase : WndBase<Object>

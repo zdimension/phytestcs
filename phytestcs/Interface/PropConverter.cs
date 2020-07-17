@@ -23,17 +23,17 @@ namespace phytestcs.Interface
             o => o.Degrees(), (value, old) => value.Radians());
 
         public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
-        
+
         public static readonly PropConverter<float, string> FloatString  = new PropConverter<float, string>(
             o => o.ToString(CultureInfo.InvariantCulture), (value, old) => (float)double.Parse(value, CultureInfo.InvariantCulture));
-        
+
         public static readonly PropConverter<Vector2f, string> Vector2fString  = new PropConverter<Vector2f, string>(
             o => (o.X, o.Y).ToString(CultureInfo.InvariantCulture), (value, old) =>
             {
                 var (x, y) = value.Eval<(double, double)>();
                 return new Vector2f((float)x, (float)y);
             });
-        
+
         public static PropConverter<Torig, Tdisp> Default<Torig, Tdisp>()
         {
             return new PropConverter<Torig, Tdisp>(o => (Tdisp)Convert.ChangeType(o, typeof(Tdisp), CultureInfo.CurrentCulture),
@@ -49,11 +49,8 @@ namespace phytestcs.Interface
     public class PropConverter<Torig, Tdisp>
     {
         public delegate Tdisp Getter(Torig o);
-        public delegate Torig Setter(Tdisp value, Torig old);
 
-        public Getter Get { get; }
-        public Setter Set { get; }
-        public string? NameFormat { get; }
+        public delegate Torig Setter(Tdisp value, Torig old);
 
         public PropConverter(Getter get, Setter set, string? fmt=null)
         {
@@ -61,6 +58,10 @@ namespace phytestcs.Interface
             Set = set;
             NameFormat = fmt;
         }
+
+        public Getter Get { get; }
+        public Setter Set { get; }
+        public string? NameFormat { get; }
 
         public PropConverter<Torig, Tout> Then<Tout>(PropConverter<Tdisp, Tout> next)
         {

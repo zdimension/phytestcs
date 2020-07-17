@@ -30,6 +30,8 @@ namespace phytestcs.Interface.Windows
         private const int hauteurBtn = 20;
         private const int hauteurLigne = hauteurBtn + margeY;
 
+        private const float marge = 1.25f;
+
         private static readonly string[] ObjPhyProps =
         {
             nameof(PhysicalObject.Position),
@@ -45,24 +47,24 @@ namespace phytestcs.Interface.Windows
             nameof(PhysicalObject.TotalEnergy)
         };
 
-        private const float marge = 1.25f;
         private static readonly Color colCourbe = new Color(38, 188, 47);
         private static readonly Color colInteg = new Color(colCourbe) { A = 100 };
         private static readonly Color colGrille = new Color(255, 255, 255, 80);
         private static readonly Color colAxeX = new Color(255, 255, 255, 192);
-        private float _plotStart;
-        private readonly SynchronizedCollection<Vector2f> _points = new SynchronizedCollection<Vector2f>();
-        private readonly Canvas _canvas = new Canvas(lGraphe, hauteur);
-        private readonly ComboBox drop;
 
         private static readonly ReadOnlyCollection<(string, ObjPropAttribute, Func<PhysicalObject, float>)> props;
+        private readonly Canvas _canvas = new Canvas(lGraphe, hauteur);
+
+        private readonly View _canvasView;
+        private readonly SynchronizedCollection<Vector2f> _points = new SynchronizedCollection<Vector2f>();
 
         private readonly Text _textInt = new Text("", UI.Font, 14)
         {
             FillColor = Color.White
         };
 
-        private readonly View _canvasView;
+        private readonly ComboBox drop;
+        private float _plotStart;
 
         static WndPlot()
         {
@@ -88,6 +90,69 @@ namespace phytestcs.Interface.Windows
             }
 
             props = res.AsReadOnly();
+        }
+
+        public WndPlot(PhysicalObject obj, Vector2f pos)
+        : base(obj, obj.Name, lGauche + lGraphe, pos)
+        {
+            var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};
+
+            var btnClear = new BitmapButton(L["Clear"])
+            {
+                Image = new Texture("icons/small/clear.png"),
+                PositionLayout = new Layout2d(margeX, 0),
+                SizeLayout = new Layout2d(largeurBtn, hauteurBtn)
+            };
+            hl.Add(btnClear);
+
+            drop = new ComboBox();
+
+            foreach (var p in props)
+            {
+                drop.AddItem(p.Item1);
+            }
+
+            drop.PositionLayout = new Layout2d(margeX, hauteurLigne);
+            drop.SizeLayout = new Layout2d(largeurBtn, hauteurBtn);
+            hl.Add(drop);
+
+            drop.SetSelectedItemByIndex(2);
+
+            hl.Add(_canvas);
+            _canvas.PositionLayout = new Layout2d(lGauche, 0);
+            _canvas.SizeLayout = new Layout2d(lGraphe, hauteur);
+            _canvas.ParentGui = UI.GUI;
+
+            _plotStart = Simulation.SimDuration;
+            
+            btnClear.Clicked += delegate { ClearPlot(); };
+
+            drop.ItemSelected += delegate { ClearPlot(); };
+
+            _canvasView = new View(_canvas.View);
+
+            Simulation.AfterUpdate += UpdatePlot;
+            UI.Drawn += DrawPlot;
+
+            var btnCSV = new BitmapButton(L["Export to CSV"])
+            {
+                Image = new Texture("icons/small/csv.png"),
+                SizeLayout = new Layout2d(largeurBtn, hauteurBtn),
+                PositionLayout = new Layout2d(margeX, 2 * hauteurLigne)
+            };
+            hl.Add(btnCSV);
+
+            btnCSV.Clicked += btnCSV_Clicked;
+
+            Add(hl);
+
+            Show();
+
+            Closed += delegate
+            {
+                Simulation.AfterUpdate -= UpdatePlot;
+                UI.Drawn -= DrawPlot;
+            };
         }
 
         private void ClearPlot()
@@ -250,69 +315,6 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
             }
 
             _canvas.Display();
-        }
-
-        public WndPlot(PhysicalObject obj, Vector2f pos)
-        : base(obj, obj.Name, lGauche + lGraphe, pos)
-        {
-            var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};
-
-            var btnClear = new BitmapButton(L["Clear"])
-            {
-                Image = new Texture("icons/small/clear.png"),
-                PositionLayout = new Layout2d(margeX, 0),
-                SizeLayout = new Layout2d(largeurBtn, hauteurBtn)
-            };
-            hl.Add(btnClear);
-
-            drop = new ComboBox();
-
-            foreach (var p in props)
-            {
-                drop.AddItem(p.Item1);
-            }
-
-            drop.PositionLayout = new Layout2d(margeX, hauteurLigne);
-            drop.SizeLayout = new Layout2d(largeurBtn, hauteurBtn);
-            hl.Add(drop);
-
-            drop.SetSelectedItemByIndex(2);
-
-            hl.Add(_canvas);
-            _canvas.PositionLayout = new Layout2d(lGauche, 0);
-            _canvas.SizeLayout = new Layout2d(lGraphe, hauteur);
-            _canvas.ParentGui = UI.GUI;
-
-            _plotStart = Simulation.SimDuration;
-            
-            btnClear.Clicked += delegate { ClearPlot(); };
-
-            drop.ItemSelected += delegate { ClearPlot(); };
-
-            _canvasView = new View(_canvas.View);
-
-            Simulation.AfterUpdate += UpdatePlot;
-            UI.Drawn += DrawPlot;
-
-            var btnCSV = new BitmapButton(L["Export to CSV"])
-            {
-                Image = new Texture("icons/small/csv.png"),
-                SizeLayout = new Layout2d(largeurBtn, hauteurBtn),
-                PositionLayout = new Layout2d(margeX, 2 * hauteurLigne)
-            };
-            hl.Add(btnCSV);
-
-            btnCSV.Clicked += btnCSV_Clicked;
-
-            Add(hl);
-
-            Show();
-
-            Closed += delegate
-            {
-                Simulation.AfterUpdate -= UpdatePlot;
-                UI.Drawn -= DrawPlot;
-            };
         }
 
         private void btnCSV_Clicked(object sender, SignalArgsVector2f e)

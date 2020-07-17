@@ -14,14 +14,55 @@ namespace phytestcs
 {
     public static class Render
     {
+        public static RectangleShape DrawRectangle = new RectangleShape();
+        public static CircleShape DrawCircle = new CircleShape();
+        public static Sprite DrawSprite = new Sprite {Scale=new Vector2f(0.5f, 0.5f)};
+
+        public static int NumRays = 0;
+        public static Text Statistics;
+        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
+
+        private static readonly Text txtScale = new Text("", UI.Font, 15){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
+        private static readonly Text txtXAxis = new Text("x", UI.Font, 15);
+        private static readonly Text txtYAxis = new Text("y", UI.Font, 15);
+
+        public static uint Width = 900;
+        public static uint Height = 550;
+        public static RenderWindow Window;
+
+        public static uint _rotCirclePointCount = 360;
+
+        public static readonly Vector2f[] _rotCirclePoints = (
+            from i in Enumerable.Range(0, (int) _rotCirclePointCount)
+            let angle = i * 2 * Math.PI / _rotCirclePointCount
+            select new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle))
+        ).ToArray();
+
+        public static Object[] WorldCache = null;
+
+        static Render()
+        {
+            ResizeTextures();
+        }
+
         [ObjProp("Afficher les forces")]
         public static bool ShowForces { get; set; } = true;
+
         [ObjProp("Afficher les valeurs des forces")]
         public static bool ShowForcesValues { get; set; } = false;
+
         [ObjProp("Afficher les composantes des forces")]
         public static bool ShowForcesComponents { get; set; } = false;
+
         [ObjProp("Échelle des forces", "m/N")]
         public static float ForcesScale { get; set; } = 0.50f;
+
+        public static bool ShowGrid { get; set; } = true;
+
+        [ObjProp("Show gravity field")]
+        public static bool ShowGravityField { get; set; } = false;
+
+        public static Vector2f WindowF => new Vector2f(Width, Height);
 
         private static void DrawGrid()
         {
@@ -72,9 +113,6 @@ namespace phytestcs
             Window.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
         }
 
-        public static RectangleShape DrawRectangle = new RectangleShape();
-        public static CircleShape DrawCircle = new CircleShape();
-        public static Sprite DrawSprite = new Sprite {Scale=new Vector2f(0.5f, 0.5f)};
         public static void DrawDrawing()
         {
             var mouse = Mouse.GetPosition(Window);
@@ -119,8 +157,6 @@ namespace phytestcs
             }
         }
 
-        public static int NumRays = 0;
-
         public static void DrawGame()
         {
             Window.Clear(Program.CurrentPalette.SkyColor);
@@ -139,10 +175,6 @@ namespace phytestcs
                 obj.DrawOverlay();
             }
         }
-
-        public static bool ShowGrid { get; set; } = true;
-        public static Text Statistics;
-        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
 
         public static void DrawStatistics()
         {
@@ -259,9 +291,6 @@ Rayons :
             return (factor, ruler);
         }
 
-        [ObjProp("Show gravity field")]
-        public static bool ShowGravityField { get; set; } = false;
-
         public static void DrawGravityField()
         {
             for (var x = 15; x < Width; x += 50)
@@ -286,10 +315,6 @@ Rayons :
                 }
             }
         }
-
-        private static readonly Text txtScale = new Text("", UI.Font, 15){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
-        private static readonly Text txtXAxis = new Text("x", UI.Font, 15);
-        private static readonly Text txtYAxis = new Text("y", UI.Font, 15);
 
         public static void DrawAxes(Vector2f pos, float axis=30, float tri=4, float angle=0)
         {
@@ -372,19 +397,9 @@ Rayons :
             Window.Draw(txtYAxis);
         }
 
-        public static uint Width = 900;
-        public static uint Height = 550;
-        public static Vector2f WindowF => new Vector2f(Width, Height);
-        public static RenderWindow Window;
-
         public static void ResizeTextures()
         {
             //TracersTexture = new RenderTexture(Width, Height, Window.Settings);
-        }
-
-        static Render()
-        {
-            ResizeTextures();
         }
 
         public static void DrawRotation()
@@ -420,15 +435,5 @@ Rayons :
                 Window.SetView(Camera.GameView);
             }
         }
-
-        public static uint _rotCirclePointCount = 360;
-
-        public static readonly Vector2f[] _rotCirclePoints = (
-            from i in Enumerable.Range(0, (int) _rotCirclePointCount)
-            let angle = i * 2 * Math.PI / _rotCirclePointCount
-            select new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle))
-        ).ToArray();
-
-        public static Object[] WorldCache = null;
     }
 }

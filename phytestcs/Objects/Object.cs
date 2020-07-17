@@ -14,6 +14,13 @@ namespace phytestcs.Objects
     {
         private static ulong _idCounter;
 
+        private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
+        private readonly SynchronizedCollection<Object> dependents = new SynchronizedCollection<Object>();
+
+        private readonly SynchronizedCollection<Object> parents = new SynchronizedCollection<Object>();
+        private bool _selected;
+        public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
+
         protected Object()
         {
             ID = _idCounter++;
@@ -21,12 +28,10 @@ namespace phytestcs.Objects
 
         public ulong ID { get; }
 
-        private readonly SynchronizedCollection<Object> parents = new SynchronizedCollection<Object>();
-        private readonly SynchronizedCollection<Object> dependents = new SynchronizedCollection<Object>();
-
         public string Name { get; set; }
-        
+
         public abstract IEnumerable<Shape> Shapes { get; }
+
         public virtual Color Color {
             get => Shapes.First().FillColor;
             set
@@ -47,6 +52,24 @@ namespace phytestcs.Objects
             }
         }
 
+        public virtual Color OutlineColor {
+            get => Shapes.First().OutlineColor;
+            set
+            {
+                foreach (var s in Shapes)
+                    s.OutlineColor = value;
+            }
+        }
+
+        public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
+
+        public IReadOnlyList<Object> Dependents => dependents.ToList().AsReadOnly();
+
+        public virtual void Dispose()
+        {
+            //
+        }
+
         private void UpdateOutline()
         {
             Color color;
@@ -61,19 +84,6 @@ namespace phytestcs.Objects
 
             OutlineColor = color;
         }
-
-        public virtual Color OutlineColor {
-            get => Shapes.First().OutlineColor;
-            set
-            {
-                foreach (var s in Shapes)
-                    s.OutlineColor = value;
-            }
-        }
-
-        public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
-
-        public IReadOnlyList<Object> Dependents => dependents.ToList().AsReadOnly();
 
         public void DependsOn(Object other)
         {
@@ -142,11 +152,6 @@ namespace phytestcs.Objects
             return Shapes.Any(s => s.Contains(point));
         }
 
-        public virtual void Dispose()
-        {
-            //
-        }
-
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
             if (_bindings.TryGetValue(targetMethod, out var func))
@@ -177,19 +182,11 @@ namespace phytestcs.Objects
 
             _bindings.Remove(getMethod);
         }
-
-        private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
-        private bool _selected;
-        public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
     }
     
     [AttributeUsageAttribute( AttributeTargets.All )]
     public class ObjPropAttribute : DisplayNameAttribute
     {
-        public string Unit { get; set; }
-        public string UnitInteg { get; set; }
-        public string UnitDeriv { get; set; }
-
         public ObjPropAttribute(string displayName, string unit="", string unitInteg=null, string unitDeriv=null)
         : base(L[displayName])
         {
@@ -197,6 +194,10 @@ namespace phytestcs.Objects
             UnitInteg = unitInteg ?? (unit + "⋅s");
             UnitDeriv = unitDeriv ?? (unit + "/s");
         }
+
+        public string Unit { get; set; }
+        public string UnitInteg { get; set; }
+        public string UnitDeriv { get; set; }
     }
 
     public class Binding<T>

@@ -8,6 +8,13 @@ namespace phytestcs.Interface
 {
     public class TextField<T> : Panel
     {
+        private readonly Func<T> _getter;
+        private readonly Action<T> _setter;
+        private readonly PropConverter<T, string> converter;
+
+        private string? _oldLoadedVal;
+        private string _value;
+
         public TextField(PropertyReference<T> bindProp, string name, PropConverter<T, string> conv = null)
         {
             (_getter, _setter) = bindProp.GetAccessors();
@@ -50,11 +57,6 @@ namespace phytestcs.Interface
 
         public EditBox Field { get; }
 
-        private readonly Func<T> _getter;
-        private readonly Action<T> _setter;
-        private readonly PropConverter<T, string> converter;
-        private string _value;
-
         public string Value
         {
             get => _value;
@@ -82,8 +84,6 @@ namespace phytestcs.Interface
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }
 
-        private string? _oldLoadedVal;
-
         public void Update()
         {
             var val = converter.Get(_getter());
@@ -96,6 +96,5 @@ namespace phytestcs.Interface
 
             _value = val;
         }
-
     }
 }

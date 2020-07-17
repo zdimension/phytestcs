@@ -10,25 +10,10 @@ namespace phytestcs.Objects
     [Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public class Spring : VirtualObject
     {
-        [ObjProp("Spring constant", "N/m")]
-        public float Constant { get; set; }
-        [ObjProp("Target length", "m")]
-        public float TargetLength { get; set; }
-        [ObjProp("Damping")]
-        public float Damping { get; set; } = 0.10f;
-        public SpringEnd End1 { get; }
-        public SpringEnd End2 { get; }
         protected readonly Force _force1;
         protected readonly Force _force2;
 
-        public Vector2f Delta => End1.Position - End2.Position;
-
-        public bool ShowInfos { get; set; } = true;
-        public float Size
-        {
-            get => End1.Size;
-            set => End1.Size = End2.Size = value;
-        }
+        private readonly Text _legende = new Text("", UI.Font, 13){FillColor = Color.Black};
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
@@ -57,6 +42,28 @@ namespace phytestcs.Objects
             Color = Color.Black;
 
             UpdateForce();
+        }
+
+        [ObjProp("Spring constant", "N/m")]
+        public float Constant { get; set; }
+
+        [ObjProp("Target length", "m")]
+        public float TargetLength { get; set; }
+
+        [ObjProp("Damping")]
+        public float Damping { get; set; } = 0.10f;
+
+        public SpringEnd End1 { get; }
+        public SpringEnd End2 { get; }
+
+        public Vector2f Delta => End1.Position - End2.Position;
+
+        public bool ShowInfos { get; set; } = true;
+
+        public float Size
+        {
+            get => End1.Size;
+            set => End1.Size = End2.Size = value;
         }
 
         public float DeltaLength => TargetLength - Delta.Norm();
@@ -95,6 +102,8 @@ namespace phytestcs.Objects
             }
         }
 
+        public override IEnumerable<Shape> Shapes => new[] {End1.Shape, End2.Shape};
+
         public override void UpdatePhysics(float dt)
         {
             UpdateForce();
@@ -120,8 +129,6 @@ namespace phytestcs.Objects
             }
         }
 
-        public override IEnumerable<Shape> Shapes => new[] {End1.Shape, End2.Shape};
-
         public override void Delete(Object source=null)
         {
             End1.Object.Forces.Remove(_force1);
@@ -130,8 +137,6 @@ namespace phytestcs.Objects
 
             base.Delete(source);
         }
-        
-        private readonly Text _legende = new Text("", UI.Font, 13){FillColor = Color.Black};
 
         public override void DrawOverlay()
         {
@@ -197,6 +202,14 @@ namespace phytestcs.Objects
 
     public class SpringEnd : PinnedShapedVirtualObject
     {
+        private readonly CircleShape _shape = new CircleShape();
+
+        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size)
+            : base(@object, relPos)
+        {
+            Size = size;
+        }
+
         public float Size
         {
             get => _shape.Radius * 2;
@@ -208,12 +221,6 @@ namespace phytestcs.Objects
         }
 
         public override Shape Shape => _shape;
-        private readonly CircleShape _shape = new CircleShape();
         public override IEnumerable<Shape> Shapes => new[] {_shape};
-        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size)
-            : base(@object, relPos)
-        {
-            Size = size;
-        }
     }
 }

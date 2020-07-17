@@ -9,6 +9,9 @@ namespace phytestcs.Interface
 {
     public class RadioField : Panel
     {
+        private bool _uiLoading;
+        private bool _value;
+
         public RadioField(string name)
         {
             Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3)};
@@ -26,14 +29,7 @@ namespace phytestcs.Interface
         }
 
         public RadioButton Field { get; }
-        private bool _uiLoading;
-        private void UpdateUI(bool val)
-        {
-            _uiLoading = true;
-            Field.Checked = val;
-            _uiLoading = false;
-        }
-        private bool _value;
+
         public bool Value
         {
             get => _value;
@@ -45,6 +41,13 @@ namespace phytestcs.Interface
 
                 _value = value;
             }
+        }
+
+        private void UpdateUI(bool val)
+        {
+            _uiLoading = true;
+            Field.Checked = val;
+            _uiLoading = false;
         }
     }
 }

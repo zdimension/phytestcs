@@ -24,7 +24,7 @@ namespace phytestcs
                 angle = bound + (angle % bound);
             return angle;
         }
-        
+
         public static float ClampWrapPositive(this float angle, float bound)
         {
             if (angle > bound)
@@ -41,7 +41,7 @@ namespace phytestcs
 
         public static void Scatter<T0, T1, T2>(in this (T0 i0, T1 i1, T2 i2) t, Action<T0, T1, T2> a) =>
             a(t.i0, t.i1, t.i2);
-        
+
         public static T Scatter<T0, T1, T2, T3, T>(in this (T0 i0, T1 i1, T2 i2, T3 i3) t, Func<T0, T1, T2, T3, T> a) =>
             a(t.i0, t.i1, t.i2, t.i3);
 
@@ -49,7 +49,7 @@ namespace phytestcs
             a(t.i0, t.i1, t.i2);
 
         public static T Scatter<T0, T1, T>(in this (T0 i0, T1 i1) t, Func<T0, T1, T> a) => a(t.i0, t.i1);
-        
+
         public static float Radians(this float f)
         {
             return ((float) (f * Math.PI / 180)).ClampWrap((float) Math.PI);
@@ -84,7 +84,6 @@ namespace phytestcs
         }
 
 
-
         public static bool IsBetween<T>(this T x, T a, T b)
             where T : IComparable<T>
         {
@@ -92,14 +91,11 @@ namespace phytestcs
         }
 
 
-
-
         public static CircleShape CenterOrigin(this CircleShape c)
         {
             c.Origin = new Vector2f(c.Radius, c.Radius);
             return c;
         }
-
 
 
         public static PropertyInfo GetPropertyInfo<T>(this Expression<Func<T>> prop)

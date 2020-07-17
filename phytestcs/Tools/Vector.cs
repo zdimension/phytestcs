@@ -19,7 +19,7 @@ namespace phytestcs
         {
             return new Vector2f((float) (r * Math.Cos(theta)), (float) (r * Math.Sin(theta)));
         }
-        
+
         public static Vector2f Normalize(this Vector2f vec)
         {
             var n = vec.Norm();
@@ -36,7 +36,7 @@ namespace phytestcs
         {
             return a.X * b.Y - a.Y * b.X;
         }
-        
+
         public static bool IsOnLine(this Vector2f p, Vector2f v, Vector2f w)
         {
             const float tol = 1e-8f;
@@ -50,7 +50,7 @@ namespace phytestcs
             var projection = v + t * (w - v);  // Projection falls on the segment
             return (p-projection).Norm() <= tol;
         }
-        
+
         public static void Deconstruct(this Vector2i vec, out int x, out int y)
         {
             x = vec.X;
@@ -62,7 +62,7 @@ namespace phytestcs
             x = vec.X;
             y = vec.Y;
         }
-        
+
         public static Vector2i Position(this MouseMoveEventArgs e)
         {
             return new Vector2i(e.X, e.Y);
@@ -117,7 +117,7 @@ namespace phytestcs
         {
             return new Vector2f(vec.X, -vec.Y);
         }
-        
+
         public static Vector2f WithUpdate(this Vector2f v, PhysicalObject o)
         {
             return v - Simulation.TargetDT * o.Velocity / 2;

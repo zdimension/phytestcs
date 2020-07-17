@@ -79,7 +79,7 @@ namespace phytestcs
                 _ => s.PointsGlobal().ContainsPoint(p)
             };
         }
-        
+
         public static bool Contains(this CircleShape c, Vector2f p)
         {
             return (p - c.Position - c.Origin + new Vector2f(c.Radius, c.Radius)).Norm() <= c.Radius;

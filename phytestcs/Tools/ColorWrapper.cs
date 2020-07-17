@@ -18,7 +18,7 @@ namespace phytestcs
             : this(PropertyReference.FromExpression(bindProp))
         {
         }
-        
+
         public ColorWrapper(PropertyReference<Color> bindProp)
         {
             (getter, setter) = bindProp.GetAccessors();
@@ -41,13 +41,13 @@ namespace phytestcs
             get => getter().B;
             set => setter(new Color(getter()) { B = value });
         }
-        
+
         public byte A
         {
             get => getter().A;
             set => setter(new Color(getter()) { A = value });
         }
-        
+
         public double Ad
         {
             get => getter().A / 255d;

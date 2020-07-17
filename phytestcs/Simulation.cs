@@ -11,6 +11,36 @@ namespace phytestcs
 {
     public static class Simulation
     {
+        public const float TargetUPS = 100;
+        public const float TargetDT = 1 / TargetUPS;
+        private static Transform GravityTransform = Transform.Identity;
+
+        public static float ActualGravity;
+        public static float EscapeVelocity = 55;
+        public static float Jump = 40;
+        public static float Walk = 15;
+        public static bool Pause = true;
+        public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
+        public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
+        public static PhysicalObject Player;
+        public static float FPS;
+        public static DateTime PauseA;
+        public static volatile float SimDuration;
+
+        private static float _gravityAngle = -90;
+        private static float _gravity = 9.81f;
+        private static bool _gravityEnabled = true;
+        public static DateTime LastUpdate = DateTime.Now;
+        public static volatile float UPS;
+
+        public static Object[] WorldCache = null;
+        public static PhysicalObject[] WorldCachePhy = null;
+
+        static Simulation()
+        {
+            UpdateGravity();
+        }
+
         [ObjProp("Gravity strength", "m/s²")]
         public static float Gravity
         {
@@ -19,26 +49,32 @@ namespace phytestcs
         }
 
         public static bool AirFriction { get; set; } = false;
+
         [ObjProp("Multiplier", "x")]
         public static float AirFrictionMultiplier { get; set; } = 1;
+
         [ObjProp("Linear term", "N/(m²/s)")]
         public static float AirFrictionLinear { get; set; } = 0.1f;
+
         [ObjProp("Quadratic term", "N/(m³/s²)")]
         public static float AirFrictionQuadratic { get; set; } = 0.01f;
+
         [ObjProp("Air density", "kg/m²")]
         public static float AirDensity { get; set; } = 0.01f;
+
         [ObjProp("Amortissement de rotation", "s⁻¹")]
         public static float RotFrictionLinear { get; set; } = 0.0314f;
 
         [ObjProp("Wind speed", "m/s")]
         public static float WindSpeed { get; set; } = 0;
+
         [ObjProp("Angle du vent", "rad")]
         public static float WindAngle { get; set; } = 0;
 
         public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);
 
         public static Vector2f GravityVector { get; private set; }
-        private static Transform GravityTransform = Transform.Identity;
+
         [ObjProp("Gravity angle", "rad")]
         public static float GravityAngle
         {
@@ -48,19 +84,6 @@ namespace phytestcs
                 _gravityAngle = value;
                 UpdateGravity();
             }
-        }
-
-
-        private static void UpdateGravity()
-        {
-            GravityTransform = Transform.Identity;
-            GravityTransform.Rotate(_gravityAngle);
-            GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
-        }
-
-        static Simulation()
-        {
-            UpdateGravity();
         }
 
         public static bool GravityEnabled
@@ -74,23 +97,18 @@ namespace phytestcs
             }
         }
 
-        public static float ActualGravity;
-        public static float EscapeVelocity = 55;
-        public static float Jump = 40;
-        public static float Walk = 15;
         [ObjProp("Simulation speed", "x")]
         public static float TimeScale { get; set; } = 1;
-        public static bool Pause = true;
-        public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
-        public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
-        public static PhysicalObject Player;
-        public static float FPS;
-        public static DateTime PauseA;
-        public static volatile float SimDuration;
 
-        public const float TargetUPS = 100;
-        public const float TargetDT = 1 / TargetUPS;
         private static float ActualDT => TargetDT * TimeScale;
+
+
+        private static void UpdateGravity()
+        {
+            GravityTransform = Transform.Identity;
+            GravityTransform.Rotate(_gravityAngle);
+            GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
+        }
 
         public static T Add<T>(T obj)
             where T : Object
@@ -131,12 +149,7 @@ namespace phytestcs
             UI.btnPlay.SetRenderer(!Pause ? UI.brRed : UI.brGreen);
         }
 
-        private static float _gravityAngle = -90;
-        private static float _gravity = 9.81f;
-        private static bool _gravityEnabled = true;
         public static event Action AfterUpdate;
-        public static DateTime LastUpdate = DateTime.Now;
-        public static volatile float UPS;
 
         public static void UpdatePhysics(bool force=false)
         {
@@ -152,9 +165,6 @@ namespace phytestcs
 
             AfterUpdate?.Invoke();
         }
-
-        public static Object[] WorldCache = null;
-        public static PhysicalObject[] WorldCachePhy = null;
 
         public static void UpdatePhysicsInternal(float dt)
         {

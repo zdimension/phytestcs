@@ -12,13 +12,21 @@ namespace phytestcs.Interface
 {
     public class NumberField<T>: Panel
     {
+        private readonly Func<T> _getter;
+        private readonly Action<T> _setter;
+        private readonly PropConverter<T, float> converter;
+
+        private float? _oldLoadedVal;
+        private bool _uiLoading;
+        private float _value;
+
         public NumberField(float min, float max, string name = null, float val = 0, string unit = null, bool deci = true,
             Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
             PropConverter<T, float> conv = null)
         : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv)
         {
         }
-        
+
         public NumberField(float min, float max, string name=null, float val = 0, string unit = null, bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
             PropConverter<T, float> conv = null)
@@ -147,10 +155,7 @@ namespace phytestcs.Interface
         public Slider Slider { get; }
 
         public Func<float, bool> Validation { get; set; } = x => true;
-        private readonly Func<T> _getter;
-        private readonly Action<T> _setter;
-        private readonly PropConverter<T, float> converter;
-        private float _value;
+
         public float Value
         {
             get => _value;
@@ -173,8 +178,7 @@ namespace phytestcs.Interface
         public float? RightValue { get; set; }
 
         public bool Log { get; set; }
-        private bool _uiLoading;
- 
+
         private void UpdateUI(float val)
         {
             _uiLoading = true;
@@ -182,8 +186,6 @@ namespace phytestcs.Interface
             _uiLoading = false;
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }
-
-        private float? _oldLoadedVal;
 
         public void Update()
         {

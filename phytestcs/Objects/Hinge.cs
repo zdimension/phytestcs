@@ -4,22 +4,11 @@ namespace phytestcs.Objects
 {
     public class Hinge : Spring
     {
-        public float Size { get; }
-        [ObjProp("Motor")]
-        public bool Motor { get; set; }
-        [ObjProp("Brake")]
-        public bool AutoBrake { get; set; }
-        [ObjProp("Reversed")]
-        public bool Reversed { get; set; }
-        [ObjProp("Motor speed", "rpm")]
-        public float MotorSpeed { get; set; } = 15;
-        [ObjProp("Motor torque", "Nm")]
-        public float MotorTorque { get; set; } = 100;
-
         private readonly Force _torque1;
-        private readonly Force _torque2;
         private readonly Force _torque1sup;
+        private readonly Force _torque2;
         private readonly Force _torque2sup;
+
         public Hinge(PhysicalObject object1, Vector2f object1RelPos,float size,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
             : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type: type ?? ForceType.Hinge)
@@ -40,6 +29,23 @@ namespace phytestcs.Objects
                 object2.Forces.Add(_torque2sup);
             }
         }
+
+        public float Size { get; }
+
+        [ObjProp("Motor")]
+        public bool Motor { get; set; }
+
+        [ObjProp("Brake")]
+        public bool AutoBrake { get; set; }
+
+        [ObjProp("Reversed")]
+        public bool Reversed { get; set; }
+
+        [ObjProp("Motor speed", "rpm")]
+        public float MotorSpeed { get; set; } = 15;
+
+        [ObjProp("Motor torque", "Nm")]
+        public float MotorTorque { get; set; } = 100;
 
         public override void Delete(Object source = null)
         {

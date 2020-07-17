@@ -7,8 +7,20 @@ namespace phytestcs.Objects
 {
     public class Tracer : PinnedShapedVirtualObject
     {
+        private readonly SynchronizedCollection<(float, Vector2f)> _points = new SynchronizedCollection<(float, Vector2f)>();
+        private readonly CircleShape _shape = new CircleShape();
+
+        public Tracer(PhysicalObject @object, Vector2f relPos, float size, Color clr, float fadeTime=1.5f)
+            : base(@object, relPos)
+        {
+            Size = size;
+            Color = clr;
+            FadeTime = fadeTime;
+        }
+
         [ObjProp("Fade time", "s")]
         public float FadeTime { get; set; }
+
         [ObjProp("Diameter", "m")]
         public float Size
         {
@@ -21,16 +33,8 @@ namespace phytestcs.Objects
         }
 
         public override Shape Shape => _shape;
-        private readonly CircleShape _shape = new CircleShape();
         public override IEnumerable<Shape> Shapes => new[] {_shape};
-        public Tracer(PhysicalObject @object, Vector2f relPos, float size, Color clr, float fadeTime=1.5f)
-            : base(@object, relPos)
-        {
-            Size = size;
-            Color = clr;
-            FadeTime = fadeTime;
-        }
-        private readonly SynchronizedCollection<(float, Vector2f)> _points = new SynchronizedCollection<(float, Vector2f)>();
+
         public override void Draw()
         {
             lock (_points.SyncRoot)

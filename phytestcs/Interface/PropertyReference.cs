@@ -9,12 +9,7 @@ namespace phytestcs.Interface
     {
         private readonly MemberInfo _property;
         private readonly object _target;
-        public Func<T> Getter { get; }
-        public Action<T>? Setter { get; }
-        public bool ReadOnly => Setter == null;
-        public string? Unit => _property?.GetObjProp()?.Unit;
-        public string? DisplayName => _property?.GetObjProp()?.DisplayName ?? _property?.Name;
-        
+
         public PropertyReference(PropertyInfo property, object target)
         {
             _property = property;
@@ -30,11 +25,17 @@ namespace phytestcs.Interface
             _property = member;
         }
 
+        public Func<T> Getter { get; }
+        public Action<T>? Setter { get; }
+        public bool ReadOnly => Setter == null;
+        public string? Unit => _property?.GetObjProp()?.Unit;
+        public string? DisplayName => _property?.GetObjProp()?.DisplayName ?? _property?.Name;
+
         public static implicit operator PropertyReference<T>(Expression<Func<T>> property)
         {
             return PropertyReference.FromExpression(property);
         }
-        
+
         public (Func<T> getter, Action<T>? setter) GetAccessors()
         {
             return (Getter, Setter);

@@ -8,11 +8,13 @@ namespace phytestcs
 {
     public static partial class Tools
     {
+        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8, (float)(-Math.PI / 16));
+
         public static Color ToColor(this (byte r, byte g, byte b) v)
         {
             return new Color(v.r, v.g, v.b);
         }
-        
+
         public static void Deconstruct(this Color c, out byte r, out byte g, out byte b)
         {
             r = c.R;
@@ -31,12 +33,12 @@ namespace phytestcs
         {
             return (c.R / 255d, c.G / 255d, c.B / 255d, c.A / 255d);
         }
-        
+
         public static void Deconstruct(this Color color, out double r, out double g, out double b, out double a)
         {
             (r, g, b, a) = color.ToDouble();
         }
-        
+
         public static Color Add(this Color a, Color b)
         {
             return new Color(
@@ -60,7 +62,7 @@ namespace phytestcs
                 (byte)Tools.Clamp(a.G * f, 0, 255),
                 (byte)Tools.Clamp(a.B * f, 0, 255));
         }
-        
+
         public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
         {
             var edge = (b - a).Ortho().Normalize() * w;
@@ -72,7 +74,7 @@ namespace phytestcs
                 new Vertex(b - edge / 2, c),
             };
         }
-        
+
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend=false, int? upto=null)
         {
             if (points.Length <= 1 || (upto != null && upto <= 1))
@@ -183,8 +185,6 @@ namespace phytestcs
             return res;
         }
 
-        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8, (float)(-Math.PI / 16));
-
         public static VertexArray CircleCake(Vector2f center, float radius, Color c, float angle)
         {
             var res = new VertexArray(_cake);
@@ -210,7 +210,7 @@ namespace phytestcs
         {
             return Program.CurrentPalette.ColorRange.RandomColor();
         }
-        
+
         /// <summary>
         /// Returns a random color uniformly from the RGB space
         /// </summary>
@@ -224,7 +224,7 @@ namespace phytestcs
         {
             return new Color(c.R, c.G, c.B, a);
         }
-        
+
         public static Color MultiplyAlpha(this Color c, double a)
         {
             return new Color(c.R, c.G, c.B, (byte)(c.A * a));

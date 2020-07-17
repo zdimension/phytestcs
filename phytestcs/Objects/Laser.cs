@@ -7,6 +7,18 @@ namespace phytestcs.Objects
 {
     public class Laser : PinnedShapedVirtualObject, ICollides
     {
+        private readonly RectangleShape _shape = new RectangleShape();
+
+        public readonly SynchronizedCollection<LaserRay> Rays = new SynchronizedCollection<LaserRay>();
+
+        public Laser(PhysicalObject @object, Vector2f relPos, float size)
+            : base(@object, relPos)
+        {
+            Size = size;
+
+            UpdatePhysics(0);
+        }
+
         [ObjProp("Size", "m")]
         public float Size
         {
@@ -17,22 +29,13 @@ namespace phytestcs.Objects
                 _shape.CenterOrigin();
             } 
         }
-        public uint CollideSet { get; set; } = 1;
+
         public float LaserThickness => Size / 6;
         public Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
         [ObjProp("Fade distance", "m")] public float FadeDistance { get; set; } = 300;
         public override Shape Shape => _shape;
-        private readonly RectangleShape _shape = new RectangleShape();
         public override IEnumerable<Shape> Shapes => new[] {_shape};
-        public Laser(PhysicalObject @object, Vector2f relPos, float size)
-            : base(@object, relPos)
-        {
-            Size = size;
-
-            UpdatePhysics(0);
-        }
-        
-        public readonly SynchronizedCollection<LaserRay> Rays = new SynchronizedCollection<LaserRay>();
+        public uint CollideSet { get; set; } = 1;
 
         public override void UpdatePhysics(float dt)
         {
@@ -149,18 +152,6 @@ namespace phytestcs.Objects
 
     public class LaserRay
     {
-        public Vector2f Start { get; set; }
-        public float Angle { get; set; }
-        public float Length { get; set; }
-        //public Vector2f End => Start + Tools.FromPolar(Length, Angle);
-        public Color Color { get; set; }
-        public float Thickness { get; set; }
-        public float StartDistance { get; set; }
-        public float EndDistance => StartDistance + Length;
-        public float RefractiveIndex { get; set; }
-        public string DebugInfo { get; set; }
-        public LaserRay Source { get; set; }
-
         public LaserRay(Vector2f start, float angle, float length, Color color, float thickness, float startDistance, float refrac)
         {
             Start = start;
@@ -171,6 +162,20 @@ namespace phytestcs.Objects
             StartDistance = startDistance;
             RefractiveIndex = refrac;
         }
+
+        public Vector2f Start { get; set; }
+        public float Angle { get; set; }
+
+        public float Length { get; set; }
+
+        //public Vector2f End => Start + Tools.FromPolar(Length, Angle);
+        public Color Color { get; set; }
+        public float Thickness { get; set; }
+        public float StartDistance { get; set; }
+        public float EndDistance => StartDistance + Length;
+        public float RefractiveIndex { get; set; }
+        public string DebugInfo { get; set; }
+        public LaserRay Source { get; set; }
 
         public Vector2f GetEndClipped()
         {

@@ -8,6 +8,24 @@ namespace phytestcs
 {
     public static class Camera
     {
+        public static Vector2f OldSize;
+        public static Vector2f OldPos;
+        public static bool ZoomTransition;
+        public static Vector2f NewSize;
+        public static Vector2f? NewPos;
+        public static DateTime TransitionStart;
+        public static float TransitionDuration = 0.1f;
+        public static float ZoomDelta = 0.3f;
+
+        public static Vector2f? CameraMoveOrigin = null;
+        public static View GameView;
+        public static View MainView;
+
+        /// <summary>
+        /// Pixels par mètre
+        /// </summary>
+        public static float Zoom => Render.Width / GameView.Size.X;
+
         public static void Center()
         {
             SetZoomAbsolute(25);
@@ -36,19 +54,6 @@ namespace phytestcs
             }
         }
 
-        /// <summary>
-        /// Pixels par mètre
-        /// </summary>
-        public static float Zoom => Render.Width / GameView.Size.X;
-        public static Vector2f OldSize;
-        public static Vector2f OldPos;
-        public static bool ZoomTransition;
-        public static Vector2f NewSize;
-        public static Vector2f? NewPos;
-        public static DateTime TransitionStart;
-        public static float TransitionDuration = 0.1f;
-        public static float ZoomDelta = 0.3f;
-
         public static void SetZoom(float val, Vector2f? pos = null, bool abs=false)
         {
             Debug.Assert(val > 0);
@@ -67,10 +72,6 @@ namespace phytestcs
         {
             GameView.Size = (Render.WindowF / val).InvertY();
         }
-
-        public static Vector2f? CameraMoveOrigin = null;
-        public static View GameView;
-        public static View MainView;
 
         public static void CalculateWindow()
         {

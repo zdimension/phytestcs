@@ -15,6 +15,13 @@ namespace phytestcs
 {
     public static partial class Tools
     {
+        public static IEnumerable<Object> ActualObjects => Render.WorldCache.Where(o =>
+            o != Drawing.DragSpring &&
+            o != Drawing.DragSpring?.End1 &&
+            o != Drawing.DragSpring?.End2);
+
+        public static Vector2i MousePos => Mouse.GetPosition(Render.Window);
+
         public static T Transition<T>(T a, T b, DateTime start, float duration)
         {
             return a + ((dynamic)b - (dynamic)a) * Math.Min((float)(DateTime.Now - start).TotalSeconds / duration, 1);
@@ -27,11 +34,6 @@ namespace phytestcs
             if (x.CompareTo(b) > 0) return b;
             return x;
         }
-
-        public static IEnumerable<Object> ActualObjects => Render.WorldCache.Where(o =>
-            o != Drawing.DragSpring &&
-            o != Drawing.DragSpring?.End1 &&
-            o != Drawing.DragSpring?.End2);
 
         public static Object ObjectAtPosition(Vector2i pos)
         {
@@ -51,9 +53,7 @@ namespace phytestcs
         {
             return a + ((dynamic) b - a) / 2;
         }
-        
-        public static Vector2i MousePos => Mouse.GetPosition(Render.Window);
-        
+
         public static (double min, double max) Extrema(this IEnumerable<double> source)
         {
             var min = double.PositiveInfinity;

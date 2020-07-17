@@ -7,21 +7,9 @@ namespace phytestcs.Interface
 {
     public class ChildWindowEx : ChildWindow, IEnumerable<Widget>
     {
-        public Vector2f? StartPosition { get; set; }
-        public bool WasMoved => StartPosition.HasValue && Position != StartPosition.Value;
-        public bool IsMinimized { get; private set; }
-        public VerticalLayout Container { get; }
-        public bool IsMain { get; set; }
-        public bool IsClosing { get; private set; }
-        public void Close()
-        {
-            if (IsClosing)
-                return;
+        private readonly List<Widget> _children = new List<Widget>();
 
-            IsClosing = true;
-            CloseWindow();
-            IsClosing = false;
-        }
+        private float _height;
 
         public ChildWindowEx(string name, int width, bool hide=false, bool minimize=true) : base(name, TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
@@ -55,6 +43,33 @@ namespace phytestcs.Interface
             }
         }
 
+        public Vector2f? StartPosition { get; set; }
+        public bool WasMoved => StartPosition.HasValue && Position != StartPosition.Value;
+        public bool IsMinimized { get; private set; }
+        public VerticalLayout Container { get; }
+        public bool IsMain { get; set; }
+        public bool IsClosing { get; private set; }
+
+        public IEnumerator<Widget> GetEnumerator()
+        {
+            return Widgets.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Close()
+        {
+            if (IsClosing)
+                return;
+
+            IsClosing = true;
+            CloseWindow();
+            IsClosing = false;
+        }
+
         void UpdateSize()
         {
             MaximumSize = Container.Size = MinimumSize = new Vector2f(Container.Size.X,
@@ -62,8 +77,6 @@ namespace phytestcs.Interface
                     ? 0
                     : _height);
         }
-
-        private float _height;
 
         public T Add<T>(T w)
             where T : Widget
@@ -76,22 +89,10 @@ namespace phytestcs.Interface
 
             return w;
         }
-        
-        private readonly List<Widget> _children = new List<Widget>();
 
         public void Show()
         {
             ShowWithEffect(ShowAnimationType.Scale, Time.FromMilliseconds(50));
-        }
-
-        public IEnumerator<Widget> GetEnumerator()
-        {
-            return Widgets.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

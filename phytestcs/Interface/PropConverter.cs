@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using SFML.System;
+using static phytestcs.Global;
 
 namespace phytestcs.Interface
 {
@@ -10,13 +11,13 @@ namespace phytestcs.Interface
             o => o.Norm(), (value, old) => old == default ? new Vector2f(value, 0) : old.Normalize() * value);
 
         public static readonly PropConverter<Vector2f, float> VectorX = new PropConverter<Vector2f, float>(
-            o => o.X, (value, old) => new Vector2f(value, old.Y));
+            o => o.X, (value, old) => new Vector2f(value, old.Y), L["{0} (X)"]);
 
         public static readonly PropConverter<Vector2f, float> VectorY = new PropConverter<Vector2f, float>(
-            o => o.Y, (value, old) => new Vector2f(old.X, value));
+            o => o.Y, (value, old) => new Vector2f(old.X, value), L["{0} (Y)"]);
 
         public static readonly PropConverter<Vector2f, float> VectorAngle = new PropConverter<Vector2f, float>(
-            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value));
+            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value), L["{0} (θ)"]);
 
         public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
             o => o.Degrees(), (value, old) => value.Radians());
@@ -52,11 +53,13 @@ namespace phytestcs.Interface
 
         public Getter Get { get; }
         public Setter Set { get; }
+        public string? NameFormat { get; }
 
-        public PropConverter(Getter get, Setter set)
+        public PropConverter(Getter get, Setter set, string? fmt=null)
         {
             Get = get;
             Set = set;
+            NameFormat = fmt;
         }
 
         public PropConverter<Torig, Tout> Then<Tout>(PropConverter<Tdisp, Tout> next)

@@ -37,6 +37,9 @@ namespace phytestcs.Interface
 
             name ??= "";
             unit ??= "";
+            
+            if (conv?.NameFormat != null)
+                name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
 
             SizeLayout = new Layout2d("100%", "60");
             var lblName = new Label(name) {PositionLayout = new Layout2d("0", "3")};

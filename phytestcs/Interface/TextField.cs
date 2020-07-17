@@ -12,6 +12,8 @@ namespace phytestcs.Interface
         {
             (_getter, _setter) = bindProp.GetAccessors();
             name ??= bindProp.DisplayName;
+            if (conv?.NameFormat != null)
+                name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
             converter = conv ?? PropConverter.Default<T, string>();
 
             UI.Drawn += Update;

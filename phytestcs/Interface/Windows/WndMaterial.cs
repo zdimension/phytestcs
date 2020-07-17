@@ -91,10 +91,10 @@ namespace phytestcs.Interface.Windows
                 var (text, action) = Materials[i];
                 var btn = new Button(text);
                 btn.Clicked += delegate { action(obj); };
-                wrap.Add(btn);
+                this.Add(btn);
             }
 
-            Add(wrap);
+            //Add(wrap);
             
             Add(new NumberField<float>(0.001f, 100f, bindProp: () => obj.Density, log: true));
             Add(new NumberField<float>(0.001f, 1000f, bindProp: () => obj.Mass, log: true));

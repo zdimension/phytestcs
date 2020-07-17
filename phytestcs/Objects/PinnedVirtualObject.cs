@@ -37,15 +37,20 @@ namespace phytestcs.Objects
         protected PinnedShapedVirtualObject(PhysicalObject @object, Vector2f relPos)
             : base(@object, relPos)
         {
-            
+            UpdatePosition();
+        }
+
+        protected void UpdatePosition()
+        {
+            Shape.Rotation = ActualAngle.Degrees();
+            Shape.Position = Position;
         }
         
         public override void Draw()
         {
             base.Draw();
             
-            Shape.Rotation = ActualAngle.Degrees();
-            Shape.Position = Position;
+            UpdatePosition();
             
             Render.Window.Draw(Shape);
         }

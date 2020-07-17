@@ -19,7 +19,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {
-    public class WndPlot : WndBase<Object>
+    public class WndPlot : WndBase<PhysicalObject>
     {
         private const int lGauche = 200;
         private const int lGraphe = 400;
@@ -252,7 +252,7 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
             _canvas.Display();
         }
 
-        public WndPlot(Object obj, Vector2f pos)
+        public WndPlot(PhysicalObject obj, Vector2f pos)
         : base(obj, obj.Name, lGauche + lGraphe, pos)
         {
             var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};

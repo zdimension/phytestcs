@@ -20,7 +20,7 @@ namespace phytestcs.Objects
         public uint CollideSet { get; set; } = 1;
         public float LaserThickness => Size / 6;
         public Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
-        [ObjProp("Fade distance", "m")] public float FadeDistance { get; set; } = 10;
+        [ObjProp("Fade distance", "m")] public float FadeDistance { get; set; } = 300;
         public override Shape Shape => _shape;
         private readonly RectangleShape _shape = new RectangleShape();
         public override IEnumerable<Shape> Shapes => new[] {_shape};
@@ -101,7 +101,6 @@ namespace phytestcs.Objects
                             dA += (float) Math.PI;
                         var newAngle = aI - dA;
                         ray.DebugInfo += $"i={dA.Degrees(),6:F3}° D={minDist:F8}m";
-                        
                         
                         var next = new LaserRay(minInter, newAngle, float.PositiveInfinity, ray.Color, LaserThickness, ray.EndDistance, ray.RefractiveIndex);
                         next.Source = ray;

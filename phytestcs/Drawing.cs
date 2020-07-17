@@ -27,7 +27,7 @@ namespace phytestcs
         public static Spring DragSpring;
         public static Vector2f DragObjectRelPos;
 
-        public static void SelectObject(Object obj)
+        public static Object SelectObject(Object obj)
         {
             if (SelectedObject != null) 
                 SelectedObject.Selected = false;
@@ -36,6 +36,8 @@ namespace phytestcs
             
             if (SelectedObject != null)
                 SelectedObject.Selected = true;
+
+            return obj;
         }
 
         public static Object SelectedObject { get; private set; }

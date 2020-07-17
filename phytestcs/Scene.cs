@@ -8,8 +8,8 @@ using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
-using Object = phytestcs.Objects.Object;
 using static phytestcs.Global;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {

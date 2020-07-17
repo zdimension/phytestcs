@@ -1,7 +1,5 @@
 ﻿using phytestcs.Objects;
-using SFML.Graphics;
 using SFML.System;
-using TGUI;
 
 namespace phytestcs.Interface.Windows
 {

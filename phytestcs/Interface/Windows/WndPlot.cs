@@ -11,11 +11,10 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
+using static phytestcs.Global;
 using ComboBox = TGUI.ComboBox;
-using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
 using View = SFML.Graphics.View;
-using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows
 {

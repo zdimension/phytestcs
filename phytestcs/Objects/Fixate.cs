@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
 

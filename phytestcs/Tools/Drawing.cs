@@ -42,25 +42,25 @@ namespace phytestcs
         public static Color Add(this Color a, Color b)
         {
             return new Color(
-                (byte) Tools.Clamp(a.R + b.R, 0, 255), 
-                (byte) Tools.Clamp(a.G + b.G, 0, 255),
-                (byte) Tools.Clamp(a.B + b.B, 0, 255));
+                (byte) Clamp(a.R + b.R, 0, 255), 
+                (byte) Clamp(a.G + b.G, 0, 255),
+                (byte) Clamp(a.B + b.B, 0, 255));
         }
 
         public static Color Subtract(this Color a, Color b)
         {
             return new Color(
-                (byte)Tools.Clamp(a.R - b.R, 0, 255),
-                (byte)Tools.Clamp(a.G - b.G, 0, 255),
-                (byte)Tools.Clamp(a.B - b.B, 0, 255));
+                (byte)Clamp(a.R - b.R, 0, 255),
+                (byte)Clamp(a.G - b.G, 0, 255),
+                (byte)Clamp(a.B - b.B, 0, 255));
         }
 
         public static Color Multiply(this Color a, float f)
         {
             return new Color(
-                (byte)Tools.Clamp(a.R * f, 0, 255),
-                (byte)Tools.Clamp(a.G * f, 0, 255),
-                (byte)Tools.Clamp(a.B * f, 0, 255));
+                (byte)Clamp(a.R * f, 0, 255),
+                (byte)Clamp(a.G * f, 0, 255),
+                (byte)Clamp(a.B * f, 0, 255));
         }
 
         public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)

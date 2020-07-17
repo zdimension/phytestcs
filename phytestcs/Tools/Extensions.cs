@@ -5,11 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using phytestcs.Interface.Windows;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using TGUI;
 
 namespace phytestcs

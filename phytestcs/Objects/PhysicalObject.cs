@@ -4,7 +4,6 @@ using System.Linq;
 using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
-using static phytestcs.Global;
 
 namespace phytestcs.Objects
 {

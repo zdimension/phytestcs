@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using TGUI;
 using static phytestcs.Global;
 using static phytestcs.Tools;

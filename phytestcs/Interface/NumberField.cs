@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using phytestcs.Interface.Windows;
-using phytestcs.Objects;
-using SFML.System;
 using TGUI;
 
 namespace phytestcs.Interface

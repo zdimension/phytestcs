@@ -4,14 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using phytestcs.Interface.Windows;
-using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
+using static phytestcs.Global;
 using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
-using static phytestcs.Global;
 
 namespace phytestcs.Interface
 {

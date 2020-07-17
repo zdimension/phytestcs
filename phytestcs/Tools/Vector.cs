@@ -181,7 +181,7 @@ namespace phytestcs
 
         public static Vector2f SetAngle(this Vector2f vec, float angle)
         {
-            return Tools.FromPolar(vec.Norm(), angle);
+            return FromPolar(vec.Norm(), angle);
         }
 
         public static float AngleBetween(this Vector2f a, Vector2f b)

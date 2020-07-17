@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using phytestcs.Interface.Windows;
 using phytestcs.Objects;
 using SFML.System;
 using SFML.Window;
-using TGUI;
-using static phytestcs.Global;
 using Object = phytestcs.Objects.Object;
 
 namespace phytestcs

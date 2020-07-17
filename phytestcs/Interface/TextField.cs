@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using phytestcs.Interface.Windows;
 using TGUI;
 
 namespace phytestcs.Interface

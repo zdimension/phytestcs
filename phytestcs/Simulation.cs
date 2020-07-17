@@ -45,31 +45,30 @@ namespace phytestcs
         public static float Gravity
         {
             get => _gravity;
-            set { _gravity = value; UpdateGravity(); }
+            set
+            {
+                _gravity = value;
+                UpdateGravity();
+            }
         }
 
         public static bool AirFriction { get; set; } = false;
 
-        [ObjProp("Multiplier", "x")]
-        public static float AirFrictionMultiplier { get; set; } = 1;
+        [ObjProp("Multiplier", "x")] public static float AirFrictionMultiplier { get; set; } = 1;
 
-        [ObjProp("Linear term", "N/(m²/s)")]
-        public static float AirFrictionLinear { get; set; } = 0.1f;
+        [ObjProp("Linear term", "N/(m²/s)")] public static float AirFrictionLinear { get; set; } = 0.1f;
 
         [ObjProp("Quadratic term", "N/(m³/s²)")]
         public static float AirFrictionQuadratic { get; set; } = 0.01f;
 
-        [ObjProp("Air density", "kg/m²")]
-        public static float AirDensity { get; set; } = 0.01f;
+        [ObjProp("Air density", "kg/m²")] public static float AirDensity { get; set; } = 0.01f;
 
         [ObjProp("Amortissement de rotation", "s⁻¹")]
         public static float RotFrictionLinear { get; set; } = 0.0314f;
 
-        [ObjProp("Wind speed", "m/s")]
-        public static float WindSpeed { get; set; } = 0;
+        [ObjProp("Wind speed", "m/s")] public static float WindSpeed { get; set; } = 0;
 
-        [ObjProp("Angle du vent", "rad")]
-        public static float WindAngle { get; set; } = 0;
+        [ObjProp("Angle du vent", "rad")] public static float WindAngle { get; set; } = 0;
 
         public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);
 
@@ -97,8 +96,7 @@ namespace phytestcs
             }
         }
 
-        [ObjProp("Simulation speed", "x")]
-        public static float TimeScale { get; set; } = 1;
+        [ObjProp("Simulation speed", "x")] public static float TimeScale { get; set; } = 1;
 
         private static float ActualDT => TargetDT * TimeScale;
 
@@ -151,11 +149,11 @@ namespace phytestcs
 
         public static event Action AfterUpdate;
 
-        public static void UpdatePhysics(bool force=false)
+        public static void UpdatePhysics(bool force = false)
         {
             if (Pause && !force) return;
 
-            var dt = (float)(DateTime.Now - LastUpdate).TotalSeconds;
+            var dt = (float) (DateTime.Now - LastUpdate).TotalSeconds;
 
             LastUpdate = DateTime.Now;
 
@@ -187,12 +185,12 @@ namespace phytestcs
             return AttractorsCache.Where(o => o != excl).Sum(o => o.AttractionEnergyCaused(pos, mass));
         }
 
-        public static Vector2f AttractionField(Vector2f pos, float mass=1f, PhysicalObject excl = null)
+        public static Vector2f AttractionField(Vector2f pos, float mass = 1f, PhysicalObject excl = null)
         {
             return AttractorsCache.Where(o => o != excl).Sum(o => o.AttractionField(pos, mass));
         }
 
-        public static Vector2f GravityField(Vector2f pos, float mass=1f, PhysicalObject excl=null)
+        public static Vector2f GravityField(Vector2f pos, float mass = 1f, PhysicalObject excl = null)
         {
             return GravityVector * mass + AttractionField(pos, mass, excl);
         }

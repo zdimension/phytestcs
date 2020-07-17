@@ -23,7 +23,7 @@ namespace phytestcs
         public byte R
         {
             get => getter().R;
-            set => setter(new Color(getter()) {R = value});
+            set => setter(new Color(getter()) { R = value });
         }
 
         public byte G
@@ -47,7 +47,7 @@ namespace phytestcs
         public double Ad
         {
             get => getter().A / 255d;
-            set => setter(new Color(getter()) { A = (byte)(value * 255) });
+            set => setter(new Color(getter()) { A = (byte) (value * 255) });
         }
 
         public double H
@@ -112,7 +112,7 @@ namespace phytestcs
         private HSVA(Color color)
         {
             var (r, g, b, a) = color;
-            var (min, max) = new[] {r, g, b}.Extrema();
+            var (min, max) = new[] { r, g, b }.Extrema();
             var delta = max - min;
             H = 0.0;
             S = max != 0 ? delta / max : 0;
@@ -122,6 +122,7 @@ namespace phytestcs
             {
                 return;
             }
+
             if (r == max)
             {
                 H = (g - b) / delta;
@@ -134,6 +135,7 @@ namespace phytestcs
             {
                 H = (r - g) / delta + 4.0;
             }
+
             H *= 60.0;
             if (H < 0)
             {
@@ -155,15 +157,39 @@ namespace phytestcs
 
             switch (i % 6)
             {
-                case 0: r = V; g = t; b = p; break;
-                case 1: r = q; g = V; b = p; break;
-                case 2: r = p; g = V; b = t; break;
-                case 3: r = p; g = q; b = V; break;
-                case 4: r = t; g = p; b = V; break;
-                case 5: r = V; g = p; b = q; break;
+                case 0:
+                    r = V;
+                    g = t;
+                    b = p;
+                    break;
+                case 1:
+                    r = q;
+                    g = V;
+                    b = p;
+                    break;
+                case 2:
+                    r = p;
+                    g = V;
+                    b = t;
+                    break;
+                case 3:
+                    r = p;
+                    g = q;
+                    b = V;
+                    break;
+                case 4:
+                    r = t;
+                    g = p;
+                    b = V;
+                    break;
+                case 5:
+                    r = V;
+                    g = p;
+                    b = q;
+                    break;
             }
 
-            return new Color((byte) (r * 255), (byte) (g * 255), (byte) (b * 255), (byte)(A * 255));
+            return new Color((byte) (r * 255), (byte) (g * 255), (byte) (b * 255), (byte) (A * 255));
         }
 
         public static implicit operator HSVA(Color color)

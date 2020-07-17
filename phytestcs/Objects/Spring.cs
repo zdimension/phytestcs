@@ -13,45 +13,42 @@ namespace phytestcs.Objects
         protected readonly Force _force1;
         protected readonly Force _force2;
 
-        private readonly Text _legende = new Text("", UI.Font, 13){FillColor = Color.Black};
+        private readonly Text _legende = new Text("", UI.Font, 13) { FillColor = Color.Black };
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
         {
             Constant = constant;
             TargetLength = targetLength;
-            
+
             type ??= ForceType.Spring;
 
-            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos){Source=this};
+            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos) { Source = this };
             End1 = new SpringEnd(object1, object1RelPos, size);
             End1.Object.Forces.Add(_force1);
             BothDepends(End1);
-            
+
             End2 = new SpringEnd(object2, object2RelPos, size);
-            
+
             if (object2 != null)
             {
-                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos){Source=this};
+                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos) { Source = this };
                 End2.Object.Forces.Add(_force2);
             }
-            
+
             BothDepends(End2);
-            
+
             Size = size;
             Color = Color.Black;
 
             UpdateForce();
         }
 
-        [ObjProp("Spring constant", "N/m")]
-        public float Constant { get; set; }
+        [ObjProp("Spring constant", "N/m")] public float Constant { get; set; }
 
-        [ObjProp("Target length", "m")]
-        public float TargetLength { get; set; }
+        [ObjProp("Target length", "m")] public float TargetLength { get; set; }
 
-        [ObjProp("Damping")]
-        public float Damping { get; set; } = 0.10f;
+        [ObjProp("Damping")] public float Damping { get; set; } = 0.10f;
 
         public SpringEnd End1 { get; }
         public SpringEnd End2 { get; }
@@ -68,7 +65,8 @@ namespace phytestcs.Objects
 
         public float DeltaLength => TargetLength - Delta.Norm();
 
-        public float ElasticEnergy => (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
+        public float ElasticEnergy =>
+            (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
 
         public virtual float Force
         {
@@ -102,7 +100,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public override IEnumerable<Shape> Shapes => new[] {End1.Shape, End2.Shape};
+        public override IEnumerable<Shape> Shapes => new[] { End1.Shape, End2.Shape };
 
         public override void UpdatePhysics(float dt)
         {
@@ -129,7 +127,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public override void Delete(Object source=null)
+        public override void Delete(Object source = null)
         {
             End1.Object.Forces.Remove(_force1);
 
@@ -217,10 +215,10 @@ namespace phytestcs.Objects
             {
                 _shape.Radius = value / 2;
                 _shape.CenterOrigin();
-            } 
+            }
         }
 
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] {_shape};
+        public override IEnumerable<Shape> Shapes => new[] { _shape };
     }
 }

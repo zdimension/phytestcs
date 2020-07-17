@@ -8,7 +8,8 @@ namespace phytestcs
 {
     public static partial class Tools
     {
-        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8, (float)(-Math.PI / 16));
+        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8,
+            (float) (-Math.PI / 16));
 
         public static Color ToColor(this (byte r, byte g, byte b) v)
         {
@@ -42,7 +43,7 @@ namespace phytestcs
         public static Color Add(this Color a, Color b)
         {
             return new Color(
-                (byte) Clamp(a.R + b.R, 0, 255), 
+                (byte) Clamp(a.R + b.R, 0, 255),
                 (byte) Clamp(a.G + b.G, 0, 255),
                 (byte) Clamp(a.B + b.B, 0, 255));
         }
@@ -50,17 +51,17 @@ namespace phytestcs
         public static Color Subtract(this Color a, Color b)
         {
             return new Color(
-                (byte)Clamp(a.R - b.R, 0, 255),
-                (byte)Clamp(a.G - b.G, 0, 255),
-                (byte)Clamp(a.B - b.B, 0, 255));
+                (byte) Clamp(a.R - b.R, 0, 255),
+                (byte) Clamp(a.G - b.G, 0, 255),
+                (byte) Clamp(a.B - b.B, 0, 255));
         }
 
         public static Color Multiply(this Color a, float f)
         {
             return new Color(
-                (byte)Clamp(a.R * f, 0, 255),
-                (byte)Clamp(a.G * f, 0, 255),
-                (byte)Clamp(a.B * f, 0, 255));
+                (byte) Clamp(a.R * f, 0, 255),
+                (byte) Clamp(a.G * f, 0, 255),
+                (byte) Clamp(a.B * f, 0, 255));
         }
 
         public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
@@ -75,11 +76,12 @@ namespace phytestcs
             };
         }
 
-        public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend=false, int? upto=null)
+        public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
+            int? upto = null)
         {
             if (points.Length <= 1 || (upto != null && upto <= 1))
                 return new VertexArray(PrimitiveType.TriangleStrip, 0);
-            
+
             var a = points[0];
             var b = points[1];
             var edge = (b - a).Ortho().Normalize();
@@ -98,7 +100,7 @@ namespace phytestcs
 
             res[pos++] = new Vertex(a - w * edge / 2, col);
             res[pos++] = new Vertex(a + w * edge / 2, col);
-            
+
             for (var i = 1; i < end - 1; i++)
             {
                 var p0 = points[i - 1];
@@ -113,6 +115,7 @@ namespace phytestcs
                 {
                     col.A = (byte) (A += dA);
                 }
+
                 res[pos++] = new Vertex(p1 - length * miter, col);
                 res[pos++] = new Vertex(p1 + length * miter, col);
             }
@@ -133,7 +136,8 @@ namespace phytestcs
         /// <param name="c">Color</param>
         /// <param name="angle">Arc length. Default is full circle</param>
         /// <returns>Triangle list (strip)</returns>
-        public static VertexArray CircleOutline(Vector2f center, float radius, float width, Color c, float? angle=null)
+        public static VertexArray CircleOutline(Vector2f center, float radius, float width, Color c,
+            float? angle = null)
         {
             var pts = new Vector2f[Render._rotCirclePointCount];
             var rad = radius + width / 2;
@@ -146,10 +150,12 @@ namespace phytestcs
             }
 
             return VertexLineTri(
-                    pts,
-                    c,
-                    width,
-                    upto: angle == null ? (int?)null : (int) Math.Round(Math.Abs(angle.Value) * Render._rotCirclePointCount / Math.PI / 2));
+                pts,
+                c,
+                width,
+                upto: angle == null
+                    ? (int?) null
+                    : (int) Math.Round(Math.Abs(angle.Value) * Render._rotCirclePointCount / Math.PI / 2));
         }
 
         /// <summary>
@@ -161,14 +167,15 @@ namespace phytestcs
         /// <param name="angle">Arc length</param>
         /// <param name="startAngle">Start angle</param>
         /// <returns>Triangle list (fan)</returns>
-        public static VertexArray CircleSector(Vector2f center, float radius, Color c, double angle, float startAngle = 0)
+        public static VertexArray CircleSector(Vector2f center, float radius, Color c, double angle,
+            float startAngle = 0)
         {
-            startAngle = startAngle.ClampWrapPositive((float)(2 * Math.PI));
-            var start = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
-            var numP = (uint)Math.Round(Render._rotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
+            startAngle = startAngle.ClampWrapPositive((float) (2 * Math.PI));
+            var start = (uint) Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
+            var numP = (uint) Math.Round(Render._rotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
             var res = new VertexArray(PrimitiveType.TriangleFan, numP + 1);
             res[0] = new Vertex(center, c);
-            
+
             for (uint i = 0; i < numP; i++)
             {
                 var idx = (int) start;
@@ -176,7 +183,7 @@ namespace phytestcs
                     idx += (int) i;
                 else
                     idx -= (int) i;
-                idx %= (int)Render._rotCirclePointCount;
+                idx %= (int) Render._rotCirclePointCount;
                 if (idx < 0)
                     idx += (int) Render._rotCirclePointCount;
                 res[i + 1] = new Vertex(center + Render._rotCirclePoints[idx] * radius, c);
@@ -227,7 +234,7 @@ namespace phytestcs
 
         public static Color MultiplyAlpha(this Color c, double a)
         {
-            return new Color(c.R, c.G, c.B, (byte)(c.A * a));
+            return new Color(c.R, c.G, c.B, (byte) (c.A * a));
         }
 
         public static RendererData GenerateButtonColor(Color c)

@@ -14,9 +14,11 @@ namespace phytestcs.Interface.Windows
             for (var i = 0; i < 16; i++)
             {
                 var bit = i;
-                Add(new CheckField(string.Format(CultureInfo.InvariantCulture, L["Collision layer {0}"], (char)('A' + i)), 
+                Add(new CheckField(
+                    string.Format(CultureInfo.InvariantCulture, L["Collision layer {0}"], (char) ('A' + i)),
                     new PropertyReference<bool>(() => wrapper[bit], val => wrapper[bit] = val)));
             }
+
             Show();
         }
     }

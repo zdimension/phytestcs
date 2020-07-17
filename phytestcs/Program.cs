@@ -23,8 +23,12 @@ namespace phytestcs
         public static bool _rotating = false;
         public static bool _moving = false;
         private static float _rotatingAngle = 0;
-        public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount){FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180)};
-        public static Text _rotText = new Text("", UI.Font, 18){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
+
+        public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount)
+            { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
+
+        public static Text _rotText = new Text("", UI.Font, 18)
+            { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
         public static float _rotDeltaAngle = 0;
         public static float _rotStartAngle = 0;
@@ -41,8 +45,9 @@ namespace phytestcs
         static void Main(string[] args)
         {
             CurrentPalette = Palette.Default;
-            
-            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default, new ContextSettings {AntialiasingLevel = 4});
+
+            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default,
+                new ContextSettings { AntialiasingLevel = 4 });
             //Render.Window.SetVerticalSyncEnabled(true);
             //Window.SetFramerateLimit(240);
 
@@ -72,7 +77,7 @@ namespace phytestcs
                 {
                     sw.Restart();
                     Simulation.UpdatePhysics();
-                    
+
                     var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
                     if (delta > 0)
                     {
@@ -93,7 +98,7 @@ namespace phytestcs
                     thrPhy.Start();
             });
 
-            var txl = new Text(L["Loading..."], UI.Font, 32) {FillColor = Color.White};
+            var txl = new Text(L["Loading..."], UI.Font, 32) { FillColor = Color.White };
             txl.Origin = txl.GetLocalBounds().Size() / 2;
 
             while (Render.Window.IsOpen)
@@ -109,7 +114,7 @@ namespace phytestcs
                     Render.Window.SetView(Camera.GameView);
 
                     Render.DrawGame();
-                    
+
                     Render.DrawRotation();
 
                     Render.Window.SetView(Camera.MainView);
@@ -142,12 +147,12 @@ namespace phytestcs
 
                 Render.Window.Display();
 
-                var dt = (float)(DateTime.Now - lastUpd).TotalSeconds;
+                var dt = (float) (DateTime.Now - lastUpd).TotalSeconds;
 
                 if (CameraMoveVel != default)
                 {
                     Camera.GameView.Center += CameraMoveVel.InvertY() * dt / Camera.Zoom;
-                    CameraMoveVel *= (float)Math.Exp(-3 * dt);
+                    CameraMoveVel *= (float) Math.Exp(-3 * dt);
                     if (CameraMoveVel.Norm() < 0.001f)
                         CameraMoveVel = default;
                 }
@@ -160,7 +165,8 @@ namespace phytestcs
 
         private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
         {
-            if (!_rotating && !_moving && Mouse.IsButtonPressed(Mouse.Button.Right) && ObjectAtPosition(ClickPosition) is Object obj && obj is IRotHasPos rot)
+            if (!_rotating && !_moving && Mouse.IsButtonPressed(Mouse.Button.Right) &&
+                ObjectAtPosition(ClickPosition) is Object obj && obj is IRotHasPos rot)
             {
                 Drawing.SelectObject(obj);
                 if (obj is PhysicalObject phy)
@@ -182,13 +188,14 @@ namespace phytestcs
                 var newAng = _rotatingAngle + _rotDeltaAngle;
                 if (rotCur.Norm() < _rotCircle.Radius)
                 {
-                    newAng = ((float)(15 * Math.Round(newAng.Degrees() / 15))).Radians();
+                    newAng = ((float) (15 * Math.Round(newAng.Degrees() / 15))).Radians();
                     _rotDeltaAngle = newAng - _rotatingAngle;
                 }
+
                 rotObj.Angle = newAng;
                 Simulation.UpdatePhysicsInternal(0);
             }
-            
+
             if (!_rotating && Camera.CameraMoveOrigin != null &&
                 (Mouse.IsButtonPressed(Mouse.Button.Right) || Mouse.IsButtonPressed(Mouse.Button.Middle)))
             {
@@ -212,7 +219,7 @@ namespace phytestcs
                         Drawing.DragSpring.TargetLength = Drawing.DragSpring.Delta.Norm();
                 }
             }
-            
+
             Drawing.DragSpring?.UpdatePhysics(0);
         }
 
@@ -262,12 +269,13 @@ namespace phytestcs
                         Drawing.DragSpring = null;
                     }
                 }
+
                 if (Drawing.DrawMode != DrawingType.Off)
                 {
                     FinishDrawing();
                 }
             }
-            
+
             if (btn == Mouse.Button.Right)
             {
                 if (_rotating)
@@ -339,7 +347,7 @@ namespace phytestcs
                                         new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
                                             phy, Drawing.DragObjectRelPos, null,
                                             pos.ToWorld(),
-                                            ForceType.Drag) {Damping = 1});
+                                            ForceType.Drag) { Damping = 1 });
                                 }
                             }
                         }

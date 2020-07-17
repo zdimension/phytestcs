@@ -14,11 +14,11 @@ namespace phytestcs.Interface
         private bool _value;
 
         public CheckField(string name = null, Expression<Func<bool>> bindProp = null)
-        : this(name, PropertyReference.FromExpression(bindProp))
+            : this(name, PropertyReference.FromExpression(bindProp))
         {
         }
 
-        public CheckField(string name=null, PropertyReference<bool> bindProp=null)
+        public CheckField(string name = null, PropertyReference<bool> bindProp = null)
         {
             if (bindProp != null)
             {
@@ -28,7 +28,7 @@ namespace phytestcs.Interface
                 UI.Drawn += Update;
             }
 
-            Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3)};
+            Field = new CheckBox(name) { SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3) };
             Field.Toggled += (sender, f) =>
             {
                 if (_uiLoading)

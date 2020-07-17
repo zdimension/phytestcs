@@ -19,7 +19,7 @@ namespace phytestcs.Interface.Windows
             {
                 object converter = null;
                 var type = prop.PropertyType;
-                
+
 
                 if (type == typeof(float))
                 {
@@ -37,13 +37,14 @@ namespace phytestcs.Interface.Windows
                 {
                     continue;
                 }
-                
+
                 var propRef = Activator.CreateInstance(typeof(PropertyReference<>).MakeGenericType(type),
                     prop, obj);
-                
-                Add((Widget)Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), propRef, prop.Name, converter));
+
+                Add((Widget) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), propRef, prop.Name,
+                    converter));
             }
-            
+
             Show();
         }
     }

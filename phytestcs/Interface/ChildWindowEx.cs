@@ -11,7 +11,8 @@ namespace phytestcs.Interface
 
         private float _height;
 
-        public ChildWindowEx(string name, int width, bool hide=false, bool minimize=true) : base(name, TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
+        public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true) : base(name,
+            TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
             Size = new Vector2f(width, 0);
 
@@ -23,15 +24,13 @@ namespace phytestcs.Interface
 
             Minimized += delegate
             {
-                IsMinimized = !IsMinimized; UpdateSize();
+                IsMinimized = !IsMinimized;
+                UpdateSize();
             };
 
             if (hide)
             {
-                Closed += delegate
-                {
-                    Visible = false;
-                };
+                Closed += delegate { Visible = false; };
             }
             else
             {

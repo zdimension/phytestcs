@@ -44,6 +44,7 @@ namespace phytestcs
                     max = projection;
                 }
             }
+
             return new Vector2f(min, max);
         }
 

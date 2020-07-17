@@ -19,7 +19,8 @@ namespace phytestcs
 
         public static T Transition<T>(T a, T b, DateTime start, float duration)
         {
-            return a + ((dynamic)b - (dynamic)a) * Math.Min((float)(DateTime.Now - start).TotalSeconds / duration, 1);
+            return a + ((dynamic) b - (dynamic) a) *
+                Math.Min((float) (DateTime.Now - start).TotalSeconds / duration, 1);
         }
 
         public static T Clamp<T>(T x, T a, T b)
@@ -37,7 +38,7 @@ namespace phytestcs
             return ActualObjects.LastOrDefault(o => o.Contains(loc));
         }
 
-        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject excl=null)
+        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject excl = null)
         {
             var loc = pos.ToWorld();
 
@@ -53,7 +54,7 @@ namespace phytestcs
         {
             var min = double.PositiveInfinity;
             var max = double.NegativeInfinity;
-            
+
             foreach (var item in source)
             {
                 if (item > max)

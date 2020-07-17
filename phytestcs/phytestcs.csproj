@@ -1,60 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="bin\**" />
-    <EmbeddedResource Remove="bin\**" />
-    <None Remove="bin\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.ServiceModel" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.6">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.5" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="TGUI.Net.win-x64" Version="0.8.7.15" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview5.19224.8" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0-preview.18571.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Global.fr.resx">
-      <Generator></Generator>
-    </EmbeddedResource>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <UseWindowsForms>true</UseWindowsForms>
+        <Platforms>AnyCPU;x64</Platforms>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+        <OutputPath>bin\x64\Release\</OutputPath>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="bin\**" />
+        <EmbeddedResource Remove="bin\**" />
+        <None Remove="bin\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.ServiceModel" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.6">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.5" />
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+        <PackageReference Include="TGUI.Net.win-x64" Version="0.8.7.15" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.6.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.6.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="3.6.0" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="System.Buffers" Version="4.5.1" />
+        <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+        <PackageReference Include="System.Memory" Version="4.5.4" />
+        <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview5.19224.8" />
+        <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+        <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0-preview.18571.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Global.fr.resx">
+            <Generator></Generator>
+        </EmbeddedResource>
+    </ItemGroup>
 </Project>

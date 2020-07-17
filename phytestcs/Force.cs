@@ -8,7 +8,7 @@ namespace phytestcs
 {
     public class Force
     {
-        public Force(ForceType type, Vector2f val, Vector2f pos, float ttl=float.PositiveInfinity)
+        public Force(ForceType type, Vector2f val, Vector2f pos, float ttl = float.PositiveInfinity)
         {
             Type = type;
             Value = val;

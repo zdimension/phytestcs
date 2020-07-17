@@ -77,14 +77,14 @@ namespace phytestcs.Interface.Windows
 
                 if (prop.PropertyType == typeof(float))
                 {
-                    res.Add((nom, attr, o => (float)prop.GetValue(o)));
+                    res.Add((nom, attr, o => (float) prop.GetValue(o)));
                 }
                 else if (prop.PropertyType == typeof(Vector2f))
                 {
-                    res.Add((nom, attr, o => ((Vector2f)prop.GetValue(o)).Norm()));
-                    res.Add((nom + " (X)", attr, o => ((Vector2f)prop.GetValue(o)).X));
-                    res.Add((nom + " (Y)", attr, o => ((Vector2f)prop.GetValue(o)).Y));
-                    res.Add((nom + " (θ)", attr, o => ((Vector2f)prop.GetValue(o)).Angle()));
+                    res.Add((nom, attr, o => ((Vector2f) prop.GetValue(o)).Norm()));
+                    res.Add((nom + " (X)", attr, o => ((Vector2f) prop.GetValue(o)).X));
+                    res.Add((nom + " (Y)", attr, o => ((Vector2f) prop.GetValue(o)).Y));
+                    res.Add((nom + " (θ)", attr, o => ((Vector2f) prop.GetValue(o)).Angle()));
                 }
             }
 
@@ -92,9 +92,9 @@ namespace phytestcs.Interface.Windows
         }
 
         public WndPlot(PhysicalObject obj, Vector2f pos)
-        : base(obj, obj.Name, lGauche + lGraphe, pos)
+            : base(obj, obj.Name, lGauche + lGraphe, pos)
         {
-            var hl = new Panel {SizeLayout = new Layout2d(Size.X, hauteur)};
+            var hl = new Panel { SizeLayout = new Layout2d(Size.X, hauteur) };
 
             var btnClear = new BitmapButton(L["Clear"])
             {
@@ -123,7 +123,7 @@ namespace phytestcs.Interface.Windows
             _canvas.ParentGui = UI.GUI;
 
             _plotStart = Simulation.SimDuration;
-            
+
             btnClear.Clicked += delegate { ClearPlot(); };
 
             drop.ItemSelected += delegate { ClearPlot(); };
@@ -162,26 +162,28 @@ namespace phytestcs.Interface.Windows
 
         private void UpdatePlot()
         {
-            _points.Add(new Vector2f(Simulation.SimDuration - _plotStart, -props[drop.GetSelectedItemIndex()].Item3((PhysicalObject)Object)));
+            _points.Add(new Vector2f(Simulation.SimDuration - _plotStart,
+                -props[drop.GetSelectedItemIndex()].Item3((PhysicalObject) Object)));
         }
 
         private void DrawPlotGrid(float maxY)
         {
-            var xFact = (float)Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.X * 0.2)));
-            var xLines = (int)Math.Ceiling(_canvasView.Size.X / xFact);
+            var xFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.X * 0.2)));
+            var xLines = (int) Math.Ceiling(_canvasView.Size.X / xFact);
             var xGrid = new Vertex[xLines * 2];
 
             for (var i = 0; i < xLines; i++)
             {
                 var x = (i - 1) * xFact;
                 xGrid[2 * i] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2), colGrille);
-                xGrid[2 * i + 1] = new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), colGrille);
+                xGrid[2 * i + 1] =
+                    new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), colGrille);
             }
 
             _canvas.Draw(xGrid, PrimitiveType.Lines);
 
-            var yFact = (float)Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.Y * 0.1)));
-            var yLines = (int)Math.Ceiling(_canvasView.Size.Y / yFact);
+            var yFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.Y * 0.1)));
+            var yLines = (int) Math.Ceiling(_canvasView.Size.Y / yFact);
             var yGrid = new Vertex[yLines * 2];
             maxY *= marge;
             var offY = maxY % yFact;
@@ -238,7 +240,6 @@ namespace phytestcs.Interface.Windows
 
                     if (cache.Length > 1)
                     {
-
                         int k;
                         for (k = 0; k < cache.Length; k++)
                         {
@@ -263,7 +264,6 @@ namespace phytestcs.Interface.Windows
                                 integ += (cache[i - 0].Y + cache[i - 1].Y)
                                          * (cache[i - 0].X - cache[i - 1].X)
                                          / 2;
-
                             }
 
                             _canvas.Draw(aire, PrimitiveType.Quads);
@@ -332,7 +332,8 @@ dy/dx = {-deriv,6:F2} {props[drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"{L["Time"]} (s);{props[drop.GetSelectedItemIndex()].Item1} ({props[drop.GetSelectedItemIndex()].Item2.Unit})");
+            sb.AppendLine(
+                $"{L["Time"]} (s);{props[drop.GetSelectedItemIndex()].Item1} ({props[drop.GetSelectedItemIndex()].Item2.Unit})");
 
             lock (_points.SyncRoot)
             {

@@ -50,11 +50,12 @@ namespace phytestcs
             {
                 GameView.Size = Tools.Transition(OldSize, NewSize, TransitionStart, TransitionDuration);
 
-                if (NewPos.HasValue) GameView.Center = Tools.Transition(OldPos, NewPos.Value, TransitionStart, TransitionDuration);
+                if (NewPos.HasValue)
+                    GameView.Center = Tools.Transition(OldPos, NewPos.Value, TransitionStart, TransitionDuration);
             }
         }
 
-        public static void SetZoom(float val, Vector2f? pos = null, bool abs=false)
+        public static void SetZoom(float val, Vector2f? pos = null, bool abs = false)
         {
             Debug.Assert(val > 0);
             OldSize = GameView.Size;

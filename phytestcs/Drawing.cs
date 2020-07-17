@@ -32,11 +32,11 @@ namespace phytestcs
 
         public static Object SelectObject(Object obj)
         {
-            if (SelectedObject != null) 
+            if (SelectedObject != null)
                 SelectedObject.Selected = false;
 
             SelectedObject = obj;
-            
+
             if (SelectedObject != null)
                 SelectedObject.Selected = true;
 

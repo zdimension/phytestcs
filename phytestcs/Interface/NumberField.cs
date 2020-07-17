@@ -6,7 +6,7 @@ using TGUI;
 
 namespace phytestcs.Interface
 {
-    public class NumberField<T>: Panel
+    public class NumberField<T> : Panel
     {
         private readonly Func<T> _getter;
         private readonly Action<T> _setter;
@@ -16,14 +16,16 @@ namespace phytestcs.Interface
         private bool _uiLoading;
         private float _value;
 
-        public NumberField(float min, float max, string name = null, float val = 0, string unit = null, bool deci = true,
+        public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
+            bool deci = true,
             Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
             PropConverter<T, float> conv = null)
-        : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv)
+            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv)
         {
         }
 
-        public NumberField(float min, float max, string name=null, float val = 0, string unit = null, bool deci = true,
+        public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
+            bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
             PropConverter<T, float> conv = null)
         {
@@ -35,21 +37,21 @@ namespace phytestcs.Interface
                 name ??= bindProp.DisplayName;
                 unit ??= bindProp.Unit;
                 converter = conv ?? PropConverter.Default<T, float>();
-                
+
                 UI.Drawn += Update;
             }
 
             name ??= "";
             unit ??= "";
-            
+
             if (conv?.NameFormat != null)
                 name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
 
             SizeLayout = new Layout2d("100%", "60");
-            var lblName = new Label(name) {PositionLayout = new Layout2d("0", "3")};
+            var lblName = new Label(name) { PositionLayout = new Layout2d("0", "3") };
             var lX = lblName.Size.X;
             Add(lblName);
-            
+
             if (!string.IsNullOrWhiteSpace(unit))
             {
                 var lblUnité = new Label(unit);
@@ -97,24 +99,25 @@ namespace phytestcs.Interface
                     //
                 }
             }
-            
+
             Field.ReturnKeyPressed += OnValidated;
 
             float smin, smax;
             if (Log)
             {
-                (smin, smax) = ((float)Math.Log10(min), (float)Math.Log10(max));
+                (smin, smax) = ((float) Math.Log10(min), (float) Math.Log10(max));
             }
             else
             {
                 (smin, smax) = (min, max);
             }
+
             Slider = new Slider(smin, smax);
             if (!Log)
                 Slider.Step = step;
             else
                 Slider.Step = 0;
-            var arr = -(int)Math.Log10(step);
+            var arr = -(int) Math.Log10(step);
             Slider.SizeLayout = new Layout2d("100% - 20", "10");
             Slider.PositionLayout = new Layout2d(10, 30);
             if (bindProp == null)
@@ -178,7 +181,7 @@ namespace phytestcs.Interface
         private void UpdateUI(float val)
         {
             _uiLoading = true;
-            Slider.Value = Log ? (float)Math.Log10(val) : val;
+            Slider.Value = Log ? (float) Math.Log10(val) : val;
             _uiLoading = false;
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }

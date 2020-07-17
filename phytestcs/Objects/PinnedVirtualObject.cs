@@ -59,9 +59,9 @@ namespace phytestcs.Objects
         public override void Draw()
         {
             base.Draw();
-            
+
             UpdatePosition();
-            
+
             Render.Window.Draw(Shape);
         }
     }

@@ -17,7 +17,7 @@ namespace phytestcs.Interface
             Setter = (Action<T>) property!.GetSetMethod()?.CreateDelegate(typeof(Action<T>), _target);
         }
 
-        public PropertyReference(Func<T> getter, Action<T>? setter = null, MemberInfo? member=null)
+        public PropertyReference(Func<T> getter, Action<T>? setter = null, MemberInfo? member = null)
         {
             Getter = getter;
             Setter = setter;
@@ -46,7 +46,7 @@ namespace phytestcs.Interface
         public static PropertyReference<T> FromExpression<T>(Expression<Func<T>> property)
         {
             var member = (MemberExpression) property.Body;
-            
+
             switch (member.Member)
             {
                 case PropertyInfo info:
@@ -66,7 +66,7 @@ namespace phytestcs.Interface
                         Expression.Lambda<Func<T>>(member).Compile(),
                         Expression.Lambda<Action<T>>(Expression.Assign(member, param), param).Compile(),
                         member.Member
-                        );
+                    );
             }
         }
     }

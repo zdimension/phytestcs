@@ -39,7 +39,7 @@ namespace phytestcs
 
             var wn = 0; // the  winding number counter
             var j = V.Length - 1;
-            
+
             // loop through all edges of the polygon
             for (var i = 0; i < V.Length; j = i++)
             {

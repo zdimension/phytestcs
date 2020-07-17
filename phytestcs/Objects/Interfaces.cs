@@ -14,7 +14,8 @@ namespace phytestcs.Objects
     }
 
     public interface IRotHasPos : IRotatable, IHasPosition
-    {}
+    {
+    }
 
     public interface IHasLocalGeom
     {
@@ -35,6 +36,6 @@ namespace phytestcs.Objects
 
     public interface ICollides
     {
-        public uint CollideSet { get;  }
+        public uint CollideSet { get; }
     }
 }

@@ -9,7 +9,7 @@ namespace phytestcs.Interface
 
         public RadioField(string name)
         {
-            Field = new CheckBox(name) {SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3)};
+            Field = new CheckBox(name) { SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3) };
             Field.Toggled += (sender, f) =>
             {
                 if (_uiLoading)

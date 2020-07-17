@@ -65,7 +65,7 @@ namespace phytestcs
             {
                 var text = L["Error while loading script:"] + "\n" + e;
                 Console.WriteLine(text);
-                var msgbox = new MessageBox(L["Error"], text, new[] {"OK"});
+                var msgbox = new MessageBox(L["Error"], text, new[] { "OK" });
                 UI.GUI.Add(msgbox);
                 msgbox.SizeLayout = new Layout2d("800", "200");
                 msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
@@ -86,13 +86,13 @@ namespace phytestcs
             Simulation.TogglePause();
         }
 
-        public static void SoftbodyStaggered(int N=6)
+        public static void SoftbodyStaggered(int N = 6)
         {
             var square = new PhysicalObject[N + 1][];
             var spring = 500;
             var dist = 1.5f;
             var distY = (float) (Math.Sqrt(3) / 2 * dist);
-            var diago = (float)Math.Sqrt(2) * dist;
+            var diago = (float) Math.Sqrt(2) * dist;
 
             void r(int x1, int y1, int x2, int y2)
             {
@@ -106,7 +106,8 @@ namespace phytestcs
                 square[i] = new PhysicalObject[N];
                 for (var j = 0; j < N - i % 2; j++)
                 {
-                    square[i][j] = PhysicalObject.Rectangle(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan, name: "Softbody");
+                    square[i][j] = PhysicalObject.Rectangle(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
+                        name: "Softbody");
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
@@ -135,24 +136,25 @@ namespace phytestcs
             }
         }
 
-        public static void SoftbodySquare(int N=6)
+        public static void SoftbodySquare(int N = 6)
         {
             var square = new PhysicalObject[N][];
             var spring = 500;
             var dist = 1.5f;
-            var diago = (float)Math.Sqrt(2) * dist;
+            var diago = (float) Math.Sqrt(2) * dist;
             for (var i = 0; i < N; i++)
             {
                 square[i] = new PhysicalObject[N];
                 for (var j = 0; j < N; j++)
                 {
-                    square[i][j] = PhysicalObject.Rectangle(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
+                    square[i][j] =
+                        PhysicalObject.Rectangle(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
                     {
-                        Simulation.Add(new Spring(spring, dist, 0.1f, 
-                                square[i][j - 1], default, 
+                        Simulation.Add(new Spring(spring, dist, 0.1f,
+                                square[i][j - 1], default,
                                 square[i][j], default)
                             { ShowInfos = false });
                     }
@@ -162,19 +164,19 @@ namespace phytestcs
                         Simulation.Add(new Spring(spring, dist, 0.1f,
                                 square[i - 1][j], default,
                                 square[i][j], default)
-                            {ShowInfos = false});
+                            { ShowInfos = false });
 
                         if (j > 0)
                         {
                             Simulation.Add(new Spring(spring, diago, 0.1f,
                                     square[i - 1][j - 1], default,
                                     square[i][j], default)
-                                {ShowInfos = false});
+                                { ShowInfos = false });
 
                             Simulation.Add(new Spring(spring, diago, 0.1f,
                                     square[i - 1][j], default,
                                     square[i][j - 1], default)
-                                {ShowInfos = false});
+                                { ShowInfos = false });
                         }
                     }
                 }

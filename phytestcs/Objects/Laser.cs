@@ -27,20 +27,20 @@ namespace phytestcs.Objects
             {
                 _shape.Size = new Vector2f(value, value / 2);
                 _shape.CenterOrigin();
-            } 
+            }
         }
 
         public float LaserThickness => Size / 6;
         public Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
         [ObjProp("Fade distance", "m")] public float FadeDistance { get; set; } = 300;
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] {_shape};
+        public override IEnumerable<Shape> Shapes => new[] { _shape };
         public uint CollideSet { get; set; } = 1;
 
         public override void UpdatePhysics(float dt)
         {
             base.UpdatePhysics(dt);
-            
+
             if (Simulation.WorldCachePhy == null)
                 return;
 
@@ -55,21 +55,21 @@ namespace phytestcs.Objects
 
                     if (ray.Color.A == 0)
                         return;
-                
+
                     Rays.Add(ray);
 
                     ray.Length = Math.Min(FadeDistance - ray.StartDistance, ray.Length);
 
                     if (ray.Length <= 0)
                         return;
-                    
+
                     var end = ray.GetEndClipped();
-                    
+
                     PhysicalObject minObj = null;
                     var minDist = float.PositiveInfinity;
                     Vector2f minInter = default;
                     (Vector2f, Vector2f) minLine = default;
-                    
+
                     foreach (var obj in Simulation.WorldCachePhy)
                     {
                         for (var i = 0; i < obj.GlobalPointsCache.Length; i++)
@@ -107,8 +107,9 @@ namespace phytestcs.Objects
 
                         var refOpac = Math.Exp(-Math.Log10(minObj.RefractiveIndex));
                         var nexOpac = 1 - refOpac;
-                        
-                        var next = new LaserRay(minInter, newAngle, float.PositiveInfinity, ray.Color.MultiplyAlpha(nexOpac), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
+
+                        var next = new LaserRay(minInter, newAngle, float.PositiveInfinity,
+                            ray.Color.MultiplyAlpha(nexOpac), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
                         next.Source = ray;
                         ShootRay(next, depth + 1);
 
@@ -116,18 +117,21 @@ namespace phytestcs.Objects
                         {
                             // refraction
                             var refAngle =
-                                aI + (float) Math.Asin(Math.Sin(dA) * ray.RefractiveIndex / minObj.RefractiveIndex) + (float)Math.PI;
+                                aI + (float) Math.Asin(Math.Sin(dA) * ray.RefractiveIndex / minObj.RefractiveIndex) +
+                                (float) Math.PI;
                             var newColor = ray.Color;
                             newColor.A = (byte) (refOpac * newColor.A * (255 - minObj.Color.A) / 255d);
-                            var refra = new LaserRay(minInter, refAngle, float.PositiveInfinity, newColor, LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
+                            var refra = new LaserRay(minInter, refAngle, float.PositiveInfinity, newColor,
+                                LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
                             refra.DebugInfo = "ref ";
                             refra.Source = ray;
                             ShootRay(refra, depth + 1);
                         }
                     }
                 }
-                
-                ShootRay(new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color, LaserThickness, 0, Object?.RefractiveIndex ?? 1));
+
+                ShootRay(new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color, LaserThickness, 0,
+                    Object?.RefractiveIndex ?? 1));
             }
         }
 
@@ -136,7 +140,7 @@ namespace phytestcs.Objects
             base.Draw();
 
             var cache = Rays.ToArrayLocked();
-            
+
             foreach (var laserRay in cache)
             {
                 Render.Window.Draw(Tools.VertexLineTri(new[]
@@ -152,7 +156,8 @@ namespace phytestcs.Objects
 
     public class LaserRay
     {
-        public LaserRay(Vector2f start, float angle, float length, Color color, float thickness, float startDistance, float refrac)
+        public LaserRay(Vector2f start, float angle, float length, Color color, float thickness, float startDistance,
+            float refrac)
         {
             Start = start;
             Angle = angle;

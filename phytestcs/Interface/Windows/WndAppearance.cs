@@ -18,7 +18,7 @@ namespace phytestcs.Interface.Windows
             Add(new NumberField<double>(0, 360, unit: "°", bindProp: () => wrapper.H));
             Add(new NumberField<double>(0, 1, bindProp: () => wrapper.S));
             Add(new NumberField<double>(0, 1, bindProp: () => wrapper.V));
-            
+
             Show();
         }
     }

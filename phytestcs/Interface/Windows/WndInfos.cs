@@ -29,7 +29,8 @@ namespace phytestcs.Interface.Windows
   - {L["Attraction"]} :
   - {L["Spring"]} :";
             header.SizeLayout = new Layout2d(130, header.Size.Y);
-            var val = new Label {SizeLayout = new Layout2d(280, header.Size.Y), PositionLayout = new Layout2d(130, 0)};
+            var val = new Label
+                { SizeLayout = new Layout2d(280, header.Size.Y), PositionLayout = new Layout2d(130, 0) };
 
             void updateInfos()
             {
@@ -63,7 +64,7 @@ namespace phytestcs.Interface.Windows
                 var epot = epes + eela;
                 var ecin = ecinl + ecina;
                 var etot = epot + ecin;
-                
+
 
                 text += $@"{etot,10:F3} J
 {ecin,10:F3} J
@@ -78,14 +79,11 @@ namespace phytestcs.Interface.Windows
 
             UI.Drawn += updateInfos;
 
-            Closed += delegate
-            {
-                UI.Drawn -= updateInfos;
-            };
+            Closed += delegate { UI.Drawn -= updateInfos; };
 
             updateInfos();
 
-            var pnl = new Panel {SizeLayout = new Layout2d(Size.X, header.Size.Y)};
+            var pnl = new Panel { SizeLayout = new Layout2d(Size.X, header.Size.Y) };
             pnl.Add(header);
             pnl.Add(val);
             Add(pnl);

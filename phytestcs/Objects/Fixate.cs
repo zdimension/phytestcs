@@ -6,8 +6,11 @@ namespace phytestcs.Objects
 {
     public sealed class Fixate : PinnedShapedVirtualObject
     {
-        private readonly RectangleShape rect1 = new RectangleShape(new Vector2f(5, 1)){FillColor = Color.Black}.CenterOrigin().With(o => o.Rotation = +45);
-        private readonly RectangleShape rect2 = new RectangleShape(new Vector2f(5, 1)){FillColor = Color.Black}.CenterOrigin().With(o => o.Rotation = -45);
+        private readonly RectangleShape rect1 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
+            .CenterOrigin().With(o => o.Rotation = +45);
+
+        private readonly RectangleShape rect2 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
+            .CenterOrigin().With(o => o.Rotation = -45);
 
         public Fixate(PhysicalObject @object, Vector2f relPos, float size)
             : base(@object, relPos)
@@ -22,12 +25,12 @@ namespace phytestcs.Objects
             set => rect1.Scale = rect2.Scale = new Vector2f(value, value) / 10f;
         }
 
-        public override IEnumerable<Shape> Shapes => new[] {rect1, rect2};
+        public override IEnumerable<Shape> Shapes => new[] { rect1, rect2 };
 
         public override Shape Shape => rect1;
 
 
-        public override void Delete(Object source=null)
+        public override void Delete(Object source = null)
         {
             Object.HasFixate = false;
 
@@ -36,7 +39,6 @@ namespace phytestcs.Objects
 
         public override void Draw()
         {
-            
         }
 
         public override void DrawOverlay()
@@ -44,7 +46,7 @@ namespace phytestcs.Objects
             base.DrawOverlay();
 
             rect1.Position = rect2.Position = Position;
-            
+
             using var view = new View(Camera.GameView);
             view.Rotate(Object.Angle.Degrees());
             Render.Window.SetView(view);

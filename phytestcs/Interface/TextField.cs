@@ -24,7 +24,7 @@ namespace phytestcs.Interface
             UI.Drawn += Update;
 
             SizeLayout = new Layout2d("100%", "24");
-            var lblName = new Label(name) {PositionLayout = new Layout2d("0", "3")};
+            var lblName = new Label(name) { PositionLayout = new Layout2d("0", "3") };
             var lX = lblName.Size.X;
             Add(lblName);
 
@@ -34,7 +34,7 @@ namespace phytestcs.Interface
                 SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18")
             };
             Add(Field);
-            
+
             if (_setter == null)
                 Field.ReadOnly = true;
 

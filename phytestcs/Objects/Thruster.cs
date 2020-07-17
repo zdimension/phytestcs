@@ -9,8 +9,8 @@ namespace phytestcs.Objects
         private readonly Force _force = new Force(default, default, default);
         private readonly CircleShape _shape = new CircleShape();
 
-        public Thruster(PhysicalObject @object, Vector2f relPos, float size, float force=5, ForceType type = null)
-        : base(@object, relPos)
+        public Thruster(PhysicalObject @object, Vector2f relPos, float size, float force = 5, ForceType type = null)
+            : base(@object, relPos)
         {
             Size = size;
             Force = force;
@@ -18,7 +18,7 @@ namespace phytestcs.Objects
             _force.Type = type ?? ForceType.Thruster;
             _force.Source = this;
             Object.Forces.Add(_force);
-            
+
             UpdatePhysics(0);
         }
 
@@ -35,15 +35,14 @@ namespace phytestcs.Objects
             {
                 _shape.Radius = value / 2;
                 _shape.CenterOrigin();
-            } 
+            }
         }
 
-        [ObjProp("Force", "N")]
-        public float Force { get; set; }
+        [ObjProp("Force", "N")] public float Force { get; set; }
 
         //public bool FollowGeometry { get; set; } = true;
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] {_shape};
+        public override IEnumerable<Shape> Shapes => new[] { _shape };
 
         public override void UpdatePhysics(float dt)
         {

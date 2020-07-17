@@ -16,13 +16,15 @@ namespace phytestcs
     {
         public static RectangleShape DrawRectangle = new RectangleShape();
         public static CircleShape DrawCircle = new CircleShape();
-        public static Sprite DrawSprite = new Sprite {Scale=new Vector2f(0.5f, 0.5f)};
+        public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
         public static int NumRays = 0;
         public static Text Statistics;
-        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20){FillColor = Color.Red};
+        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20) { FillColor = Color.Red };
 
-        private static readonly Text txtScale = new Text("", UI.Font, 15){FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f};
+        private static readonly Text txtScale = new Text("", UI.Font, 15)
+            { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
+
         private static readonly Text txtXAxis = new Text("x", UI.Font, 15);
         private static readonly Text txtYAxis = new Text("y", UI.Font, 15);
 
@@ -35,7 +37,7 @@ namespace phytestcs
         public static readonly Vector2f[] _rotCirclePoints = (
             from i in Enumerable.Range(0, (int) _rotCirclePointCount)
             let angle = i * 2 * Math.PI / _rotCirclePointCount
-            select new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle))
+            select new Vector2f((float) Math.Cos(angle), (float) Math.Sin(angle))
         ).ToArray();
 
         public static Object[] WorldCache = null;
@@ -45,8 +47,7 @@ namespace phytestcs
             ResizeTextures();
         }
 
-        [ObjProp("Afficher les forces")]
-        public static bool ShowForces { get; set; } = true;
+        [ObjProp("Afficher les forces")] public static bool ShowForces { get; set; } = true;
 
         [ObjProp("Afficher les valeurs des forces")]
         public static bool ShowForcesValues { get; set; } = false;
@@ -54,13 +55,11 @@ namespace phytestcs
         [ObjProp("Afficher les composantes des forces")]
         public static bool ShowForcesComponents { get; set; } = false;
 
-        [ObjProp("Échelle des forces", "m/N")]
-        public static float ForcesScale { get; set; } = 0.50f;
+        [ObjProp("Échelle des forces", "m/N")] public static float ForcesScale { get; set; } = 0.50f;
 
         public static bool ShowGrid { get; set; } = true;
 
-        [ObjProp("Show gravity field")]
-        public static bool ShowGravityField { get; set; } = false;
+        [ObjProp("Show gravity field")] public static bool ShowGravityField { get; set; } = false;
 
         public static Vector2f WindowF => new Vector2f(Width, Height);
 
@@ -80,7 +79,7 @@ namespace phytestcs
                 byte a = 40;
                 if (Math.Abs(coord) < fd)
                 {
-                    w = (int)Math.Round(6 / Camera.Zoom * 45 / f);
+                    w = (int) Math.Round(6 / Camera.Zoom * 45 / f);
                     a = 160;
                 }
                 else if (coord % (5 * fd) == 0)
@@ -92,22 +91,24 @@ namespace phytestcs
                 return (w, a);
             }
 
-            for (var x = Math.Round((decimal)start.X / fd) * fd; x < (decimal)end.X; x += fd / 100)
+            for (var x = Math.Round((decimal) start.X / fd) * fd; x < (decimal) end.X; x += fd / 100)
             {
                 if (x % fd != 0)
                     continue;
-                
+
                 var (w, a) = thickness(x);
-                lines.AddRange(Tools.VertexLine(new Vector2f((float)x, start.Y), new Vector2f((float)x, end.Y), new Color(255, 255, 255, a), w * f / 100, false));
+                lines.AddRange(Tools.VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
+                    new Color(255, 255, 255, a), w * f / 100, false));
             }
 
-            for (var y = Math.Round((decimal)start.Y / fd) * fd; y > (decimal)end.Y; y -= fd / 100)
+            for (var y = Math.Round((decimal) start.Y / fd) * fd; y > (decimal) end.Y; y -= fd / 100)
             {
                 if (y % fd != 0)
                     continue;
 
                 var (h, a) = thickness(y);
-                lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float)y), new Vector2f(end.X, (float)y), new Color(255, 255, 255, a), h * f / 100, true));
+                lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
+                    new Color(255, 255, 255, a), h * f / 100, true));
             }
 
             Window.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
@@ -178,7 +179,8 @@ namespace phytestcs
 
         public static void DrawStatistics()
         {
-            var ecin = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
+            var ecin = Enumerable.Sum<Object>(Simulation.WorldCache,
+                o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
             var epes = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as PhysicalObject)?.GravityEnergy ?? 0);
             var eela = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as Spring)?.ElasticEnergy ?? 0);
 
@@ -268,7 +270,7 @@ Rayons :
             }
         }
 
-        private static (float factor, float ruler) CalculateRuler(int min=30, int max=300)
+        private static (float factor, float ruler) CalculateRuler(int min = 30, int max = 300)
         {
             float factor = 1;
             float ruler;
@@ -280,6 +282,7 @@ Rayons :
                 {
                     Debug.Assert(false);
                 }
+
                 if (ruler < min)
                     factor *= 10;
                 else if (ruler > max)
@@ -306,7 +309,8 @@ Rayons :
                     var white = new Color(255, 255, 255, 180);
                     var trans = Transform.Identity;
                     trans.Rotate(-gravity.Angle().Degrees());
-                    Window.Draw(new []{
+                    Window.Draw(new[]
+                    {
                         new Vertex(pos + trans.TransformPoint(new Vector2f(0, 2)), white),
                         new Vertex(pos + trans.TransformPoint(new Vector2f(30, 2)), twhite),
                         new Vertex(pos + trans.TransformPoint(new Vector2f(30, -2)), twhite),
@@ -316,35 +320,37 @@ Rayons :
             }
         }
 
-        public static void DrawAxes(Vector2f pos, float axis=30, float tri=4, float angle=0)
+        public static void DrawAxes(Vector2f pos, float axis = 30, float tri = 4, float angle = 0)
         {
             var d = 1;
             var tr = Transform.Identity;
             tr.Rotate(-angle.Degrees());
+
             Vector2f V(float x, float y)
             {
                 return tr.TransformPoint(new Vector2f(x, y)) + pos;
             }
-            
+
             foreach (var col in new[] { Color.Black, Color.White })
             {
-                Window.Draw(new[]{
+                Window.Draw(new[]
+                {
                     new Vertex(V(d, d), col),
-                    new Vertex(V(d + axis, d), col), 
+                    new Vertex(V(d + axis, d), col),
 
-                    new Vertex(V(d, d), col), 
-                    new Vertex(V(d, d - axis), col) 
+                    new Vertex(V(d, d), col),
+                    new Vertex(V(d, d - axis), col)
                 }, PrimitiveType.Lines);
 
-                Window.Draw(new []
+                Window.Draw(new[]
                 {
                     new Vertex(V(d + axis, d - tri), col),
                     new Vertex(V(d + axis, d + tri), col),
                     new Vertex(V(d + axis + tri, d), col),
 
-                    new Vertex(V(d - tri, - axis), col),
-                    new Vertex(V(d      , - axis - tri), col),
-                    new Vertex(V(d + tri, - axis), col)
+                    new Vertex(V(d - tri, -axis), col),
+                    new Vertex(V(d, -axis - tri), col),
+                    new Vertex(V(d + tri, -axis), col)
                 }, PrimitiveType.Triangles);
 
                 d--;
@@ -361,7 +367,8 @@ Rayons :
             var d = 1;
             foreach (var col in new[] { Color.Black, Color.White })
             {
-                Window.Draw(new[]{
+                Window.Draw(new[]
+                {
                     new Vertex(new Vector2f(d + Width - margin, d + Height - margin), col),
                     new Vertex(new Vector2f(d + Width - margin - r, d + Height - margin), col),
                     new Vertex(new Vector2f(d + Width - margin - r, d + Height - margin - 5), col),
@@ -372,7 +379,7 @@ Rayons :
 
                 d--;
             }
-            
+
             DrawAxes(new Vector2f(margin, Height - margin), 30);
 
             txtScale.Position = new Vector2f(Width - margin - 3, Height - margin - 25);
@@ -427,7 +434,7 @@ Rayons :
                         new Color(255, 0, 255, 100),
                         Program._rotDeltaAngle,
                         Program._rotStartAngle));
-                
+
                 Window.SetView(Camera.MainView);
                 DrawAxes(Program._rotCircle.Position.ToScreen().F(), 20, angle: curAngle);
                 Program._rotText.DisplayedString = $"{curAngle.Degrees():0.#}°";

@@ -32,7 +32,8 @@ namespace phytestcs.Objects
 
         public abstract IEnumerable<Shape> Shapes { get; }
 
-        public virtual Color Color {
+        public virtual Color Color
+        {
             get => Shapes.First().FillColor;
             set
             {
@@ -52,7 +53,8 @@ namespace phytestcs.Objects
             }
         }
 
-        public virtual Color OutlineColor {
+        public virtual Color OutlineColor
+        {
             get => Shapes.First().OutlineColor;
             set
             {
@@ -99,7 +101,7 @@ namespace phytestcs.Objects
 
         public event Action Deleted;
 
-        public virtual void Delete(Object source=null)
+        public virtual void Delete(Object source = null)
         {
             while (dependents.Any())
             {
@@ -134,17 +136,14 @@ namespace phytestcs.Objects
 
         public virtual void UpdatePhysics(float dt)
         {
-
         }
 
         public virtual void Draw()
         {
-
         }
 
         public virtual void DrawOverlay()
         {
-
         }
 
         public virtual bool Contains(Vector2f point)
@@ -164,8 +163,8 @@ namespace phytestcs.Objects
             if (typeof(Tthis) != GetType())
                 throw new ArgumentException(nameof(Tthis));
 
-            var expr = ((MemberExpression)prop.Body);
-            var BindPropInfo = (PropertyInfo)expr.Member;
+            var expr = ((MemberExpression) prop.Body);
+            var BindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = BindPropInfo.GetGetMethod()!;
 
             _bindings[getMethod] = () => value();
@@ -176,19 +175,19 @@ namespace phytestcs.Objects
             if (typeof(Tthis) != GetType())
                 throw new ArgumentException(nameof(Tthis));
 
-            var expr = ((MemberExpression)prop.Body);
-            var BindPropInfo = (PropertyInfo)expr.Member;
+            var expr = ((MemberExpression) prop.Body);
+            var BindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = BindPropInfo.GetGetMethod()!;
 
             _bindings.Remove(getMethod);
         }
     }
-    
-    [AttributeUsageAttribute( AttributeTargets.All )]
+
+    [AttributeUsageAttribute(AttributeTargets.All)]
     public class ObjPropAttribute : DisplayNameAttribute
     {
-        public ObjPropAttribute(string displayName, string unit="", string unitInteg=null, string unitDeriv=null)
-        : base(L[displayName])
+        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null)
+            : base(L[displayName])
         {
             Unit = unit;
             UnitInteg = unitInteg ?? (unit + "⋅s");

@@ -25,7 +25,7 @@ namespace phytestcs
             set
             {
                 var old = getter();
-                old ^= (uint)((value ? -1 : 0) ^ old) & (uint)(1 << bit);
+                old ^= (uint) ((value ? -1 : 0) ^ old) & (uint) (1 << bit);
                 setter(old);
             }
         }

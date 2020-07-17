@@ -20,14 +20,10 @@ namespace phytestcs.Interface.Windows
                     obj2pos = obj2.MapInv(obj2pos);
                 Simulation.Add(new Hinge(obj, default, DefaultSpringSize, obj2, obj2pos));
             }),
-            (L["Add center thruster"], "icons/small/thruster.png", obj =>
-            {
-                Simulation.Add(new Thruster(obj, default, DefaultObjectSize));
-            }),
-            (L["Attach tracer"], "icons/small/tracer.png", obj =>
-            {
-                Simulation.Add(new Tracer(obj, default, DefaultObjectSize, obj.Color));
-            })
+            (L["Add center thruster"], "icons/small/thruster.png",
+                obj => { Simulation.Add(new Thruster(obj, default, DefaultObjectSize)); }),
+            (L["Attach tracer"], "icons/small/tracer.png",
+                obj => { Simulation.Add(new Tracer(obj, default, DefaultObjectSize, obj.Color)); })
         };
 
         public WndActions(PhysicalObject obj, Vector2f pos)
@@ -35,11 +31,11 @@ namespace phytestcs.Interface.Windows
         {
             foreach (var (name, icon, action) in Actions)
             {
-                var btn = new BitmapButton {Text = name, Image = new Texture(icon)};
+                var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
                 btn.Clicked += delegate { action(obj); };
                 Add(btn);
             }
-            
+
             Show();
         }
     }

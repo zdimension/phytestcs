@@ -8,7 +8,7 @@ namespace phytestcs.Interface.Windows
         public WndSpring(Spring obj, Vector2f pos)
             : base(obj, obj.Name, 250, pos)
         {
-            Add(new NumberField<float>(0.5f, 25, bindProp: () => obj.Constant, log: true){LeftValue = 0});
+            Add(new NumberField<float>(0.5f, 25, bindProp: () => obj.Constant, log: true) { LeftValue = 0 });
             Add(new NumberField<float>(0, 2, bindProp: () => obj.Damping));
             var actual = obj.TargetLength;
             if (actual == 0)

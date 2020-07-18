@@ -76,7 +76,7 @@ namespace phytestcs.Objects
         {
             Color color;
             if (Selected)
-                color = Color.White;
+                color = Program.CurrentPalette.SelectionColor;
             else
             {
                 color = Color.Multiply(0.5f);

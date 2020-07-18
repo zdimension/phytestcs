@@ -44,6 +44,14 @@ namespace phytestcs
         public bool DrawClouds;
 
         public Color SkyColor;
+        public Color SelectionColor
+        {
+            get
+            {
+                var (_, s, v, _) = (HSVA) SkyColor;
+                return v >= 0.75f + 0.83f * s ? Color.Black : Color.White;
+            }
+        }
 
         public ColorRange ColorRange;
 

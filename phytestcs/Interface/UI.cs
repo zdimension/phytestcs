@@ -10,6 +10,7 @@ using SFML.System;
 using SFML.Window;
 using TGUI;
 using static phytestcs.Global;
+using Button = TGUI.Button;
 using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
 

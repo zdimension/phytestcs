@@ -297,7 +297,7 @@ dy/dx = {-deriv,6:F2} {Props[_drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
                                     .Prod(_canvas.DefaultView.Size)
                                     .Div(_canvasView.Size) +
                                     _canvas.Size + new Vector2f(30, -25);
-                                Console.WriteLine(_textInt.Position);
+
                                 _canvas.View = _canvas.DefaultView;
                                 _canvas.Draw(_textInt);
                                 _canvas.View = _canvasView;

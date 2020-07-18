@@ -568,6 +568,9 @@ namespace phytestcs.Objects
                     {
                         inters[intersn++] = inter1;
                     }
+                    
+                    if (intersn == 2)
+                        break;
 
                     if (Tools.Intersects((cur, nex), (colls[0], pnext), out var inter2, out _))
                     {

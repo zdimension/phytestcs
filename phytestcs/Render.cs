@@ -192,6 +192,7 @@ namespace phytestcs
 
             var mpos = Mouse.GetPosition(Window).ToWorld();
 
+            Statistics.FillColor = Program.CurrentPalette.SelectionColor;
             Statistics.DisplayedString =
                 $@"
 {Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}

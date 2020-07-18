@@ -72,7 +72,7 @@ namespace phytestcs
         [ObjProp("Wind speed", "m/s")]
         public static float WindSpeed { get; set; } = 0;
 
-        [ObjProp("Angle du vent", "rad")]
+        [ObjProp("Wind angle", "rad")]
         public static float WindAngle { get; set; } = 0;
 
         public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);

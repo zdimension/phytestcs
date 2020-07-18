@@ -47,16 +47,16 @@ namespace phytestcs
             ResizeTextures();
         }
 
-        [ObjProp("Afficher les forces")]
+        [ObjProp("Show forces")]
         public static bool ShowForces { get; set; } = true;
 
-        [ObjProp("Afficher les valeurs des forces")]
+        [ObjProp("Show values")]
         public static bool ShowForcesValues { get; set; } = false;
 
-        [ObjProp("Afficher les composantes des forces")]
+        [ObjProp("Show components")]
         public static bool ShowForcesComponents { get; set; } = false;
 
-        [ObjProp("Échelle des forces", "m/N")]
+        [ObjProp("Force arrows scale", "m/N")]
         public static float ForcesScale { get; set; } = 0.50f;
 
         public static bool ShowGrid { get; set; } = true;
@@ -195,7 +195,7 @@ namespace phytestcs
             Statistics.DisplayedString =
                 $@"
 {Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
 {WorldCache.Length,5} {L["objects"]}, {NumRays,5} {L["rays"]}

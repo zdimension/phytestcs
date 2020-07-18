@@ -88,9 +88,27 @@ namespace phytestcs.Interface
 
         private static void InitMenuBar()
         {
+            var wnd = new ChildWindowEx(L["New"], 200, true, false);
+            foreach (var (text, palette) in Palette.Palettes)
+            {
+                var btn = new Button(text);
+                btn.Clicked += async delegate
+                {
+                    wnd.Close();
+                    Program.CurrentPalette = palette;
+                    await Scene.New().ConfigureAwait(true);
+                };
+                wnd.Add(btn);
+            }
+
+            wnd.Visible = false;
+            Gui.Add(wnd);
+            
+            
             var menu = new MenuBar();
-            menu.AddMenu(L["Exit"]);
+            menu.AddMenu(L["New"]);
             menu.AddMenu(L["Open"]);
+            menu.AddMenu(L["Exit"]);
             menu.MenuItemClicked += async (sender, s) =>
             {
                 if (s.Value == L["Exit"])
@@ -111,6 +129,14 @@ namespace phytestcs.Interface
                     if (ofp.ShowDialog() == DialogResult.OK)
                     {
                         await Scene.Load(Scene.LoadScript(ofp.FileName)).ConfigureAwait(true);
+                    }
+                }
+                else if (s.Value == L["New"])
+                {
+                    if (!wnd.Visible)
+                    {
+                        wnd.PositionLayout = new Layout2d("50% - w / 2", "50% - h / 2");
+                        wnd.Show();
                     }
                 }
             };

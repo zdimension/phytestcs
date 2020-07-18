@@ -16,7 +16,7 @@ namespace phytestcs
     public sealed class Scene
     {
         public static volatile bool Loaded;
-        public static Script<object> Script;
+        public static Script<object>? Script;
 
         public static async Task Restart()
         {
@@ -36,7 +36,12 @@ namespace phytestcs
             return scr;
         }
 
-        public static async Task Load(Script<object> scr)
+        public static async Task New()
+        {
+            await Load(null).ConfigureAwait(true);
+        }
+
+        public static async Task Load(Script<object>? scr)
         {
             Simulation.Pause = true;
             Simulation.GravityEnabled = true;
@@ -53,32 +58,37 @@ namespace phytestcs
             Simulation.Add(PhysicalObject.Rectangle(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
             Simulation.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
 
-            Console.WriteLine("Début compilation");
-            Script = scr;
-            Console.WriteLine("Fin compilation et début exécution");
-            try
+            if (scr != null)
             {
-                await Script.RunAsync().ConfigureAwait(true);
-                //Script.CreateDelegate()();
-            }
-            catch (Exception e)
-            {
-                var text = L["Error while loading script:"] + "\n" + e;
-                Console.WriteLine(text);
-                var msgbox = new MessageBox(L["Error"], text, new[] { "OK" });
-                Ui.Gui.Add(msgbox);
-                msgbox.SizeLayout = new Layout2d("800", "200");
-                msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
-                msgbox.ButtonPressed += delegate
+                Console.WriteLine("Début compilation");
+                Script = scr;
+                Console.WriteLine("Fin compilation et début exécution");
+                try
                 {
-                    msgbox.CloseWindow();
-                    Ui.Gui.Remove(msgbox);
-                };
+                    await Script.RunAsync().ConfigureAwait(true);
+                    //Script.CreateDelegate()();
+                }
+                catch (Exception e)
+                {
+                    var text = L["Error while loading script:"] + "\n" + e;
+                    Console.WriteLine(text);
+                    var msgbox = new MessageBox(L["Error"], text, new[] { "OK" });
+                    Ui.Gui.Add(msgbox);
+                    msgbox.SizeLayout = new Layout2d("800", "200");
+                    msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
+                    msgbox.ButtonPressed += delegate
+                    {
+                        msgbox.CloseWindow();
+                        Ui.Gui.Remove(msgbox);
+                    };
+                }
+
+                Console.WriteLine(L["Script finished"]);
+
+                Simulation.Player?.Forces.Add(Program.MoveForce);
             }
+            
 
-            Console.WriteLine(L["Script finished"]);
-
-            Simulation.Player?.Forces.Add(Program.MoveForce);
             Simulation.UpdatePhysicsInternal(0);
 
             Loaded = true;

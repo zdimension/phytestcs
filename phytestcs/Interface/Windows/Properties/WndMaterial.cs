@@ -5,7 +5,7 @@ using SFML.System;
 using TGUI;
 using static phytestcs.Global;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndMaterial : WndBase<PhysicalObject>
     {

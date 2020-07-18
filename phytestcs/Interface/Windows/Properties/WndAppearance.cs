@@ -1,7 +1,7 @@
 ﻿using phytestcs.Objects;
 using SFML.System;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndAppearance : WndBase<PhysicalObject>
     {

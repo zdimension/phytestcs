@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using phytestcs.Interface.Windows;
+using phytestcs.Interface.Windows.Properties;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -42,7 +43,7 @@ namespace phytestcs.Interface
         public static readonly RendererData BrGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
         public static readonly RendererData BrRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
-        private static Panel BackPanel;
+        public static Panel BackPanel;
 
 
         public static Vector2i ClickPosition;
@@ -288,111 +289,9 @@ namespace phytestcs.Interface
                 }
             }
 
-            var wnd = new WndBase(obj, 150, pos) { IsMain = true };
-
-            Vector2f PosEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
-
-            var btnEff = new BitmapButton { Text = L["Clear"], Image = new Texture("icons/small/delete.png") };
-            btnEff.Clicked += delegate { obj.Delete(); };
-            wnd.Add(btnEff);
-
-            // liquify
-            // spongify
-            // clone
-            // mirror
-
-            var windows = new[]
-            {
-                (typeof(WndPlot), L["Plot"], "icons/small/plot.png"),
-                (typeof(WndAppearance), L["Appearance"], "icons/small/appearance.png"),
-                // text
-                (typeof(WndMaterial), L["Material"], "icons/small/settings.png"),
-                (typeof(WndSpeeds), L["Velocities"], "icons/small/speed.png"),
-                (typeof(WndSpring), L["Spring"], "icons/small/spring.png"),
-                (typeof(WndHinge), L["Hinge"], "icons/small/spring.png"),
-                (typeof(WndTracer), L["Tracer"], "icons/small/tracer.png"),
-                (typeof(WndLaser), L["Laser"], "icons/small/laser.png"),
-                (typeof(WndThruster), L["Thruster"], "icons/small/thruster.png"),
-                (typeof(WndInfos), L["Informations"], "icons/small/info.png"),
-                (typeof(WndCollision), L["Collision layers"], "icons/small/layers.png"),
-                (typeof(WndActions), L["Geometry actions"], "icons/small/settings.png"),
-                // csg
-                // controller
-                (typeof(WndScript), L["Script"], "icons/small/script.png"),
-            };
-
-            foreach (var (type, name, icon) in windows)
-            {
-                if (!type.BaseType!.GenericTypeArguments[0].IsInstanceOfType(obj))
-                    continue;
-
-                var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
-                btn.Clicked += delegate { Activator.CreateInstance(type, obj, PosEnfant()); };
-                wnd.Add(btn);
-            }
-
+            var wnd = new WndProperties(obj, pos);
+            PropertyWindows[obj].Add(wnd);
             wnd.Show();
-
-            void CloseAll(bool exceptMoved = false)
-            {
-                if (!PropertyWindows.ContainsKey(obj)) return;
-
-                foreach (var w in PropertyWindows[obj].ToList())
-                {
-                    if (!PropertyWindows.ContainsKey(obj))
-                        return;
-
-                    if (w.CPointer == IntPtr.Zero)
-                    {
-                        PropertyWindows[obj].Remove(w);
-                        continue;
-                    }
-
-                    if (exceptMoved && w.WasMoved)
-                        continue;
-
-                    w.Close();
-                }
-
-                if (PropertyWindows.ContainsKey(obj) && !PropertyWindows[obj].Any())
-                    PropertyWindows.Remove(obj);
-            }
-
-            obj.Deleted += () => { CloseAll(); };
-
-            void ClickClose(object sender, SignalArgsVector2f signalArgsVector2F)
-            {
-                CloseAll(true);
-            }
-
-            BackPanel.MousePressed += ClickClose;
-            BackPanel.RightMouseReleased += delegate
-            {
-                if (Drawing.SelectedObject == null)
-                    CloseAll(true);
-            };
-
-            wnd.PositionChanged += (sender, f) =>
-            {
-                foreach (var w in PropertyWindows[obj].Where(w => w != wnd && !w.WasMoved))
-                {
-                    w.StartPosition = w.Position = f.Value + new Vector2f(wnd.Size.X, 0);
-                }
-
-                wnd.StartPosition = wnd.Position;
-            };
-
-            wnd.Closed += delegate
-            {
-                BackPanel.MousePressed -= ClickClose;
-                CloseAll(true);
-            };
-        }
-
-        public static T W<T>(this T o)
-        {
-            GC.KeepAlive(o);
-            return o;
         }
 
         public static void ClearPropertyWindows()
@@ -407,7 +306,7 @@ namespace phytestcs.Interface
 
         public static void OnDrawn()
         {
-            Drawn?.Invoke();
+            Drawn();
         }
     }
 }

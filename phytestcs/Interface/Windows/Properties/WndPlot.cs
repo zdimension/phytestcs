@@ -16,7 +16,7 @@ using ComboBox = TGUI.ComboBox;
 using Panel = TGUI.Panel;
 using View = SFML.Graphics.View;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndPlot : WndBase<PhysicalObject>
     {

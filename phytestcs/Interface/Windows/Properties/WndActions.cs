@@ -6,7 +6,7 @@ using TGUI;
 using static phytestcs.Global;
 using static phytestcs.Tools;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndActions : WndBase<PhysicalObject>
     {

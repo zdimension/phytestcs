@@ -5,7 +5,7 @@ using SFML.System;
 using TGUI;
 using Object = phytestcs.Objects.Object;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndScript : WndBase<Object>
     {

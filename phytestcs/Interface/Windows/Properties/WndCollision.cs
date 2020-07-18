@@ -3,7 +3,7 @@ using phytestcs.Objects;
 using SFML.System;
 using static phytestcs.Global;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndCollision : WndBase<PhysicalObject>
     {

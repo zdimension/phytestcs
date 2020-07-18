@@ -3,7 +3,7 @@ using SFML.System;
 using static phytestcs.Interface.Ui;
 using Object = phytestcs.Objects.Object;
 
-namespace phytestcs.Interface.Windows
+namespace phytestcs.Interface.Windows.Properties
 {
     public class WndBase<T> : ChildWindowEx
         where T : Object

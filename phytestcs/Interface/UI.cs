@@ -199,7 +199,7 @@ namespace phytestcs.Interface
                 new NumberField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
                 new NumberField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle,
                     conv: PropConverter.AngleDegrees),
-                new CheckField(bindProp: () => Render.ShowGravityField)
+                new CheckField(() => Render.ShowGravityField)
             };
             Gui.Add(wndGrav);
             ConnectButton(btnGrav, wndGrav, true);
@@ -236,9 +236,9 @@ namespace phytestcs.Interface
             btnSettings.SetRenderer(BrDef);
             var wndSettings = new ChildWindowEx(L["Settings"], 320, true, false)
             {
-                new CheckField(bindProp: () => Render.ShowForces),
-                new CheckField(bindProp: () => Render.ShowForcesValues),
-                new CheckField(bindProp: () => Render.ShowForcesComponents),
+                new CheckField(() => Render.ShowForces),
+                new CheckField(() => Render.ShowForcesValues),
+                new CheckField(() => Render.ShowForcesComponents),
                 new NumberField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
             };
             Gui.Add(wndSettings);

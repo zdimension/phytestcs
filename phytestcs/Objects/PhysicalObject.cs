@@ -699,9 +699,9 @@ namespace phytestcs.Objects
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
-                            a.Forces.Add(new Force(ForceType.Normal, fA * w[i1], a.MapInv(colls[i1]), ttl: dt)
+                            a.Forces.Add(new Force(ForceType.Normal, fA * w[i1], a.MapInv(colls[i1]), dt)
                                 { Source = b });
-                            b.Forces.Add(new Force(ForceType.Normal, fB * w[i1], b.MapInv(colls[i1]), ttl: dt)
+                            b.Forces.Add(new Force(ForceType.Normal, fB * w[i1], b.MapInv(colls[i1]), dt)
                                 { Source = a });
                         }
 
@@ -717,7 +717,7 @@ namespace phytestcs.Objects
                             {
                                 var local = a.MapInv(colls[i1]);
                                 a.Forces.Add(new Force(ForceType.Friction,
-                                        ff * w[i1] + (-a.SpeedAtPoint(local).Dot(unit) * unitF), local, ttl: dt)
+                                        ff * w[i1] + (-a.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
                                     { Source = b });
                             }
                         }
@@ -730,7 +730,7 @@ namespace phytestcs.Objects
                             {
                                 var local = b.MapInv(colls[i1]);
                                 b.Forces.Add(new Force(ForceType.Friction,
-                                        ff * w[i1] + (-b.SpeedAtPoint(local).Dot(unit) * unitF), local, ttl: dt)
+                                        ff * w[i1] + (-b.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
                                     { Source = a });
                             }
                         }

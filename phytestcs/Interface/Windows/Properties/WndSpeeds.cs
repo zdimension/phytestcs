@@ -16,9 +16,9 @@ namespace phytestcs.Interface.Windows.Properties
             Add(new NumberField<float>(0, 25, unit: "°", bindProp: () => obj.AngularVelocity,
                 conv: PropConverter.AngleDegrees));
 
-            Add(new CheckField(bindProp: () => obj.Appearance.ShowForces));
-            Add(new CheckField(bindProp: () => obj.Appearance.ShowMomentums));
-            Add(new CheckField(bindProp: () => obj.Appearance.ShowVelocities));
+            Add(new CheckField(() => obj.Appearance.ShowForces));
+            Add(new CheckField(() => obj.Appearance.ShowMomentums));
+            Add(new CheckField(() => obj.Appearance.ShowVelocities));
 
             Show();
         }

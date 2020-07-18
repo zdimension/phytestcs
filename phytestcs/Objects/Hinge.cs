@@ -12,7 +12,7 @@ namespace phytestcs.Objects
 
         public Hinge(PhysicalObject object1, Vector2f object1RelPos, float size,
             PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
-            : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type: type ?? ForceType.Hinge)
+            : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type ?? ForceType.Hinge)
         {
             if (object1 == null) throw new ArgumentNullException(nameof(object1));
 

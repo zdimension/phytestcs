@@ -77,9 +77,9 @@ namespace phytestcs.Interface.Windows
                 val.Text = text;
             }
 
-            UI.Drawn += updateInfos;
+            Ui.Drawn += updateInfos;
 
-            Closed += delegate { UI.Drawn -= updateInfos; };
+            Closed += delegate { Ui.Drawn -= updateInfos; };
 
             updateInfos();
 

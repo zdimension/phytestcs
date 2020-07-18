@@ -7,21 +7,25 @@ namespace phytestcs.Interface
     public class TextField<T> : Panel
     {
         private readonly Func<T> _getter;
-        private readonly Action<T> _setter;
+        private readonly Action<T>? _setter;
         private readonly PropConverter<T, string> converter;
 
         private string? _oldLoadedVal;
         private string _value;
 
-        public TextField(PropertyReference<T> bindProp, string name, PropConverter<T, string> conv = null)
+        public TextField(PropertyReference<T> bindProp, string? name, PropConverter<T, string> conv = null)
         {
+            if (bindProp == null) throw new ArgumentNullException(nameof(bindProp));
+
             (_getter, _setter) = bindProp.GetAccessors();
             name ??= bindProp.DisplayName;
             if (conv?.NameFormat != null)
                 name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
             converter = conv ?? PropConverter.Default<T, string>();
 
-            UI.Drawn += Update;
+            Ui.Drawn += Update;
+
+            name ??= "";
 
             SizeLayout = new Layout2d("100%", "24");
             var lblName = new Label(name) { PositionLayout = new Layout2d("0", "3") };

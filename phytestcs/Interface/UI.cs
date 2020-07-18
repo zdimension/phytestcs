@@ -14,15 +14,15 @@ using Panel = TGUI.Panel;
 
 namespace phytestcs.Interface
 {
-    public static class UI
+    public static class Ui
     {
-        public static BitmapButton btnPlay;
-        public static readonly Texture imgPlay = new Texture("icons/big/play.png");
-        public static readonly Texture imgPause = new Texture("icons/big/pause.png");
+        public static BitmapButton BtnPlay;
+        public static readonly Texture ImgPlay = new Texture("icons/big/play.png");
+        public static readonly Texture ImgPause = new Texture("icons/big/pause.png");
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
-        public static Gui GUI;
+        public static Gui Gui;
 
-        public static List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> actions =
+        private static List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> _actions =
             new List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)>
             {
                 (DrawingType.Off, "drag", new Ref<BitmapButton>(), new Ref<Texture>()),
@@ -37,27 +37,27 @@ namespace phytestcs.Interface
                 (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>()),
             };
 
-        private static readonly RendererData brDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
-        private static readonly RendererData brToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
-        public static readonly RendererData brGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
-        public static readonly RendererData brRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
+        private static readonly RendererData BrDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
+        private static readonly RendererData BrToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
+        public static readonly RendererData BrGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
+        public static readonly RendererData BrRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
-        public static Panel BackPanel;
+        private static Panel BackPanel;
 
 
         public static Vector2i ClickPosition;
         public static DateTime MouseDownTime;
         public static Vector2i LastClick;
 
-        public static Dictionary<Object, List<ChildWindowEx>> PropertyWindows =
+        public static readonly Dictionary<Object, List<ChildWindowEx>> PropertyWindows =
             new Dictionary<Object, List<ChildWindowEx>>();
 
         public static void SetDrawMode(DrawingType mode)
         {
             Drawing.DrawMode = mode;
-            foreach (var (dess, _, bref, text) in actions)
+            foreach (var (dess, _, bref, text) in _actions)
             {
-                bref.Value.SetRenderer(dess == mode ? brToggle : brDef);
+                bref.Value.SetRenderer(dess == mode ? BrToggle : BrDef);
                 if (dess == mode)
                     Render.DrawSprite.Texture = text.Value;
             }
@@ -82,7 +82,7 @@ namespace phytestcs.Interface
             {
                 Program.Window_MouseButtonReleased(f.Value.I(), Mouse.Button.Right);
             };
-            GUI.Add(back);
+            Gui.Add(back);
         }
 
         private static void InitMenuBar()
@@ -113,7 +113,7 @@ namespace phytestcs.Interface
                     }
                 }
             };
-            GUI.Add(menu);
+            Gui.Add(menu);
         }
 
         private static void InitToolButtons()
@@ -123,17 +123,17 @@ namespace phytestcs.Interface
             var buttons = new HorizontalLayout();
             var numSpaces = 0;
 
-            void space()
+            void Space()
             {
                 buttons.AddSpace(spaceSize);
                 numSpaces++;
             }
 
-            static void connectButton(ClickableWidget b, ChildWindowEx w, bool right = false, bool center = false)
+            static void ConnectButton(ClickableWidget b, ChildWindowEx w, bool right = false, bool center = false)
             {
                 w.Visible = false;
 
-                void dlg(object sender, SignalArgsVector2f f)
+                void Dlg(object sender, SignalArgsVector2f f)
                 {
                     // ReSharper disable once AssignmentInConditionalExpression
                     if (w.Visible = !w.Visible)
@@ -145,15 +145,15 @@ namespace phytestcs.Interface
                 }
 
                 if (right)
-                    b.RightMouseReleased += dlg;
+                    b.RightMouseReleased += Dlg;
                 else
-                    b.MouseReleased += dlg;
+                    b.MouseReleased += Dlg;
             }
 
-            btnPlay = new BitmapButton { Image = imgPlay };
+            BtnPlay = new BitmapButton { Image = ImgPlay };
 
-            btnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
-            foreach (var (dess, img, bref, text) in actions)
+            BtnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
+            foreach (var (dess, img, bref, text) in _actions)
             {
                 var btn = new BitmapButton { Image = text.Value = new Texture($"icons/big/{img}.png") };
                 btn.Clicked += delegate { SetDrawMode(dess); };
@@ -165,33 +165,33 @@ namespace phytestcs.Interface
             {
                 new NumberField<float>(0.1f, 10.0f, log: true, bindProp: () => Simulation.TimeScale)
             };
-            GUI.Add(wndSim);
-            connectButton(btnPlay, wndSim, true, true);
+            Gui.Add(wndSim);
+            ConnectButton(BtnPlay, wndSim, true, true);
 
-            space();
+            Space();
 
-            buttons.Add(btnPlay);
+            buttons.Add(BtnPlay);
             var btnRestart = new BitmapButton { Image = new Texture("icons/big/reset.png") };
-            btnRestart.SetRenderer(brDef);
+            btnRestart.SetRenderer(BrDef);
             btnRestart.Clicked += async (sender, f) => { await Scene.Restart().ConfigureAwait(true); };
             buttons.Add(btnRestart);
 
-            space();
+            Space();
 
             var btnGrid = new BitmapButton { Image = new Texture("icons/big/grid.png") };
-            btnGrid.SetRenderer(brToggle);
+            btnGrid.SetRenderer(BrToggle);
             btnGrid.MouseReleased += (sender, f) =>
             {
                 Render.ShowGrid = !Render.ShowGrid;
-                btnGrid.SetRenderer(Render.ShowGrid ? brToggle : brDef);
+                btnGrid.SetRenderer(Render.ShowGrid ? BrToggle : BrDef);
             };
 
             var btnGrav = new BitmapButton { Image = new Texture("icons/big/gravity.png") };
-            btnGrav.SetRenderer(brToggle);
+            btnGrav.SetRenderer(BrToggle);
             btnGrav.MouseReleased += (sender, f) =>
             {
                 Simulation.GravityEnabled = !Simulation.GravityEnabled;
-                btnGrav.SetRenderer(Simulation.GravityEnabled ? brToggle : brDef);
+                btnGrav.SetRenderer(Simulation.GravityEnabled ? BrToggle : BrDef);
             };
             var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
@@ -200,16 +200,16 @@ namespace phytestcs.Interface
                     conv: PropConverter.AngleDegrees),
                 new CheckField(bindProp: () => Render.ShowGravityField)
             };
-            GUI.Add(wndGrav);
-            connectButton(btnGrav, wndGrav, true);
+            Gui.Add(wndGrav);
+            ConnectButton(btnGrav, wndGrav, true);
             buttons.Add(btnGrav);
 
             var btnAirFr = new BitmapButton { Image = new Texture("icons/big/wind.png") };
-            btnAirFr.SetRenderer(brDef);
+            btnAirFr.SetRenderer(BrDef);
             btnAirFr.MouseReleased += (sender, f) =>
             {
                 Simulation.AirFriction = !Simulation.AirFriction;
-                btnAirFr.SetRenderer(Simulation.AirFriction ? brToggle : brDef);
+                btnAirFr.SetRenderer(Simulation.AirFriction ? BrToggle : BrDef);
             };
             var wndAirFr = new ChildWindowEx(L["Air friction"], 250, true, false)
             {
@@ -227,12 +227,12 @@ namespace phytestcs.Interface
                     bindProp: () => Simulation.WindAngle, conv: PropConverter.AngleDegrees)
             };
 
-            GUI.Add(wndAirFr);
-            connectButton(btnAirFr, wndAirFr, true);
+            Gui.Add(wndAirFr);
+            ConnectButton(btnAirFr, wndAirFr, true);
             buttons.Add(btnAirFr);
 
             var btnSettings = new BitmapButton { Image = new Texture("icons/big/options.png") };
-            btnSettings.SetRenderer(brDef);
+            btnSettings.SetRenderer(BrDef);
             var wndSettings = new ChildWindowEx(L["Settings"], 320, true, false)
             {
                 new CheckField(bindProp: () => Render.ShowForces),
@@ -240,11 +240,11 @@ namespace phytestcs.Interface
                 new CheckField(bindProp: () => Render.ShowForcesComponents),
                 new NumberField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
             };
-            GUI.Add(wndSettings);
-            connectButton(btnSettings, wndSettings);
+            Gui.Add(wndSettings);
+            ConnectButton(btnSettings, wndSettings);
             buttons.Add(btnSettings);
 
-            GUI.Add(buttons);
+            Gui.Add(buttons);
 
             buttons.SizeLayout = new Layout2d((buttons.Widgets.Count + numSpaces * 0.25f) * 60, 60);
             buttons.PositionLayout = new Layout2d("50% - w / 2", "&.h - h");
@@ -252,7 +252,7 @@ namespace phytestcs.Interface
 
         public static void Init()
         {
-            GUI = new Gui(Render.Window);
+            Gui = new Gui(Render.Window);
 
             InitBackPanel();
 
@@ -265,6 +265,8 @@ namespace phytestcs.Interface
 
         public static void OpenProperties(Object obj, Vector2f pos)
         {
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+
             foreach (var g in PropertyWindows.ToList())
             {
                 if (g.Key != obj && g.Value.FirstOrDefault(w => w.IsMain) is { } ww)
@@ -286,9 +288,9 @@ namespace phytestcs.Interface
                 }
             }
 
-            var wnd = new WndBase(obj, obj.Name, 150, pos) { IsMain = true };
+            var wnd = new WndBase(obj, 150, pos) { IsMain = true };
 
-            Vector2f posEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
+            Vector2f PosEnfant() => wnd.Position + new Vector2f(wnd.Size.X, 0);
 
             var btnEff = new BitmapButton { Text = L["Clear"], Image = new Texture("icons/small/delete.png") };
             btnEff.Clicked += delegate { obj.Delete(); };
@@ -321,11 +323,11 @@ namespace phytestcs.Interface
 
             foreach (var (type, name, icon) in windows)
             {
-                if (!type.BaseType.GenericTypeArguments[0].IsAssignableFrom(obj.GetType()))
+                if (!type.BaseType!.GenericTypeArguments[0].IsInstanceOfType(obj))
                     continue;
 
                 var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
-                btn.Clicked += delegate { Activator.CreateInstance(type, obj, posEnfant()); };
+                btn.Clicked += delegate { Activator.CreateInstance(type, obj, PosEnfant()); };
                 wnd.Add(btn);
             }
 
@@ -401,7 +403,7 @@ namespace phytestcs.Interface
             }
         }
 
-        public static event Action Drawn;
+        public static event Action Drawn = () => { };
 
         public static void OnDrawn()
         {

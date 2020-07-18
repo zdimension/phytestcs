@@ -20,7 +20,8 @@ namespace phytestcs.Objects
             FadeTime = fadeTime;
         }
 
-        [ObjProp("Fade time", "s")] public float FadeTime { get; set; }
+        [ObjProp("Fade time", "s")]
+        public float FadeTime { get; set; }
 
         [ObjProp("Diameter", "m")]
         public float Size
@@ -34,7 +35,7 @@ namespace phytestcs.Objects
         }
 
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] { _shape };
+        protected override IEnumerable<Shape> Shapes => new[] { _shape };
 
         public override void Draw()
         {

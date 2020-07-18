@@ -20,13 +20,13 @@ namespace phytestcs
 
         public static int NumRays = 0;
         public static Text Statistics;
-        private static readonly Text PauseText = new Text("EN PAUSE", UI.Font, 20) { FillColor = Color.Red };
+        private static readonly Text PauseText = new Text("EN PAUSE", Ui.Font, 20) { FillColor = Color.Red };
 
-        private static readonly Text txtScale = new Text("", UI.Font, 15)
+        private static readonly Text txtScale = new Text("", Ui.Font, 15)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
-        private static readonly Text txtXAxis = new Text("x", UI.Font, 15);
-        private static readonly Text txtYAxis = new Text("y", UI.Font, 15);
+        private static readonly Text txtXAxis = new Text("x", Ui.Font, 15);
+        private static readonly Text txtYAxis = new Text("y", Ui.Font, 15);
 
         public static uint Width = 900;
         public static uint Height = 550;
@@ -47,7 +47,8 @@ namespace phytestcs
             ResizeTextures();
         }
 
-        [ObjProp("Afficher les forces")] public static bool ShowForces { get; set; } = true;
+        [ObjProp("Afficher les forces")]
+        public static bool ShowForces { get; set; } = true;
 
         [ObjProp("Afficher les valeurs des forces")]
         public static bool ShowForcesValues { get; set; } = false;
@@ -55,11 +56,13 @@ namespace phytestcs
         [ObjProp("Afficher les composantes des forces")]
         public static bool ShowForcesComponents { get; set; } = false;
 
-        [ObjProp("Échelle des forces", "m/N")] public static float ForcesScale { get; set; } = 0.50f;
+        [ObjProp("Échelle des forces", "m/N")]
+        public static float ForcesScale { get; set; } = 0.50f;
 
         public static bool ShowGrid { get; set; } = true;
 
-        [ObjProp("Show gravity field")] public static bool ShowGravityField { get; set; } = false;
+        [ObjProp("Show gravity field")]
+        public static bool ShowGravityField { get; set; } = false;
 
         public static Vector2f WindowF => new Vector2f(Width, Height);
 
@@ -118,7 +121,7 @@ namespace phytestcs
         {
             var mouse = Mouse.GetPosition(Window);
             var offset = new Vector2f(13, 13);
-            var press = Mouse.IsButtonPressed(Mouse.Button.Left) && UI.ClickPosition != default;
+            var press = Mouse.IsButtonPressed(Mouse.Button.Left) && Ui.ClickPosition != default;
 
             DrawSprite.Position = mouse.F() + offset;
             Window.Draw(DrawSprite);
@@ -129,10 +132,10 @@ namespace phytestcs
                 {
                     case DrawingType.Rectangle:
                     {
-                        var corner1 = new Vector2i(Math.Min(UI.ClickPosition.X, mouse.X),
-                            Math.Max(UI.ClickPosition.Y, mouse.Y)).ToWorld();
-                        var corner2 = new Vector2i(Math.Max(UI.ClickPosition.X, mouse.X),
-                            Math.Min(UI.ClickPosition.Y, mouse.Y)).ToWorld();
+                        var corner1 = new Vector2i(Math.Min(Ui.ClickPosition.X, mouse.X),
+                            Math.Max(Ui.ClickPosition.Y, mouse.Y)).ToWorld();
+                        var corner2 = new Vector2i(Math.Max(Ui.ClickPosition.X, mouse.X),
+                            Math.Min(Ui.ClickPosition.Y, mouse.Y)).ToWorld();
                         DrawRectangle.FillColor = Drawing.DrawColor;
                         DrawRectangle.Position = corner1;
                         DrawRectangle.Size = corner2 - corner1;
@@ -144,7 +147,7 @@ namespace phytestcs
                     }
                     case DrawingType.Circle:
                     {
-                        var center = UI.ClickPosition.ToWorld();
+                        var center = Ui.ClickPosition.ToWorld();
                         DrawCircle.FillColor = Drawing.DrawColor;
                         DrawCircle.Radius = (mouse.ToWorld() - center).Norm();
                         DrawCircle.Position = center - new Vector2f(DrawCircle.Radius, DrawCircle.Radius);
@@ -205,7 +208,7 @@ Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
             {
                 Statistics.DisplayedString +=
                     $@"
-ID          = {Drawing.SelectedObject.ID}
+ID          = {Drawing.SelectedObject.Id}
 ";
 
                 switch (Drawing.SelectedObject)

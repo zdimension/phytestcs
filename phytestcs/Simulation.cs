@@ -54,21 +54,26 @@ namespace phytestcs
 
         public static bool AirFriction { get; set; } = false;
 
-        [ObjProp("Multiplier", "x")] public static float AirFrictionMultiplier { get; set; } = 1;
+        [ObjProp("Multiplier", "x")]
+        public static float AirFrictionMultiplier { get; set; } = 1;
 
-        [ObjProp("Linear term", "N/(m²/s)")] public static float AirFrictionLinear { get; set; } = 0.1f;
+        [ObjProp("Linear term", "N/(m²/s)")]
+        public static float AirFrictionLinear { get; set; } = 0.1f;
 
         [ObjProp("Quadratic term", "N/(m³/s²)")]
         public static float AirFrictionQuadratic { get; set; } = 0.01f;
 
-        [ObjProp("Air density", "kg/m²")] public static float AirDensity { get; set; } = 0.01f;
+        [ObjProp("Air density", "kg/m²")]
+        public static float AirDensity { get; set; } = 0.01f;
 
         [ObjProp("Amortissement de rotation", "s⁻¹")]
         public static float RotFrictionLinear { get; set; } = 0.0314f;
 
-        [ObjProp("Wind speed", "m/s")] public static float WindSpeed { get; set; } = 0;
+        [ObjProp("Wind speed", "m/s")]
+        public static float WindSpeed { get; set; } = 0;
 
-        [ObjProp("Angle du vent", "rad")] public static float WindAngle { get; set; } = 0;
+        [ObjProp("Angle du vent", "rad")]
+        public static float WindAngle { get; set; } = 0;
 
         public static Vector2f WindVector => Tools.FromPolar(WindSpeed, WindAngle);
 
@@ -96,7 +101,8 @@ namespace phytestcs
             }
         }
 
-        [ObjProp("Simulation speed", "x")] public static float TimeScale { get; set; } = 1;
+        [ObjProp("Simulation speed", "x")]
+        public static float TimeScale { get; set; } = 1;
 
         private static float ActualDT => TargetDT * TimeScale;
 
@@ -143,8 +149,8 @@ namespace phytestcs
                 PauseA = DateTime.Now;
             }
 
-            UI.btnPlay.Image = Pause ? UI.imgPlay : UI.imgPause;
-            UI.btnPlay.SetRenderer(!Pause ? UI.brRed : UI.brGreen);
+            Ui.BtnPlay.Image = Pause ? Ui.ImgPlay : Ui.ImgPause;
+            Ui.BtnPlay.SetRenderer(!Pause ? Ui.BrRed : Ui.BrGreen);
         }
 
         public static event Action AfterUpdate;

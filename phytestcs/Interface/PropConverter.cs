@@ -28,31 +28,31 @@ namespace phytestcs.Interface
             o => o.ToString(CultureInfo.InvariantCulture),
             (value, old) => (float) double.Parse(value, CultureInfo.InvariantCulture));
 
-        public static readonly PropConverter<Vector2f, string> Vector2fString = new PropConverter<Vector2f, string>(
-            o => (o.X, o.Y).ToString(CultureInfo.InvariantCulture), (value, old) =>
+        public static readonly PropConverter<Vector2f, string> Vector2FString = new PropConverter<Vector2f, string>(
+            o => (o.X, o.Y).ToString(CultureInfo.InvariantCulture)!, (value, old) =>
             {
                 var (x, y) = value.Eval<(double, double)>();
                 return new Vector2f((float) x, (float) y);
             });
 
-        public static PropConverter<Torig, Tdisp> Default<Torig, Tdisp>()
+        public static PropConverter<TOrig, TDisp> Default<TOrig, TDisp>()
         {
-            return new PropConverter<Torig, Tdisp>(
-                o => (Tdisp) Convert.ChangeType(o, typeof(Tdisp), CultureInfo.CurrentCulture),
-                (value, old) => (Torig) Convert.ChangeType(value, typeof(Torig), CultureInfo.CurrentCulture));
+            return new PropConverter<TOrig, TDisp>(
+                o => (TDisp) Convert.ChangeType(o, typeof(TDisp), CultureInfo.CurrentCulture)!,
+                (value, old) => (TOrig) Convert.ChangeType(value, typeof(TOrig), CultureInfo.CurrentCulture)!);
         }
 
         public static PropConverter<T, string> EvalString<T>()
         {
-            return new PropConverter<T, string>(o => o.ToString(), (value, old) => value.Eval<T>());
+            return new PropConverter<T, string>(o => o?.ToString() ?? "null", (value, old) => value.Eval<T>());
         }
     }
 
-    public class PropConverter<Torig, Tdisp>
+    public class PropConverter<TOrig, TDisp>
     {
-        public delegate Tdisp Getter(Torig o);
+        public delegate TDisp Getter(TOrig o);
 
-        public delegate Torig Setter(Tdisp value, Torig old);
+        public delegate TOrig Setter(TDisp value, TOrig old);
 
         public PropConverter(Getter get, Setter set, string? fmt = null)
         {
@@ -65,10 +65,10 @@ namespace phytestcs.Interface
         public Setter Set { get; }
         public string? NameFormat { get; }
 
-        public PropConverter<Torig, Tout> Then<Tout>(PropConverter<Tdisp, Tout> next)
+        public PropConverter<TOrig, TOut> Then<TOut>(PropConverter<TDisp, TOut> next)
         {
-            return new PropConverter<Torig, Tout>(o => next.Get(Get(o)),
-                (value, old) => Set(next.Set(value, default), old));
+            return new PropConverter<TOrig, TOut>(o => next.Get(Get(o)),
+                (value, old) => Set(next.Set(value, default!), old));
         }
     }
 }

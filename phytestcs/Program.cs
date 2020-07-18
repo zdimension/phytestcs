@@ -8,7 +8,7 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
-using static phytestcs.Interface.UI;
+using static phytestcs.Interface.Ui;
 using static phytestcs.Global;
 using Object = phytestcs.Objects.Object;
 
@@ -27,7 +27,7 @@ namespace phytestcs
         public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount)
             { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
 
-        public static Text _rotText = new Text("", UI.Font, 18)
+        public static Text _rotText = new Text("", Ui.Font, 18)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
         public static float _rotDeltaAngle = 0;
@@ -61,7 +61,7 @@ namespace phytestcs
             Camera.Center();
             Camera.CalculateWindow();
 
-            Render.Statistics = new Text("", UI.Font, 20);
+            Render.Statistics = new Text("", Ui.Font, 20);
 
             Render.Window.Closed += Window_Closed;
             Render.Window.Resized += Window_Resized;
@@ -98,7 +98,7 @@ namespace phytestcs
                     thrPhy.Start();
             });
 
-            var txl = new Text(L["Loading..."], UI.Font, 32) { FillColor = Color.White };
+            var txl = new Text(L["Loading..."], Ui.Font, 32) { FillColor = Color.White };
             txl.Origin = txl.GetLocalBounds().Size() / 2;
 
             while (Render.Window.IsOpen)
@@ -130,7 +130,7 @@ namespace phytestcs
 
                     OnDrawn();
 
-                    GUI.Draw();
+                    Gui.Draw();
 
                     Render.DrawDrawing();
                 }

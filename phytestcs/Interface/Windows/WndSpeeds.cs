@@ -6,7 +6,7 @@ namespace phytestcs.Interface.Windows
     public class WndSpeeds : WndBase<PhysicalObject>
     {
         public WndSpeeds(PhysicalObject obj, Vector2f pos)
-            : base(obj, obj.Name, 250, pos)
+            : base(obj, 250, pos)
         {
             Add(new NumberField<Vector2f>(0, 25, bindProp: () => obj.Velocity, conv: PropConverter.VectorNorm));
             Add(new NumberField<Vector2f>(-180, 180, unit: "°", bindProp: () => obj.Velocity,

@@ -42,7 +42,7 @@ namespace phytestcs
             Simulation.GravityEnabled = true;
 
             Simulation.SimDuration = 0;
-            UI.ClearPropertyWindows();
+            Ui.ClearPropertyWindows();
             Simulation.Clear();
             Render.WorldCache = Array.Empty<Object>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
@@ -66,13 +66,13 @@ namespace phytestcs
                 var text = L["Error while loading script:"] + "\n" + e;
                 Console.WriteLine(text);
                 var msgbox = new MessageBox(L["Error"], text, new[] { "OK" });
-                UI.GUI.Add(msgbox);
+                Ui.Gui.Add(msgbox);
                 msgbox.SizeLayout = new Layout2d("800", "200");
                 msgbox.PositionLayout = new Layout2d("&.w / 2 - w / 2", "&.h / 2 - h / 2");
                 msgbox.ButtonPressed += delegate
                 {
                     msgbox.CloseWindow();
-                    UI.GUI.Remove(msgbox);
+                    Ui.Gui.Remove(msgbox);
                 };
             }
 

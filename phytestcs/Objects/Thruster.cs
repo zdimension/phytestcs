@@ -38,11 +38,12 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Force", "N")] public float Force { get; set; }
+        [ObjProp("Force", "N")]
+        public float Force { get; set; }
 
         //public bool FollowGeometry { get; set; } = true;
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] { _shape };
+        protected override IEnumerable<Shape> Shapes => new[] { _shape };
 
         public override void UpdatePhysics(float dt)
         {

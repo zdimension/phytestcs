@@ -6,14 +6,14 @@ namespace phytestcs.Interface
 {
     public class CheckField : Panel
     {
-        private readonly Func<bool> _getter;
-        private readonly Action<bool> _setter;
+        private readonly Func<bool>? _getter;
+        private readonly Action<bool>? _setter;
 
         private bool? _oldLoadedVal;
         private bool _uiLoading;
         private bool _value;
 
-        public CheckField(string? name = null, Expression<Func<bool>>? bindProp = null)
+        public CheckField(Expression<Func<bool>> bindProp, string? name = null)
             : this(name, PropertyReference.FromExpression(bindProp))
         {
         }
@@ -25,7 +25,7 @@ namespace phytestcs.Interface
                 (_getter, _setter) = bindProp.GetAccessors();
                 name ??= bindProp.DisplayName;
 
-                UI.Drawn += Update;
+                Ui.Drawn += Update;
             }
 
             Field = new CheckBox(name) { SizeLayout = new Layout2d("20", "20"), PositionLayout = new Layout2d(10, 3) };
@@ -71,9 +71,9 @@ namespace phytestcs.Interface
             _uiLoading = false;
         }
 
-        public void Update()
+        private void Update()
         {
-            var val = _getter();
+            var val = _getter!();
 
             if (val != _oldLoadedVal)
             {

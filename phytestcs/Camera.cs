@@ -80,7 +80,7 @@ namespace phytestcs
             SetZoomAbsolute(Zoom);
             MainView.Size = Render.WindowF;
             MainView.Center = Render.WindowF / 2;
-            UI.GUI.View = MainView;
+            Ui.Gui.View = MainView;
         }
     }
 }

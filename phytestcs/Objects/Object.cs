@@ -14,23 +14,23 @@ namespace phytestcs.Objects
     {
         private static ulong _idCounter;
 
-        private readonly Dictionary<MethodInfo, Func<object>> _bindings = new Dictionary<MethodInfo, Func<object>>();
-        private readonly SynchronizedCollection<Object> dependents = new SynchronizedCollection<Object>();
+        private readonly Dictionary<MethodInfo, Func<object?>> _bindings = new Dictionary<MethodInfo, Func<object?>>();
+        private readonly SynchronizedCollection<Object> _dependents = new SynchronizedCollection<Object>();
 
-        private readonly SynchronizedCollection<Object> parents = new SynchronizedCollection<Object>();
+        private readonly SynchronizedCollection<Object> _parents = new SynchronizedCollection<Object>();
         private bool _selected;
         public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
 
         protected Object()
         {
-            ID = _idCounter++;
+            Id = _idCounter++;
         }
 
-        public ulong ID { get; }
+        public ulong Id { get; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public abstract IEnumerable<Shape> Shapes { get; }
+        protected abstract IEnumerable<Shape> Shapes { get; }
 
         public virtual Color Color
         {
@@ -63,9 +63,9 @@ namespace phytestcs.Objects
             }
         }
 
-        public IReadOnlyList<Object> Parents => parents.ToList().AsReadOnly();
+        public IReadOnlyList<Object> Parents => _parents.ToList().AsReadOnly();
 
-        public IReadOnlyList<Object> Dependents => dependents.ToList().AsReadOnly();
+        public IReadOnlyList<Object> Dependents => _dependents.ToList().AsReadOnly();
 
         public virtual void Dispose()
         {
@@ -87,35 +87,37 @@ namespace phytestcs.Objects
             OutlineColor = color;
         }
 
-        public void DependsOn(Object other)
+        protected void DependsOn(Object other)
         {
-            other.dependents.Add(this);
-            parents.Add(other);
+            if (other == null) throw new ArgumentNullException(nameof(other));
+
+            other._dependents.Add(this);
+            _parents.Add(other);
         }
 
-        public void BothDepends(Object other)
+        protected void BothDepends(Object other)
         {
             DependsOn(other);
             other.DependsOn(this);
         }
 
-        public event Action Deleted;
+        public event Action Deleted = () => { };
 
         public virtual void Delete(Object source = null)
         {
-            while (dependents.Any())
+            while (_dependents.Any())
             {
-                var first = dependents.FirstOrDefault();
+                var first = _dependents.FirstOrDefault();
                 if (first == source)
-                    dependents.Remove(first);
+                    _dependents.Remove(first);
                 else
                     first.Delete(this);
             }
 
-            lock (parents.SyncRoot)
+            lock (_parents.SyncRoot)
             {
-                foreach (var obj in parents)
-                    obj.dependents.Remove(this);
+                foreach (var obj in _parents)
+                    obj._dependents.Remove(this);
             }
 
             Simulation.Remove(this);
@@ -131,7 +133,7 @@ namespace phytestcs.Objects
 
         public void InvokeDeleted()
         {
-            Deleted?.Invoke();
+            Deleted();
         }
 
         public virtual void UpdatePhysics(float dt)
@@ -151,33 +153,37 @@ namespace phytestcs.Objects
             return Shapes.Any(s => s.Contains(point));
         }
 
-        protected override object Invoke(MethodInfo targetMethod, object[] args)
+        protected override object? Invoke(MethodInfo targetMethod, object[] args)
         {
-            if (_bindings.TryGetValue(targetMethod, out var func))
-                return func();
-            return targetMethod.Invoke(this, args);
+            if (targetMethod == null) throw new ArgumentNullException(nameof(targetMethod));
+
+            return _bindings.TryGetValue(targetMethod, out var func) ? func() : targetMethod.Invoke(this, args);
         }
 
-        public void Bind<Tthis, T>(Expression<Func<Tthis, T>> prop, Func<T> value)
+        public void Bind<TThis, T>(Expression<Func<TThis, T>> prop, Func<T> value)
         {
-            if (typeof(Tthis) != GetType())
-                throw new ArgumentException(nameof(Tthis));
+            if (prop == null) throw new ArgumentNullException(nameof(prop));
+
+            if (typeof(TThis) != GetType())
+                throw new ArgumentException(nameof(TThis));
 
             var expr = ((MemberExpression) prop.Body);
-            var BindPropInfo = (PropertyInfo) expr.Member;
-            var getMethod = BindPropInfo.GetGetMethod()!;
+            var bindPropInfo = (PropertyInfo) expr.Member;
+            var getMethod = bindPropInfo.GetGetMethod()!;
 
             _bindings[getMethod] = () => value();
         }
 
-        public void Unbind<Tthis, T>(Expression<Func<Tthis, T>> prop)
+        public void Unbind<TThis, T>(Expression<Func<TThis, T>> prop)
         {
-            if (typeof(Tthis) != GetType())
-                throw new ArgumentException(nameof(Tthis));
+            if (prop == null) throw new ArgumentNullException(nameof(prop));
+
+            if (typeof(TThis) != GetType())
+                throw new ArgumentException(nameof(TThis));
 
             var expr = ((MemberExpression) prop.Body);
-            var BindPropInfo = (PropertyInfo) expr.Member;
-            var getMethod = BindPropInfo.GetGetMethod()!;
+            var bindPropInfo = (PropertyInfo) expr.Member;
+            var getMethod = bindPropInfo.GetGetMethod()!;
 
             _bindings.Remove(getMethod);
         }

@@ -17,9 +17,8 @@ namespace phytestcs.Interface.Windows
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .OrderBy(p => p.Name))
             {
-                object converter = null;
+                object converter;
                 var type = prop.PropertyType;
-
 
                 if (type == typeof(float))
                 {
@@ -27,7 +26,7 @@ namespace phytestcs.Interface.Windows
                 }
                 else if (type == typeof(Vector2f))
                 {
-                    converter = PropConverter.Vector2fString;
+                    converter = PropConverter.Vector2FString;
                 }
                 else if (type == typeof(bool))
                 {
@@ -42,7 +41,7 @@ namespace phytestcs.Interface.Windows
                     prop, obj);
 
                 Add((Widget) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), propRef, prop.Name,
-                    converter));
+                    converter)!);
             }
 
             Show();

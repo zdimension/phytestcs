@@ -30,7 +30,7 @@ namespace phytestcs
         public static Object SelectedObject { get; private set; }
         public static Vector2f DragObjectRelPosDirect { get; set; }
 
-        public static Object SelectObject(Object obj)
+        public static Object SelectObject(Object? obj)
         {
             if (SelectedObject != null)
                 SelectedObject.Selected = false;

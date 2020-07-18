@@ -6,10 +6,10 @@ namespace phytestcs.Objects
 {
     public sealed class Fixate : PinnedShapedVirtualObject
     {
-        private readonly RectangleShape rect1 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
+        private readonly RectangleShape _rect1 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
             .CenterOrigin().With(o => o.Rotation = +45);
 
-        private readonly RectangleShape rect2 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
+        private readonly RectangleShape _rect2 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
             .CenterOrigin().With(o => o.Rotation = -45);
 
         public Fixate(PhysicalObject @object, Vector2f relPos, float size)
@@ -21,13 +21,13 @@ namespace phytestcs.Objects
 
         public float Size
         {
-            get => rect1.Scale.X;
-            set => rect1.Scale = rect2.Scale = new Vector2f(value, value) / 10f;
+            get => _rect1.Scale.X;
+            set => _rect1.Scale = _rect2.Scale = new Vector2f(value, value) / 10f;
         }
 
-        public override IEnumerable<Shape> Shapes => new[] { rect1, rect2 };
+        protected override IEnumerable<Shape> Shapes => new[] { _rect1, _rect2 };
 
-        public override Shape Shape => rect1;
+        public override Shape Shape => _rect1;
 
 
         public override void Delete(Object source = null)
@@ -45,13 +45,13 @@ namespace phytestcs.Objects
         {
             base.DrawOverlay();
 
-            rect1.Position = rect2.Position = Position;
+            _rect1.Position = _rect2.Position = Position;
 
             using var view = new View(Camera.GameView);
             view.Rotate(Object.Angle.Degrees());
             Render.Window.SetView(view);
-            Render.Window.Draw(rect1);
-            Render.Window.Draw(rect2);
+            Render.Window.Draw(_rect1);
+            Render.Window.Draw(_rect2);
             Render.Window.SetView(Camera.GameView);
         }
     }

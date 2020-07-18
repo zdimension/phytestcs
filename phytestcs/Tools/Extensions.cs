@@ -44,15 +44,16 @@ namespace phytestcs
         public static RenderTexture RenderTexture(this Canvas c)
         {
             if (c == null) throw new ArgumentNullException(nameof(c));
-            
-            return (RenderTexture)c.GetType().GetField("myRenderTexture", BindingFlags.Instance | BindingFlags.NonPublic)!
+
+            return (RenderTexture) c.GetType()
+                    .GetField("myRenderTexture", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(c)!;
         }
 
         public static T[] ToArrayLocked<T>(this SynchronizedCollection<T> coll)
         {
             if (coll == null) throw new ArgumentNullException(nameof(coll));
-            
+
             lock (coll.SyncRoot)
             {
                 return coll.ToArray();
@@ -62,7 +63,7 @@ namespace phytestcs
         public static T With<T>(this T obj, Action<T> map)
         {
             if (map == null) throw new ArgumentNullException(nameof(map));
-            
+
             map(obj);
             return obj;
         }
@@ -78,7 +79,7 @@ namespace phytestcs
         public static CircleShape CenterOrigin(this CircleShape c)
         {
             if (c == null) throw new ArgumentNullException(nameof(c));
-            
+
             c.Origin = new Vector2f(c.Radius, c.Radius);
             return c;
         }

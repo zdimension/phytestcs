@@ -13,7 +13,7 @@ namespace phytestcs.Objects
 
         private const float CircleSize = 0.05f;
 
-        private static readonly Text forceName = new Text("", UI.Font)
+        private static readonly Text forceName = new Text("", Ui.Font)
             { OutlineThickness = 2, OutlineColor = Color.Black };
 
         private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();
@@ -22,19 +22,19 @@ namespace phytestcs.Objects
             { FillColor = Color.Red, Origin = new Vector2f(CircleSize, CircleSize) };
 
         private float _angle;
-        private Vector2f[] _globalPointsCache = null;
+        private Vector2f[] _globalPointsCache;
 
         private float _globalPointsCacheTime = -1;
         private Vector2f _position;
 
-        private float AngularAirFriction;
-        public bool AttractionIsLinear = false;
+        private float _angularAirFriction;
+        public bool AttractionIsLinear { get; set; } = false;
 
         public PhysicalObject(Vector2f pos, Shape shape, bool wall = false, string name = "")
         {
             Name = name;
 
-            Shape = shape;
+            Shape = shape ?? throw new ArgumentNullException(nameof(shape));
             Shape.Origin = Shape.GetLocalBounds().Size() / 2;
             _position = Shape.Position = pos;
 
@@ -47,11 +47,13 @@ namespace phytestcs.Objects
         [ObjProp("Angular velocity", "rad/s", "rad")]
         public float AngularVelocity { get; set; }
 
-        [ObjProp("Velocity", "m/s", "m")] public Vector2f Velocity { get; set; }
+        [ObjProp("Velocity", "m/s", "m")]
+        public Vector2f Velocity { get; set; }
 
         public SynchronizedCollection<Force> Forces { get; }
 
-        [ObjProp("Mass", "kg")] public float Mass { get; set; }
+        [ObjProp("Mass", "kg")]
+        public float Mass { get; set; }
 
         public float InertialMass => Fixed ? float.PositiveInfinity : Mass;
 
@@ -90,17 +92,21 @@ namespace phytestcs.Objects
         private Force Gravity { get; } = new Force(ForceType.Gravity, new Vector2f(0, 0), default);
         private Force AirFriction { get; } = new Force(ForceType.AirFriction, new Vector2f(0, 0), default);
         private Force Buoyance { get; } = new Force(ForceType.Buoyancy, new Vector2f(0, 0), default);
+        
         public float Weight => Mass * Simulation.ActualGravity;
 
-        [ObjProp("Restitution")] public float Restitution { get; set; } = 0.5f;
+        [ObjProp("Restitution")]
+        public float Restitution { get; set; } = 0.5f;
 
-        [ObjProp("Friction")] public float Friction { get; set; } = 0.5f;
+        [ObjProp("Friction")]
+        public float Friction { get; set; } = 0.5f;
 
         public bool Killer { get; set; }
         public bool HasFixate { get; set; } = false;
         public bool UserFix { get; set; } = false;
 
-        [ObjProp("Attraction", "Nm²/kg²")] public float Attraction { get; set; } = 0;
+        [ObjProp("Attraction", "Nm²/kg²")]
+        public float Attraction { get; set; } = 0;
 
         [ObjProp("Momentum", "N⋅s", "N⋅s²", "N")]
         public Vector2f Momentum => Mass * Velocity;
@@ -119,7 +125,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public override IEnumerable<Shape> Shapes => new[] { Shape };
+        protected override IEnumerable<Shape> Shapes => new[] { Shape };
 
         [ObjProp("Net force", "N", "N⋅s", "N/s")]
         public Vector2f NetForce
@@ -206,9 +212,10 @@ namespace phytestcs.Objects
         /// Antiderivative of the angular jerk.
         /// </remarks>
         [ObjProp("Angular acceleration", "rad/s²", "rad/s", "rad/s³")]
-        public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + AngularAirFriction);
+        public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + _angularAirFriction);
 
-        [ObjProp("Angular momentum", "J⋅s")] public float AngularMomentum => MomentOfInertia * AngularVelocity;
+        [ObjProp("Angular momentum", "J⋅s")]
+        public float AngularMomentum => MomentOfInertia * AngularVelocity;
 
         /// <summary>
         /// Dimensionless ratio between the speed of light in vacuum and the speed of light in the object.
@@ -324,15 +331,15 @@ namespace phytestcs.Objects
                                              vn) * vu;
                     }
 
-                    AngularAirFriction = AngularVelocity
-                                         * -Simulation.RotFrictionLinear
-                                         * Simulation.AirFrictionMultiplier;
+                    _angularAirFriction = AngularVelocity
+                                          * -Simulation.RotFrictionLinear
+                                          * Simulation.AirFrictionMultiplier;
                 }
                 else
                 {
                     AirFriction.Value = default;
 
-                    AngularAirFriction = 0;
+                    _angularAirFriction = 0;
                 }
 
                 Buoyance.Value = -Simulation.GravityVector * Shape.Area() * Simulation.AirDensity;

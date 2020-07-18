@@ -13,7 +13,7 @@ namespace phytestcs.Objects
         protected readonly Force _force1;
         protected readonly Force _force2;
 
-        private readonly Text _legende = new Text("", UI.Font, 13) { FillColor = Color.Black };
+        private readonly Text _legende = new Text("", Ui.Font, 13) { FillColor = Color.Black };
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
@@ -44,11 +44,14 @@ namespace phytestcs.Objects
             UpdateForce();
         }
 
-        [ObjProp("Spring constant", "N/m")] public float Constant { get; set; }
+        [ObjProp("Spring constant", "N/m")]
+        public float Constant { get; set; }
 
-        [ObjProp("Target length", "m")] public float TargetLength { get; set; }
+        [ObjProp("Target length", "m")]
+        public float TargetLength { get; set; }
 
-        [ObjProp("Damping")] public float Damping { get; set; } = 0.10f;
+        [ObjProp("Damping")]
+        public float Damping { get; set; } = 0.10f;
 
         public SpringEnd End1 { get; }
         public SpringEnd End2 { get; }
@@ -100,7 +103,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public override IEnumerable<Shape> Shapes => new[] { End1.Shape, End2.Shape };
+        protected override IEnumerable<Shape> Shapes => new[] { End1.Shape, End2.Shape };
 
         public override void UpdatePhysics(float dt)
         {
@@ -219,6 +222,6 @@ namespace phytestcs.Objects
         }
 
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] { _shape };
+        protected override IEnumerable<Shape> Shapes => new[] { _shape };
     }
 }

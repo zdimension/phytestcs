@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SFML.System;
 using TGUI;
@@ -36,7 +37,7 @@ namespace phytestcs.Interface
             {
                 Closed += delegate
                 {
-                    UI.GUI.Remove(this);
+                    Ui.Gui.Remove(this);
                     Dispose();
                 };
             }
@@ -80,6 +81,8 @@ namespace phytestcs.Interface
         public T Add<T>(T w)
             where T : Widget
         {
+            if (w == null) throw new ArgumentNullException(nameof(w));
+
             _height += w.Size.Y;
             Container.Add(w, w.Size.Y);
             _children.Add(w);

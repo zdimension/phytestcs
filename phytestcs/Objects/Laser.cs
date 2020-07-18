@@ -30,11 +30,14 @@ namespace phytestcs.Objects
             }
         }
 
-        public float LaserThickness => Size / 6;
-        public Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
-        [ObjProp("Fade distance", "m")] public float FadeDistance { get; set; } = 300;
+        private float LaserThickness => Size / 6;
+        private Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
+
+        [ObjProp("Fade distance", "m")]
+        public float FadeDistance { get; set; } = 300;
+
         public override Shape Shape => _shape;
-        public override IEnumerable<Shape> Shapes => new[] { _shape };
+        protected override IEnumerable<Shape> Shapes => new[] { _shape };
         public uint CollideSet { get; set; } = 1;
 
         public override void UpdatePhysics(float dt)
@@ -65,7 +68,7 @@ namespace phytestcs.Objects
 
                     var end = ray.GetEndClipped();
 
-                    PhysicalObject minObj = null;
+                    PhysicalObject? minObj = null;
                     var minDist = float.PositiveInfinity;
                     Vector2f minInter = default;
                     (Vector2f, Vector2f) minLine = default;
@@ -93,44 +96,48 @@ namespace phytestcs.Objects
                     if (minDist != float.PositiveInfinity)
                     {
                         ray.Length = minDist;
-                        
+
                         var (sideStart, sideEnd) = minLine;
                         var normal = (sideEnd - sideStart).Ortho();
                         var normalAngle = normal.Angle();
-                        
+
                         var incidenceAngle = ray.Angle - normalAngle;
                         if (incidenceAngle > (Math.PI / 2))
                             incidenceAngle -= (float) Math.PI;
                         else if (incidenceAngle < -(Math.PI / 2))
                             incidenceAngle += (float) Math.PI;
-                        
+
                         // reflected ray angle
                         var reflectedAngle = normalAngle - incidenceAngle;
-                        
+
                         ray.DebugInfo += $"i={incidenceAngle.Degrees(),6:F3}° D={minDist:F8}m";
 
-                        var opacityRefracted = Math.Exp(-Math.Log10(minObj.RefractiveIndex));
+                        var opacityRefracted = Math.Exp(-Math.Log10(minObj!.RefractiveIndex));
                         var opacityReflected = 1 - opacityRefracted;
 
                         var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
-                            ray.Color.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance, ray.RefractiveIndex);
+                            ray.Color.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance,
+                            ray.RefractiveIndex);
                         reflectedRay.Source = ray;
                         ShootRay(reflectedRay, depth + 1);
 
-                        if (minObj.RefractiveIndex != float.PositiveInfinity)
-                        {
-                            // refraction
-                            var refractionAngle =
-                                normalAngle + (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / minObj.RefractiveIndex) +
-                                (float) Math.PI;
-                            var newColor = ray.Color;
-                            newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
-                            var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
-                                LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
-                            refractedRay.DebugInfo = "ref ";
-                            refractedRay.Source = ray;
-                            ShootRay(refractedRay, depth + 1);
-                        }
+                        // infinite index means that the speed of light inside the object is equal to zero
+                        // the end result here is that there is no refracted ray
+                        // i.e. 100% of the light is reflected
+                        // hence the object is a perfect mirror
+                        if (float.IsPositiveInfinity(minObj.RefractiveIndex)) return;
+
+                        var refractionAngle =
+                            normalAngle +
+                            (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / minObj.RefractiveIndex) +
+                            (float) Math.PI;
+                        var newColor = ray.Color;
+                        newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
+                        var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
+                            LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
+                        refractedRay.DebugInfo = "ref ";
+                        refractedRay.Source = ray;
+                        ShootRay(refractedRay, depth + 1);
                     }
                 }
 
@@ -183,13 +190,13 @@ namespace phytestcs.Objects
         public float StartDistance { get; set; }
         public float EndDistance => StartDistance + Length;
         public float RefractiveIndex { get; set; }
-        public string DebugInfo { get; set; }
-        public LaserRay Source { get; set; }
+        public string? DebugInfo { get; set; }
+        public LaserRay? Source { get; set; }
 
         public Vector2f GetEndClipped()
         {
             var length = Length;
-            if (length == float.PositiveInfinity)
+            if (float.IsPositiveInfinity(length))
                 length = Math.Max(Camera.GameView.Size.X, Camera.GameView.Size.Y);
             return Start + Tools.FromPolar(length, Angle);
         }

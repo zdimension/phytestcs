@@ -8,9 +8,9 @@ namespace phytestcs.Interface
 {
     public class NumberField<T> : Panel
     {
-        private readonly Func<T> _getter;
-        private readonly Action<T> _setter;
-        private readonly PropConverter<T, float> converter;
+        private readonly Func<T>? _getter;
+        private readonly Action<T>? _setter;
+        private readonly PropConverter<T, float>? _converter;
 
         private float? _oldLoadedVal;
         private bool _uiLoading;
@@ -24,7 +24,7 @@ namespace phytestcs.Interface
         {
         }
 
-        public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
+        public NumberField(float min, float max, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
             PropConverter<T, float> conv = null)
@@ -36,9 +36,9 @@ namespace phytestcs.Interface
                 (_getter, _setter) = bindProp.GetAccessors();
                 name ??= bindProp.DisplayName;
                 unit ??= bindProp.Unit;
-                converter = conv ?? PropConverter.Default<T, float>();
+                _converter = conv ?? PropConverter.Default<T, float>();
 
-                UI.Drawn += Update;
+                Ui.Drawn += Update;
             }
 
             name ??= "";
@@ -91,8 +91,8 @@ namespace phytestcs.Interface
 
                 try
                 {
-                    var val = CSharpScript.EvaluateAsync(s.Value).Result;
-                    Value = Convert.ToSingle(val, CultureInfo.CurrentCulture);
+                    var res = CSharpScript.EvaluateAsync(s.Value).Result;
+                    Value = Convert.ToSingle(res, CultureInfo.CurrentCulture);
                 }
                 catch
                 {
@@ -162,11 +162,11 @@ namespace phytestcs.Interface
             {
                 if (Validation(value))
                 {
-                    _setter?.Invoke(converter.Set(value, _getter()));
+                    _setter?.Invoke(_converter!.Set(value, _getter!()));
 
                     Simulation.UpdatePhysicsInternal(0);
 
-                    UpdateUI(value);
+                    UpdateUi(value);
 
                     _value = value;
                 }
@@ -178,7 +178,7 @@ namespace phytestcs.Interface
 
         public bool Log { get; set; }
 
-        private void UpdateUI(float val)
+        private void UpdateUi(float val)
         {
             _uiLoading = true;
             Slider.Value = Log ? (float) Math.Log10(val) : val;
@@ -188,11 +188,11 @@ namespace phytestcs.Interface
 
         public void Update()
         {
-            var val = converter.Get(_getter());
+            var val = _converter!.Get(_getter!());
 
             if (val != _oldLoadedVal)
             {
-                UpdateUI(val);
+                UpdateUi(val);
                 _oldLoadedVal = val;
             }
 

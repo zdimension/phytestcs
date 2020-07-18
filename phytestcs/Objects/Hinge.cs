@@ -1,21 +1,24 @@
-﻿using SFML.System;
+﻿using System;
+using SFML.System;
 
 namespace phytestcs.Objects
 {
     public class Hinge : Spring
     {
         private readonly Force _torque1;
-        private readonly Force _torque1sup;
+        private readonly Force _torque1Sup;
         private readonly Force _torque2;
-        private readonly Force _torque2sup;
+        private readonly Force _torque2Sup;
 
         public Hinge(PhysicalObject object1, Vector2f object1RelPos, float size,
             PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
             : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type: type ?? ForceType.Hinge)
         {
+            if (object1 == null) throw new ArgumentNullException(nameof(object1));
+
             // Algodoo: 1e8 Nm, 0.5
             Damping = 1f;
-            type ??= ForceType.Hinge;
+            type ??= ForceType.Hinge!;
             _torque1 = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
             _torque2 = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
             object1.Forces.Add(_torque1);
@@ -23,32 +26,37 @@ namespace phytestcs.Objects
 
             if (object2 != null)
             {
-                _torque1sup = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
-                _torque2sup = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
-                object2.Forces.Add(_torque1sup);
-                object2.Forces.Add(_torque2sup);
+                _torque1Sup = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
+                _torque2Sup = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
+                object2.Forces.Add(_torque1Sup);
+                object2.Forces.Add(_torque2Sup);
             }
         }
 
         public float Size { get; }
 
-        [ObjProp("Motor")] public bool Motor { get; set; }
+        [ObjProp("Motor")]
+        public bool Motor { get; set; }
 
-        [ObjProp("Brake")] public bool AutoBrake { get; set; }
+        [ObjProp("Brake")]
+        public bool AutoBrake { get; set; }
 
-        [ObjProp("Reversed")] public bool Reversed { get; set; }
+        [ObjProp("Reversed")]
+        public bool Reversed { get; set; }
 
-        [ObjProp("Motor speed", "rpm")] public float MotorSpeed { get; set; } = 15;
+        [ObjProp("Motor speed", "rpm")]
+        public float MotorSpeed { get; set; } = 15;
 
-        [ObjProp("Motor torque", "Nm")] public float MotorTorque { get; set; } = 100;
+        [ObjProp("Motor torque", "Nm")]
+        public float MotorTorque { get; set; } = 100;
 
         public override void Delete(Object source = null)
         {
             End1.Object.Forces.Remove(_torque1);
             End1.Object.Forces.Remove(_torque2);
 
-            End2.Object?.Forces.Remove(_torque1sup);
-            End2.Object?.Forces.Remove(_torque2sup);
+            End2.Object?.Forces.Remove(_torque1Sup);
+            End2.Object?.Forces.Remove(_torque2Sup);
 
             base.Delete(source);
         }

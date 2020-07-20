@@ -99,8 +99,12 @@ namespace phytestcs.Objects
                         ray.Length = minDist;
 
                         var (sideStart, sideEnd) = minLine;
-                        var normal = (sideEnd - sideStart).Ortho();
+                        var side = sideEnd - sideStart;
+                        var normal = side.Ortho();
                         var normalAngle = normal.Angle();
+                        var insideObject = side.Cross(ray.Start - sideStart) > 0;
+                        if (insideObject)
+                            normalAngle += (float) Math.PI;
 
                         var incidenceAngle = ray.Angle - normalAngle;
                         if (incidenceAngle > (Math.PI / 2))
@@ -128,14 +132,15 @@ namespace phytestcs.Objects
                         // hence the object is a perfect mirror
                         if (float.IsPositiveInfinity(minObj.RefractiveIndex)) return;
 
+                        var newIndex = insideObject ? 1 : minObj.RefractiveIndex;
                         var refractionAngle =
                             normalAngle +
-                            (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / minObj.RefractiveIndex) +
+                            (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / newIndex) +
                             (float) Math.PI;
                         var newColor = ray.Color;
                         newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
                         var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
-                            LaserThickness, ray.EndDistance, minObj.RefractiveIndex);
+                            LaserThickness, ray.EndDistance, newIndex);
                         refractedRay.DebugInfo = "ref ";
                         refractedRay.Source = ray;
                         ShootRay(refractedRay, depth + 1);

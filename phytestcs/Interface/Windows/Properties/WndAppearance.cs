@@ -8,7 +8,7 @@ using static phytestcs.Global;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndAppearance : WndBase<PhysicalObject>
+    public class WndAppearance : WndBase<Object>
     {
         private const int margin = 4;
         private const int hueWidth = 20;
@@ -36,7 +36,7 @@ namespace phytestcs.Interface.Windows.Properties
             }
         }
         
-        public WndAppearance(PhysicalObject obj, Vector2f pos)
+        public WndAppearance(Object obj, Vector2f pos)
             : base(obj, 250, pos)
         {
             var wrapper = new ColorWrapper(() => obj.Color);

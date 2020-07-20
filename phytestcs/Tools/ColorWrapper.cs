@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using phytestcs.Interface;
+using phytestcs.Objects;
 using SFML.Graphics;
 
 namespace phytestcs
@@ -44,6 +45,7 @@ namespace phytestcs
             set => setter(new Color(getter()) { A = value });
         }
 
+        [ObjProp("A")]
         public double Ad
         {
             get => getter().A / 255d;

@@ -199,7 +199,7 @@ namespace phytestcs
 {(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
-{WorldCache.Length,5} {L["objects"]}, {NumRays,5} {L["rays"]}
+{WorldCache.Length,5} {L["objects"]}, {NumRays,5} / {Program.NumRays,5} {L["rays"]}
 ";
             if (Drawing.SelectedObject == null)
             {

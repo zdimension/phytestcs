@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
 using static phytestcs.Global;
+using Button = TGUI.Button;
 using ComboBox = TGUI.ComboBox;
 using Panel = TGUI.Panel;
+using TextBox = TGUI.TextBox;
 using View = SFML.Graphics.View;
 
 namespace phytestcs.Interface.Windows.Properties
@@ -106,6 +111,8 @@ namespace phytestcs.Interface.Windows.Properties
 
             _drop = new ComboBox();
 
+            _drop.AddItem($"** {L["Custom"]} **");
+
             foreach (var p in Props)
             {
                 _drop.AddItem(p.Item1);
@@ -115,7 +122,7 @@ namespace phytestcs.Interface.Windows.Properties
             _drop.SizeLayout = new Layout2d(LargeurBtn, HauteurBtn);
             hl.Add(_drop);
 
-            _drop.SetSelectedItemByIndex(2);
+            _drop.SetSelectedItemByIndex(3);
 
             hl.Add(_canvas);
             _canvas.PositionLayout = new Layout2d(LGauche, 0);
@@ -126,13 +133,11 @@ namespace phytestcs.Interface.Windows.Properties
 
             btnClear.Clicked += delegate { ClearPlot(); };
 
-            _drop.ItemSelected += delegate { ClearPlot(); };
-
             _canvasView = new View(_canvas.View);
 
             Simulation.AfterUpdate += UpdatePlot;
             Ui.Drawn += DrawPlot;
-
+            
             var btnCsv = new BitmapButton(L["Export to CSV"])
             {
                 Image = new Texture("icons/small/csv.png"),
@@ -140,6 +145,42 @@ namespace phytestcs.Interface.Windows.Properties
                 PositionLayout = new Layout2d(MargeX, 2 * HauteurLigne)
             };
             hl.Add(btnCsv);
+            
+            var txtCustom = new TextBox()
+            {
+                SizeLayout = new Layout2d(LargeurBtn, HauteurBtn),
+                PositionLayout = new Layout2d(MargeX, 3 * HauteurLigne),
+                Visible = false
+            };
+            hl.Add(txtCustom);
+
+            var btnApplyCustom = new Button(L["Apply"])
+            {
+                SizeLayout = new Layout2d(LargeurBtn, HauteurBtn),
+                PositionLayout = new Layout2d(MargeX, 4 * HauteurLigne),
+                Visible = false
+            };
+            hl.Add(btnApplyCustom);
+
+            btnApplyCustom.Clicked += delegate
+            {
+                _customExpr = null;
+                try
+                {
+                    _customExpr = CSharpScript.EvaluateAsync<Func<PhysicalObject, float>>($"o=>({txtCustom.Text})", globals: Object).Result;
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                ClearPlot();
+            };
+            
+            _drop.ItemSelected += delegate
+            {
+                txtCustom.Visible = btnApplyCustom.Visible = true;
+                ClearPlot();
+            };
 
             btnCsv.Clicked += btnCSV_Clicked;
 
@@ -160,10 +201,26 @@ namespace phytestcs.Interface.Windows.Properties
             _points.Clear();
         }
 
+        private Func<PhysicalObject, float>? _customExpr = null;
+        
+        private (string, ObjPropAttribute?, Func<PhysicalObject, float>?) _currentLine
+        {
+            get
+            {
+                var idx = _drop.GetSelectedItemIndex();
+                if (idx == 0)
+                    return ("y", null, _customExpr);
+                return Props[idx - 1];
+            }
+        }
+
         private void UpdatePlot()
         {
+            var getter = _currentLine.Item3;
+            if (getter == null)
+                return;
             _points.Add(new Vector2f(Simulation.SimDuration - _plotStart,
-                -Props[_drop.GetSelectedItemIndex()].Item3(Object)));
+                -getter(Object)));
         }
 
         private void DrawPlotGrid(float maxY)
@@ -289,9 +346,9 @@ namespace phytestcs.Interface.Windows.Properties
                                 _canvas.Draw(lignes, PrimitiveType.Lines);
 
                                 _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
-  y   = {-cache[k].Y,6:F2} {Props[_drop.GetSelectedItemIndex()].Item2.Unit}
- ∫dx  = {-integ,6:F2} {Props[_drop.GetSelectedItemIndex()].Item2.UnitInteg}
-dy/dx = {-deriv,6:F2} {Props[_drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
+  y   = {-cache[k].Y,6:F2} {_currentLine.Item2?.Unit ?? ""}
+ ∫dx  = {-integ,6:F2} {_currentLine.Item2?.UnitInteg ?? ""}
+dy/dx = {-deriv,6:F2} {_currentLine.Item2?.UnitDeriv ?? ""}";
                                 _textInt.Position =
                                     (rpos - _canvasView.Center - _canvasView.Size / 2)
                                     .Prod(_canvas.DefaultView.Size)
@@ -333,7 +390,7 @@ dy/dx = {-deriv,6:F2} {Props[_drop.GetSelectedItemIndex()].Item2.UnitDeriv}";
             var sb = new StringBuilder();
 
             sb.AppendLine(
-                $"{L["Time"]} (s);{Props[_drop.GetSelectedItemIndex()].Item1} ({Props[_drop.GetSelectedItemIndex()].Item2.Unit})");
+                $"{L["Time"]} (s);{_currentLine.Item1}{(_currentLine.Item2 == null ? "" : $" ({_currentLine.Item2.Unit})")}");
 
             lock (_points.SyncRoot)
             {

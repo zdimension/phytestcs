@@ -79,9 +79,8 @@ namespace phytestcs.Objects
                 color = Program.CurrentPalette.SelectionColor;
             else
             {
-                color = Color.Multiply(0.5f);
-                if (Appearance.OpaqueBorders)
-                    color.A = 255;
+                color = Color.Multiply(1f - 0.5f * Color.A / 255f);
+                color.A = Appearance.OpaqueBorders ? (byte) 255 : Color.A;
             }
 
             OutlineColor = color;

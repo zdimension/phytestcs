@@ -101,7 +101,7 @@ namespace phytestcs
 
                 var (w, a) = thickness(x);
                 lines.AddRange(Tools.VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
-                    new Color(255, 255, 255, a), w * f / 100, false));
+                    new Color(255, 255, 255, a), w * f / 100));
             }
 
             for (var y = Math.Round((decimal) start.Y / fd) * fd; y > (decimal) end.Y; y -= fd / 100)
@@ -111,7 +111,7 @@ namespace phytestcs
 
                 var (h, a) = thickness(y);
                 lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
-                    new Color(255, 255, 255, a), h * f / 100, true));
+                    new Color(255, 255, 255, a), h * f / 100));
             }
 
             Window.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));

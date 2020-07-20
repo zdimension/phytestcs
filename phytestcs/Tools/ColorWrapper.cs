@@ -85,7 +85,17 @@ namespace phytestcs
             }
         }
 
-        private HSVA ValueHSV => getter();
+        public Color Value
+        {
+            get => getter();
+            set => setter(value);
+        }
+
+        public HSVA ValueHSV
+        {
+            get => getter();
+            set => setter(value);
+        }
     }
 
     public struct HSVA

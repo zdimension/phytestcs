@@ -56,8 +56,7 @@ namespace phytestcs.Interface
                     if (!info.GetGetMethod()!.IsStatic)
                     {
                         var fieldOnClosureExpression = (MemberExpression) member.Expression;
-                        target = ((FieldInfo) fieldOnClosureExpression.Member).GetValue(
-                            ((ConstantExpression) fieldOnClosureExpression.Expression).Value);
+                        target = fieldOnClosureExpression.GetValueDeep();
                     }
 
                     return new PropertyReference<T>(info, target);
@@ -69,6 +68,24 @@ namespace phytestcs.Interface
                         member.Member
                     );
             }
+        }
+    }
+}
+
+namespace phytestcs
+{
+    public static partial class Tools
+    {
+        public static object? GetValueDeep(this MemberExpression expr)
+        {
+            if (expr == null) throw new ArgumentNullException(nameof(expr));
+
+            return ((FieldInfo) expr.Member).GetValue(expr.Expression switch
+            {
+                ConstantExpression cons => cons.Value,
+                MemberExpression memb => memb.GetValueDeep(),
+                _ => throw new NotImplementedException()
+            });
         }
     }
 }

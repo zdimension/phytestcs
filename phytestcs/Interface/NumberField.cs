@@ -19,15 +19,15 @@ namespace phytestcs.Interface
         public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
             bool deci = true,
             Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor=1, bool inline=false)
-            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor, inline)
+            PropConverter<T, float> conv = null, float factor=1, bool inline=false, int? round=null)
+            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor, inline, round)
         {
         }
 
         public NumberField(float min, float max, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor=1, bool inline=false)
+            PropConverter<T, float> conv = null, float factor=1, bool inline=false, int? round=2)
         {
             Log = log;
             Factor = factor;
@@ -48,25 +48,22 @@ namespace phytestcs.Interface
             if (conv?.NameFormat != null)
                 name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
 
-            SizeLayout = new Layout2d("100%", "60");
-            var lblName = new Label(name) { PositionLayout = new Layout2d("0", "3") };
-            var lX = lblName.Size.X;
-            Add(lblName);
+            SizeLayout = new Layout2d("100%", inline ? "30" : "60");
+            var lblName = new Label(name) { PositionLayout = new Layout2d("5", "7") };
+            Add(lblName, "lblName");
 
-            if (!string.IsNullOrWhiteSpace(unit))
-            {
-                var lblUnité = new Label(unit);
-                lX += lblUnité.Size.X;
-                Add(lblUnité);
-                lblUnité.PositionLayout = new Layout2d("&.w - w", "3");
-            }
+            var lblUnit = new Label(unit);
+            Add(lblUnit, "lblUnit");
+            lblUnit.PositionLayout = new Layout2d("&.w - w - 5", "7");
+            lblUnit.SizeLayout = new Layout2d(inline ? 20 : lblUnit.Size.X, 18);
 
+            const int size = 40;
             Field = new EditBox
             {
-                PositionLayout = new Layout2d(lblName.Size.X + 5, 3),
-                SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18")
+                PositionLayout = new Layout2d(inline ? $"lblUnit.left - 5 - {size}" : "lblName.right + 5", "6"),
+                SizeLayout = new Layout2d(inline ? $"{size}" : "lblUnit.left - 5 - x", "18")
             };
-            Add(Field);
+            Add(Field, "txtValue");
 
             if (_setter == null)
                 Field.ReadOnly = true;
@@ -119,8 +116,8 @@ namespace phytestcs.Interface
             else
                 Slider.Step = 0;
             var arr = -(int) Math.Log10(step);
-            Slider.SizeLayout = new Layout2d("100% - 20", "10");
-            Slider.PositionLayout = new Layout2d(10, 30);
+            Slider.SizeLayout = new Layout2d(inline ? "txtValue.left - lblName.right - 18" : "100% - 20", "10");
+            Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "10" : "40");
             if (bindProp == null)
                 Value = val;
             Add(Slider);
@@ -149,11 +146,14 @@ namespace phytestcs.Interface
 
                 Value = sv;
             };
+
+            Round = round;
         }
 
         public EditBox Field { get; }
         public Slider Slider { get; }
         public float Factor { get; set; }
+        public int? Round { get; set; }
 
         public Func<float, bool> Validation { get; set; } = x => true;
 
@@ -185,6 +185,8 @@ namespace phytestcs.Interface
             _uiLoading = true;
             Slider.Value = Log ? (float) Math.Log10(val) : val;
             _uiLoading = false;
+            if (Round != null)
+                val = (float)Math.Round(val, Round.Value);
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }
 

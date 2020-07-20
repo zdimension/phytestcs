@@ -26,7 +26,7 @@ namespace phytestcs
         public HSVA Start;
         public HSVA End;
 
-        public HSVA RandomColor()
+        public readonly HSVA RandomColor()
         {
             return new HSVA(
                 RNG.NextDouble(Start.H, End.H),

@@ -63,8 +63,17 @@ namespace phytestcs
                 (byte) Clamp(a.G * f, 0, 255),
                 (byte) Clamp(a.B * f, 0, 255));
         }
+        
+        public static Vertex[] VertexLineThin(Vector2f a, Vector2f b, Color c)
+        {
+            return new[]
+            {
+                new Vertex(a, c),
+                new Vertex(b, c)
+            };
+        }
 
-        public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1, bool horiz = false)
+        public static Vertex[] VertexLine(Vector2f a, Vector2f b, Color c, float w = 1)
         {
             var edge = (b - a).Ortho().Normalize() * w;
             return new[]

@@ -535,9 +535,7 @@ namespace phytestcs
                 case Keyboard.Key.Up:
                     MoveForce.Value = new Vector2f(MoveForce.Value.X, Simulation.Jump);
                     break;
-                case Keyboard.Key.R:
-                    Simulation.Player.Position = new Vector2f(0, 1);
-                    break;
+                
                 case Keyboard.Key.Num0:
                     SetDrawMode(DrawingType.Off);
                     break;
@@ -556,49 +554,59 @@ namespace phytestcs
                 case Keyboard.Key.Num5:
                     SetDrawMode(DrawingType.Move);
                     break;
-                case Keyboard.Key.C:
-                    Camera.Center();
-                    break;
+               
                 case Keyboard.Key.Add:
                     Simulation.TimeScale *= 2;
                     break;
                 case Keyboard.Key.Subtract:
                     Simulation.TimeScale /= 2;
                     break;
-                case Keyboard.Key.P:
-                    Simulation.TogglePause();
+            }
 
-                    break;
-                case Keyboard.Key.Delete:
-                    if (Drawing.SelectedObject != null)
-                    {
-                        Drawing.SelectedObject.Delete();
-                        Drawing.SelectObject(null);
-                    }
+            if (e.Control)
+            {
+                switch (e.Code)
+                {
+                    case Keyboard.Key.Delete:
+                        if (Drawing.SelectedObject != null)
+                        {
+                            Drawing.SelectedObject.Delete();
+                            Drawing.SelectObject(null);
+                        }
 
-                    break;
-                case Keyboard.Key.Y:
-                    Simulation.Player.Velocity = new Vector2f(5, 0);
-                    break;
-                case Keyboard.Key.T:
-                    Simulation.Player.Velocity = new Vector2f(-5, 0);
-                    break;
-                case Keyboard.Key.G:
-                    var debut = DateTime.Now;
-                    Simulation.TogglePause();
-                    while ((DateTime.Now - debut).TotalSeconds < 1)
-                        Render.Window.DispatchEvents();
-                    Simulation.TogglePause();
-                    break;
-                case Keyboard.Key.S:
-                    Simulation.UpdatePhysics(true);
-                    break;
-                case Keyboard.Key.U:
-                    NumRays--;
-                    break;
-                case Keyboard.Key.I:
-                    NumRays++;
-                    break;
+                        break;
+                    case Keyboard.Key.S:
+                        Simulation.UpdatePhysics(true);
+                        break;
+                    case Keyboard.Key.U:
+                        NumRays--;
+                        break;
+                    case Keyboard.Key.I:
+                        NumRays++;
+                        break;
+                    case Keyboard.Key.Y:
+                        Simulation.Player.Velocity = new Vector2f(5, 0);
+                        break;
+                    case Keyboard.Key.T:
+                        Simulation.Player.Velocity = new Vector2f(-5, 0);
+                        break;
+                    case Keyboard.Key.G:
+                        var debut = DateTime.Now;
+                        Simulation.TogglePause();
+                        while ((DateTime.Now - debut).TotalSeconds < 1)
+                            Render.Window.DispatchEvents();
+                        Simulation.TogglePause();
+                        break;
+                    case Keyboard.Key.P:
+                        Simulation.TogglePause();
+                        break;
+                    case Keyboard.Key.C:
+                        Camera.Center();
+                        break;
+                    case Keyboard.Key.R:
+                        Simulation.Player.Position = new Vector2f(0, 1);
+                        break;
+                }
             }
         }
 

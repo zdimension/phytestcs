@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SFML.Graphics;
 using SFML.System;
 
@@ -73,7 +74,7 @@ namespace phytestcs.Objects
                     Vector2f minInter = default;
                     (Vector2f, Vector2f) minLine = default;
 
-                    foreach (var obj in Simulation.WorldCachePhy)
+                    foreach (var obj in Simulation.WorldCachePhy.Where(o => (CollideSet & o.CollideSet) != 0))
                     {
                         for (var i = 0; i < obj.GlobalPointsCache.Length; i++)
                         {

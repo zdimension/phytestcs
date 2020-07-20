@@ -19,17 +19,18 @@ namespace phytestcs.Interface
         public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
             bool deci = true,
             Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null)
-            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv)
+            PropConverter<T, float> conv = null, float factor=1, bool inline=false)
+            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor, inline)
         {
         }
 
         public NumberField(float min, float max, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null)
+            PropConverter<T, float> conv = null, float factor=1, bool inline=false)
         {
             Log = log;
+            Factor = factor;
 
             if (bindProp != null)
             {
@@ -152,6 +153,7 @@ namespace phytestcs.Interface
 
         public EditBox Field { get; }
         public Slider Slider { get; }
+        public float Factor { get; set; }
 
         public Func<float, bool> Validation { get; set; } = x => true;
 
@@ -162,7 +164,7 @@ namespace phytestcs.Interface
             {
                 if (Validation(value))
                 {
-                    _setter?.Invoke(_converter!.Set(value, _getter!()));
+                    _setter?.Invoke(_converter!.Set(value / Factor, _getter!()));
 
                     Simulation.UpdatePhysicsInternal(0);
 
@@ -188,7 +190,7 @@ namespace phytestcs.Interface
 
         public void Update()
         {
-            var val = _converter!.Get(_getter!());
+            var val = Factor * _converter!.Get(_getter!());
 
             if (val != _oldLoadedVal)
             {

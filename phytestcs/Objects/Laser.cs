@@ -94,7 +94,7 @@ namespace phytestcs.Objects
                     if (minDist > ray.Length)
                         return;
 
-                    if (minDist != float.PositiveInfinity)
+                    if (!float.IsPositiveInfinity(minDist))
                     {
                         ray.Length = minDist;
 

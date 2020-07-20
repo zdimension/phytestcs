@@ -1,4 +1,5 @@
-﻿using phytestcs.Objects;
+﻿using System.Windows.Forms;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -15,13 +16,13 @@ namespace phytestcs.Interface.Windows.Properties
         private const int offset = hueWidth + 10;
         private const int totalSize = offset + sqSize;
         private const float hueFac = 360f / sqSize;
-        private readonly Image RenderImg = new Image(totalSize + 2 * margin, sqSize + 2 * margin, new Color(30, 30, 30));
+        private static readonly Color BackColor = new Color(30, 30, 30);
+        private readonly Image RenderImg = new Image(totalSize + 2 * margin + 10, sqSize + 2 * margin, BackColor);
         private static readonly Image HueImg = new Image(hueWidth, sqSize);
 
         public static readonly Color SelectorOutline = new Color(255, 255, 255, 192);
         private readonly RectangleShape _hueSelector = new RectangleShape(new Vector2f(hueWidth, 4))
-            { OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent }
-            .CenterOrigin();
+            { OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent, Origin = new Vector2f(hueWidth / 2, 2)};
         
         private readonly RectangleShape _colorSelector = new RectangleShape(new Vector2f(8, 8))
             { OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent, Origin = new Vector2f(4, 4)};
@@ -38,20 +39,27 @@ namespace phytestcs.Interface.Windows.Properties
         public WndAppearance(PhysicalObject obj, Vector2f pos)
             : base(obj, 250, pos)
         {
-            RenderImg.Copy(HueImg, margin, margin);
-            
             var wrapper = new ColorWrapper(() => obj.Color);
             
             var selector = new Canvas();
             selector.SizeLayout = new Layout2d(RenderImg.Size.X, RenderImg.Size.Y);
+            selector.Clear(BackColor);
 
             Add(selector);
 
             void DrawSelector()
             {
                 const float fac = 1f / sqSize;
-                
+
                 var tex = selector.RenderTexture();
+                
+                selector.Clear(BackColor);
+
+                for (uint y = 0; y < RenderImg.Size.Y; y++)
+                for (uint x = 0; x < RenderImg.Size.X; x++)
+                    RenderImg.SetPixel(x, y, BackColor);
+                
+                RenderImg.Copy(HueImg, margin, margin);
 
                 var hue = wrapper.H;
 
@@ -75,10 +83,13 @@ namespace phytestcs.Interface.Windows.Properties
                         var (x, y) = (mpos - selector.AbsolutePosition).I();
                         x -= margin;
                         y -= margin;
-                        if (x <= hueWidth)
-                            wrapper.H = y * hueFac;
-                        else if (x >= offset && x <= totalSize)
-                            wrapper.Value = RenderImg.GetPixel((uint) x, (uint) y);
+                        if (x >= 0 && x <= totalSize && y >= 0 && y < 140)
+                        {
+                            if (x <= hueWidth)
+                                wrapper.H = y * hueFac;
+                            else if (x >= offset)
+                                wrapper.Value = RenderImg.GetPixel(margin + (uint) x, margin + (uint) y);
+                        }
                     }
                 }
                 
@@ -86,7 +97,7 @@ namespace phytestcs.Interface.Windows.Properties
 
                 _hueSelector.Position = new Vector2f(
                     margin + hueWidth / 2, 
-                    (float) ((360 - wrapper.H) / hueFac));
+                    margin + (float) ((360 - wrapper.H) / hueFac));
                 tex.Draw(_hueSelector);
                 
                 _colorSelector.Position = new Vector2f(

@@ -444,5 +444,10 @@
     <data name="Attach tracer" xml:space="preserve">
         <value>Ajouter un traceur</value>
     </data>
-
+    <data name="Custom" xml:space="preserve">
+        <value>Personnalisé</value>
+    </data>
+    <data name="Apply" xml:space="preserve">
+        <value>Appliquer</value>
+    </data>
 </root>

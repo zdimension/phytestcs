@@ -23,7 +23,7 @@ namespace phytestcs.Objects
         [ObjProp("Fade time", "s")]
         public float FadeTime { get; set; }
 
-        [ObjProp("Diameter", "m")]
+        [ObjProp("Size", "m")]
         public float Size
         {
             get => _shape.Radius * 2;

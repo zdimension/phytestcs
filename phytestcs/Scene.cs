@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Interface;
@@ -27,14 +29,29 @@ namespace phytestcs
         {
             var scr = CSharpScript.Create(
                 File.ReadAllText(file),
-                ScriptOptions.Default
-                    .AddReferences(typeof(Scene).Assembly, typeof(Color).Assembly,
-                        typeof(Vector2f).Assembly)
-                    .AddImports("phytestcs", "phytestcs.Objects", "SFML.Graphics", "SFML.System",
-                        "System"));
+                DefaultScriptOptions);
             scr.Compile();
             return scr;
         }
+
+        public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default
+            .AddReferences(
+                typeof(Scene).Assembly, 
+                typeof(Color).Assembly,
+                typeof(Vector2f).Assembly,
+                typeof(Console).GetTypeInfo().Assembly
+                )
+            .AddReferences(
+                MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
+                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName ("System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName ("System.Private.CoreLib.dll"))
+                )
+            .AddImports(
+                "phytestcs", 
+                "phytestcs.Objects", 
+                "SFML.Graphics", 
+                "SFML.System",
+                "System");
 
         public static async Task New()
         {

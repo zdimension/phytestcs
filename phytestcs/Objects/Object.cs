@@ -44,6 +44,12 @@ namespace phytestcs.Objects
             }
         }
 
+        public HSVA ColorHsva
+        {
+            get => Color;
+            set => Color = value;
+        }
+
         public bool Selected
         {
             get => _selected;

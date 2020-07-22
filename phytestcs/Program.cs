@@ -90,9 +90,9 @@ namespace phytestcs
 
             var lastUpd = DateTime.Now;
 
-            Task.Run(async () =>
+            Task.Run(() =>
             {
-                await Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/boing.csx")).ConfigureAwait(true);
+                Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/boing.csx")).Wait();
                 //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();

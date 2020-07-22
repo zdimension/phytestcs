@@ -116,7 +116,7 @@ namespace phytestcs.Objects
         {
             get
             {
-                return Shape switch
+                return InertiaMultiplier * Shape switch
                 {
                     RectangleShape r => Mass * (r.Size.NormSquared()) / 12,
                     CircleShape c => Mass * (float) Math.Pow(c.Radius, 4) / 2,
@@ -250,6 +250,9 @@ namespace phytestcs.Objects
                 UpdatePhysics(0);
             }
         }
+
+        [ObjProp("Inertia multiplier")]
+        public float InertiaMultiplier { get; set; } = 1;
 
         public Vector2f Map(Vector2f local)
         {

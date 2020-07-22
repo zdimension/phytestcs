@@ -24,12 +24,12 @@
         <Reference Include="System.ServiceModel" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.6">
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.6" />
         <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
         <PackageReference Include="TGUI.Net.win-x64" Version="0.8.7.15" />
     </ItemGroup>

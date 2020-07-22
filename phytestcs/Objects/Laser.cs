@@ -121,8 +121,8 @@ namespace phytestcs.Objects
                         var opacityReflected = 1 - opacityRefracted;
 
                         var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
-                            ray.Color.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance,
-                            ray.RefractiveIndex);
+                            ray.EndColor.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance,
+                            ray.RefractiveIndex, this);
                         reflectedRay.Source = ray;
                         ShootRay(reflectedRay, depth + 1);
 
@@ -137,10 +137,10 @@ namespace phytestcs.Objects
                             normalAngle +
                             (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / newIndex) +
                             (float) Math.PI;
-                        var newColor = ray.Color;
+                        var newColor = ray.EndColor;
                         newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
                         var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
-                            LaserThickness, ray.EndDistance, newIndex);
+                            LaserThickness, ray.EndDistance, newIndex, this);
                         refractedRay.DebugInfo = "ref ";
                         refractedRay.Source = ray;
                         ShootRay(refractedRay, depth + 1);
@@ -148,7 +148,7 @@ namespace phytestcs.Objects
                 }
 
                 ShootRay(new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color, LaserThickness, 0,
-                    Object?.RefractiveIndex ?? 1));
+                    Object?.RefractiveIndex ?? 1, this));
             }
         }
 
@@ -160,11 +160,25 @@ namespace phytestcs.Objects
 
             foreach (var laserRay in cache)
             {
+                var (start, end) = (laserRay.Start, laserRay.GetEndClipped());
+                var dir = end - start;
+                var newThick = laserRay.Thickness / 2;
+                var norm = dir.Ortho().Normalize() * newThick / 2;
+                var inside = laserRay.Color;
+                var outside = new Color(laserRay.Color) { A = 0 };
+                var endAlpha = laserRay.EndAlpha;
+
                 Render.Window.Draw(Tools.VertexLineTri(new[]
                 {
-                    laserRay.Start,
-                    laserRay.GetEndClipped()
-                }, laserRay.Color, laserRay.Thickness));
+                    end + norm,
+                    start + norm
+                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside));
+                
+                Render.Window.Draw(Tools.VertexLineTri(new[]
+                {
+                    end - norm,
+                    start - norm
+                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true));
             }
 
             Render.NumRays += cache.Length;
@@ -174,7 +188,7 @@ namespace phytestcs.Objects
     public class LaserRay
     {
         public LaserRay(Vector2f start, float angle, float length, Color color, float thickness, float startDistance,
-            float refrac)
+            float refrac, Laser parent)
         {
             Start = start;
             Angle = angle;
@@ -183,6 +197,7 @@ namespace phytestcs.Objects
             Thickness = thickness;
             StartDistance = startDistance;
             RefractiveIndex = refrac;
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
 
         public Vector2f Start { get; set; }
@@ -192,12 +207,15 @@ namespace phytestcs.Objects
 
         //public Vector2f End => Start + Tools.FromPolar(Length, Angle);
         public Color Color { get; set; }
+        public byte EndAlpha => (byte) Math.Max(0, Color.A * (1 - Length / (Parent.FadeDistance - StartDistance)));
+        public Color EndColor => new Color(Color) { A = EndAlpha };
         public float Thickness { get; set; }
         public float StartDistance { get; set; }
         public float EndDistance => StartDistance + Length;
         public float RefractiveIndex { get; set; }
         public string? DebugInfo { get; set; }
         public LaserRay? Source { get; set; }
+        public Laser Parent { get; set; }
 
         public Vector2f GetEndClipped()
         {

@@ -244,7 +244,7 @@ namespace phytestcs.Interface
                 new NumberField<float>(0.01f, 100,
                     bindProp: () => Simulation.AirDensity, log: true),
                 new NumberField<float>(0.01f, 100,
-                    bindProp: () => Simulation.AirFrictionMultiplier, log: true),
+                    bindProp: () => Simulation.AirFrictionMultiplier, log: true)  { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 10,
                     bindProp: () => Simulation.AirFrictionLinear, log: true) { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 1,

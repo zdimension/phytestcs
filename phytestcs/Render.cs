@@ -68,7 +68,7 @@ namespace phytestcs
 
         private static void DrawGrid()
         {
-            var (f, r) = CalculateRuler(10);
+            var (f, r) = CalculateRuler(Camera.Zoom, 10);
             var fd = (decimal) f;
 
             var start = new Vector2i(0, 0).ToWorld();
@@ -274,14 +274,14 @@ Rayons :
             }
         }
 
-        private static (float factor, float ruler) CalculateRuler(int min = 30, int max = 300)
+        public static (float factor, float ruler) CalculateRuler(float zoom, int min = 30, int max = 300)
         {
             float factor = 1;
             float ruler;
 
             while (true)
             {
-                ruler = Camera.Zoom * factor;
+                ruler = zoom * factor;
                 if (ruler < 0)
                 {
                     Debug.Assert(false);
@@ -364,7 +364,7 @@ Rayons :
         public static void DrawLegend()
         {
             var margin = 30;
-            var (f, r) = CalculateRuler();
+            var (f, r) = CalculateRuler(Camera.Zoom);
             var axis = 30;
             var tri = 4;
 

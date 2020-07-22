@@ -223,7 +223,7 @@ namespace phytestcs.Interface.Windows.Properties
                 -getter(Object)));
         }
 
-        private void DrawPlotGrid(float maxY)
+        private void DrawPlotGrid(float minY, float maxY)
         {
             var xFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.X * 0.2)));
             var xLines = (int) Math.Ceiling(_canvasView.Size.X / xFact);
@@ -232,7 +232,7 @@ namespace phytestcs.Interface.Windows.Properties
             for (var i = 0; i < xLines; i++)
             {
                 var x = (i - 1) * xFact;
-                xGrid[2 * i] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
+                xGrid[2 * i + 0] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
                 xGrid[2 * i + 1] =
                     new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
             }
@@ -242,13 +242,14 @@ namespace phytestcs.Interface.Windows.Properties
             var yFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.Y * 0.1)));
             var yLines = (int) Math.Ceiling(_canvasView.Size.Y / yFact);
             var yGrid = new Vertex[yLines * 2];
-            maxY *= Marge;
-            var offY = maxY % yFact;
+            var ySpan = maxY - minY;
+            ySpan *= Marge;
+            var offY = ySpan % yFact;
             for (var i = 0; i < yLines; i++)
             {
-                var y = (i - 1) * -yFact + maxY - offY;
-                yGrid[2 * i] = new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X, y), ColGrille);
-                yGrid[2 * i + 1] = new Vertex(new Vector2f(_canvasView.Size.X, y), ColGrille);
+                var y = minY + (i - 1) * -yFact + ySpan - offY;
+                yGrid[2 * i + 0] = new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X / 2, y), ColGrille);
+                yGrid[2 * i + 1] = new Vertex(new Vector2f(_canvasView.Center.X + _canvasView.Size.X / 2, y), ColGrille);
             }
 
             _canvas.Draw(yGrid, PrimitiveType.Lines);
@@ -278,7 +279,64 @@ namespace phytestcs.Interface.Windows.Properties
 
                 _canvas.View = _canvasView;
 
-                DrawPlotGrid(maxY);
+                {
+                    var zoomY = (_canvas.Size.Y / Marge) / taille.Y;
+                    var (fY, _) = Render.CalculateRuler(zoomY, 10);
+                    var zoomX = (_canvas.Size.X / Marge) / taille.X;
+                    var (fX, _) = Render.CalculateRuler(zoomX, 10);
+
+                    var fdX = (decimal) fX;
+                    var fdY = (decimal) fY;
+
+                    var start = new Vector2f(0, maxY);
+                    var end = new Vector2f(taille.X, minY);
+
+                    var lines = new List<Vertex>();
+
+                    (int, byte) thickness(float zoom, decimal factor, decimal coord)
+                    {
+                        var w = 3;
+                        byte a = 40;
+                        if (Math.Abs(coord) < factor)
+                        {
+                            w = (int) Math.Round(6 / zoom * 45 / (float)factor);
+                            a = 160;
+                        }
+                        else if (coord % (5 * factor) == 0)
+                        {
+                            w = coord % (10 * factor) == 0 ? 9 : 6;
+                            a = 80;
+                        }
+
+                        return (w, a);
+                    }
+
+                    if (fdX != 0)
+                        for (var x = Math.Round((decimal) start.X / fdX) * fdX; x < (decimal) end.X; x += fdX / 100)
+                        {
+                            if (x % fdX != 0)
+                                continue;
+
+                            var (w, a) = thickness(zoomX, fdX, x);
+                            lines.AddRange(Tools.VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
+                                new Color(255, 255, 255, a), w * fX / 100));
+                        }
+
+                    if (fdY != 0)
+                        for (var y = Math.Round((decimal) start.Y / fdY) * fdY; y > (decimal) end.Y; y -= fdY / 100)
+                        {
+                            if (y % fdY != 0)
+                                continue;
+
+                            var (h, a) = thickness(zoomY, fdY, y);
+                            lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
+                                new Color(255, 255, 255, a), h * fY / 100));
+                        }
+
+                    _canvas.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
+                }
+                
+                //DrawPlotGrid(minY, maxY);
 
                 _canvas.Draw(new[]
                 {

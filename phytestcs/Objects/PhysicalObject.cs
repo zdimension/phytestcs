@@ -251,6 +251,9 @@ namespace phytestcs.Objects
             }
         }
 
+        [ObjProp("Air friction multiplier")]
+        public float AirFrictionMultiplier { get; set; } = 1;
+        
         [ObjProp("Inertia multiplier")]
         public float InertiaMultiplier { get; set; } = 1;
 
@@ -317,6 +320,8 @@ namespace phytestcs.Objects
             {
                 if (Simulation.AirFriction)
                 {
+                    var mult = Simulation.AirFrictionMultiplier * AirFrictionMultiplier;
+                    
                     if (Velocity == default)
                     {
                         AirFriction.Value = default;
@@ -329,14 +334,14 @@ namespace phytestcs.Objects
                         var size = Shape.GetGlobalBounds().Size();
                         var diam1 = Math.Abs(size.Dot(velRel.Ortho()));
 
-                        AirFriction.Value = (-diam1 * Simulation.AirFrictionMultiplier *
+                        AirFriction.Value = (-diam1 * mult *
                                              (Simulation.AirFrictionQuadratic * vn + Simulation.AirFrictionLinear) *
                                              vn) * vu;
                     }
 
                     _angularAirFriction = AngularVelocity
                                           * -Simulation.RotFrictionLinear
-                                          * Simulation.AirFrictionMultiplier;
+                                          * mult;
                 }
                 else
                 {

@@ -450,4 +450,43 @@
     <data name="Apply" xml:space="preserve">
         <value>Appliquer</value>
     </data>
+    <data name="Restitution" xml:space="preserve">
+        <value>Restitution</value>
+    </data>
+    <data name="Refractive index" xml:space="preserve">
+        <value>Indice de réfraction</value>
+    </data>
+    <data name="Glass" xml:space="preserve">
+        <value>Verre</value>
+    </data>
+    <data name="Gold" xml:space="preserve">
+        <value>Or</value>
+    </data>
+    <data name="Helium" xml:space="preserve">
+        <value>Hélium</value>
+    </data>
+    <data name="Rubber" xml:space="preserve">
+        <value>Caoutchouc</value>
+    </data>
+    <data name="Steel" xml:space="preserve">
+        <value>Acier</value>
+    </data>
+    <data name="Stone" xml:space="preserve">
+        <value>Pierre</value>
+    </data>
+    <data name="Wood" xml:space="preserve">
+        <value>Bois</value>
+    </data>
+    <data name="A" xml:space="preserve">
+        <value>A</value>
+    </data>
+    <data name="Random color" xml:space="preserve">
+        <value>Couleur aléatoire</value>
+    </data>
+    <data name="Fade time" xml:space="preserve">
+        <value>Distance d'extinction</value>
+    </data>
+    <data name="Size" xml:space="preserve">
+        <value>Taille</value>
+    </data>
 </root>

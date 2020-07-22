@@ -86,7 +86,7 @@ namespace phytestcs
         }
 
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
-            int? upto = null)
+            int? upto = null, Color? c2_ = null, byte endAlpha=0, bool blendLin=false, bool outsideInvert=false)
         {
             if (points.Length <= 1 || (upto != null && upto <= 1))
                 return new VertexArray(PrimitiveType.TriangleStrip, 0);
@@ -100,15 +100,28 @@ namespace phytestcs
             var res = new VertexArray(PrimitiveType.TriangleStrip, (uint) (2 * end));
             var pos = 0u;
             var col = c;
-            float A = 0, dA = 0;
-            if (blend)
+            var c2 = c2_ ?? c;
+            var col2 = c2;
+
+            Func<int, byte> alpha;
+            if (blendLin)
             {
-                col.A = 0;
-                dA = (float) c.A / res.VertexCount;
+                var linFactor = ((float) col.A - endAlpha) / (end - 1);
+                alpha = x => (byte) (endAlpha + linFactor * x);
+            }
+            else
+            {
+                var blendFac = ((float) col.A - endAlpha) / col.A;
+                alpha = x => (byte) (c.A - blendFac * (Math.Pow(c.A + 1, 1f - x / (end - 1f)) - 1));
             }
 
-            res[pos++] = new Vertex(a - w * edge / 2, col);
-            res[pos++] = new Vertex(a + w * edge / 2, col);
+            if (blend)
+            {
+                col.A = endAlpha;
+            }
+
+            res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? col : col2);
+            res[pos++] = new Vertex(a + w * edge / 2, outsideInvert ? col2 : col);
 
             for (var i = 1; i < end - 1; i++)
             {
@@ -118,20 +131,20 @@ namespace phytestcs
                 edge = (p2 - p1).Ortho().Normalize();
                 var tangent = ((p2 - p1).Normalize() + (p1 - p0).Normalize()).Normalize();
                 var miter = tangent.Ortho();
-                var length = w / miter.Dot(edge);
-                col = c;
+                var length = w / miter.Dot(edge) / 2;
+
                 if (blend)
                 {
-                    col.A = (byte) (A += dA);
+                    col.A = alpha(i);
                 }
 
-                res[pos++] = new Vertex(p1 - length * miter, col);
-                res[pos++] = new Vertex(p1 + length * miter, col);
+                res[pos++] = new Vertex(p1 - length * miter, outsideInvert ? col : col2);
+                res[pos++] = new Vertex(p1 + length * miter, outsideInvert ? col2 : col);
             }
 
             a = points[end - 1];
-            res[pos++] = new Vertex(a - w * edge / 2, c);
-            res[pos++] = new Vertex(a + w * edge / 2, c);
+            res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? c : c2);
+            res[pos++] = new Vertex(a + w * edge / 2, outsideInvert ? c2 : c);
 
             return res;
         }

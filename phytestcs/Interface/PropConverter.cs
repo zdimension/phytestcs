@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Data;
 using System.Globalization;
+using SFML.Graphics;
 using SFML.System;
+using TGUI;
 using static phytestcs.Global;
 
 namespace phytestcs.Interface
@@ -23,16 +26,39 @@ namespace phytestcs.Interface
             o => o.Degrees(), (value, old) => value.Radians());
 
         public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
+        
+        public static readonly PropConverter<bool, string> BoolString = new PropConverter<bool, string>(
+            o => o ? "true" : "false",
+            (value, old) => value switch
+            {
+                "true" => true,
+                "false" => false,
+                _ => throw new SyntaxErrorException()
+            });
 
         public static readonly PropConverter<float, string> FloatString = new PropConverter<float, string>(
             o => o.ToString(CultureInfo.InvariantCulture),
             (value, old) => (float) double.Parse(value, CultureInfo.InvariantCulture));
 
         public static readonly PropConverter<Vector2f, string> Vector2FString = new PropConverter<Vector2f, string>(
-            o => (o.X, o.Y).ToString(CultureInfo.InvariantCulture)!, (value, old) =>
+            o => (o.X, o.Y).ToString()!, (value, old) =>
             {
                 var (x, y) = value.Eval<(double, double)>();
                 return new Vector2f((float) x, (float) y);
+            });
+        
+        public static readonly PropConverter<Color, string> ColorString = new PropConverter<Color, string>(
+            o => (o.R, o.G, o.B, o.A).ToString()!, (value, old) =>
+            {
+                var (r, g, b, a) = value.Eval<(byte, byte, byte, byte)>();
+                return new Color(r, g, b, a);
+            });
+        
+        public static readonly PropConverter<HSVA, string> ColorHsvaString = new PropConverter<HSVA, string>(
+            o => (o.H, o.S, o.V, o.A).ToString()!, (value, old) =>
+            {
+                var (h, s, v, a) = value.Eval<(double, double, double, double)>();
+                return new HSVA(h, s, v, a);
             });
 
         public static PropConverter<TOrig, TDisp> Default<TOrig, TDisp>()

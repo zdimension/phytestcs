@@ -94,11 +94,28 @@ namespace phytestcs
             return CSharpScript.EvaluateAsync<T>(s).Result;
         }
 
-        public static string? ToString<T1, T2>(this (T1, T2) tuple, CultureInfo culture)
+        public static string? ToString<T1, T2>(this (T1, T2) tuple)
             where T1 : IFormattable
             where T2 : IFormattable
         {
-            return $"({tuple.Item1.ToString(null, culture)}, {tuple.Item2.ToString(null, culture)})";
+            return $"({tuple.Item1.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item2.ToString(null, CultureInfo.InvariantCulture)})";
+        }
+        
+        public static string? ToString<T1, T2, T3>(this (T1, T2, T3) tuple)
+            where T1 : IFormattable
+            where T2 : IFormattable
+            where T3 : IFormattable
+        {
+            return $"({tuple.Item1.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item2.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item3.ToString(null, CultureInfo.InvariantCulture)})";
+        }
+        
+        public static string? ToString<T1, T2, T3, T4>(this (T1, T2, T3, T4) tuple)
+            where T1 : IFormattable
+            where T2 : IFormattable
+            where T3 : IFormattable
+            where T4 : IFormattable
+        {
+            return $"({tuple.Item1.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item2.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item3.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item4.ToString(null, CultureInfo.InvariantCulture)})";
         }
 
         public static bool IsNaN(this Vector2f v)

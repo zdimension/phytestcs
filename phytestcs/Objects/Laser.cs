@@ -162,8 +162,8 @@ namespace phytestcs.Objects
             {
                 var (start, end) = (laserRay.Start, laserRay.GetEndClipped());
                 var dir = end - start;
-                var newThick = laserRay.Thickness / 2;
-                var norm = dir.Ortho().Normalize() * newThick / 2;
+                var newThick = laserRay.Thickness / 3;
+                var norm = dir.Ortho().Normalize() * newThick;
                 var inside = laserRay.Color;
                 var outside = new Color(laserRay.Color) { A = 0 };
                 var endAlpha = laserRay.EndAlpha;
@@ -172,13 +172,19 @@ namespace phytestcs.Objects
                 {
                     end + norm,
                     start + norm
-                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside));
+                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside), new RenderStates(BlendMode.Add));
+                
+                Render.Window.Draw(Tools.VertexLineTri(new[]
+                {
+                    end,
+                    start
+                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true), new RenderStates(BlendMode.Add));
                 
                 Render.Window.Draw(Tools.VertexLineTri(new[]
                 {
                     end - norm,
                     start - norm
-                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true));
+                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true), new RenderStates(BlendMode.Add));
             }
 
             Render.NumRays += cache.Length;

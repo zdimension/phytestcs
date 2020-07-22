@@ -1,10 +1,10 @@
-﻿Simulation.Add(Simulation.Player = PhysicalObject.Rectangle(-0.5f, 3, 1, 1, Color.Red, name: "Joueur"));
-var rect = PhysicalObject.Rectangle(-0.5f, 0, 1, 1, Color.Magenta, true);
+﻿Simulation.Add(Simulation.Player = PhysicalObject.Rectangle(0, 3, 1, 1, Color.Red, name: "Joueur"));
+var rect = PhysicalObject.Rectangle(0, 0, 1, 1, Color.Magenta, true);
 rect.Attraction = 9.81f * 9f / 10f;
 rect.Mass = 10f;
 Simulation.Add(rect);
-Simulation.Player.Speed = new Vector2f((float)Math.Sqrt(9.81f * 3), 0);
-var ttt = PhysicalObject.Rectangle(-0.5f, -3, 1, 1, Color.Red, name: "test");
-ttt.Speed = new Vector2f(-(float)Math.Sqrt(9.81f * 3), 0);
+Simulation.Player.Velocity = new Vector2f((float)Math.Sqrt(9.81f * 3), 0);
+var ttt = PhysicalObject.Rectangle(0, -3, 1, 1, Color.Red, name: "test");
+ttt.Velocity = new Vector2f(-(float)Math.Sqrt(9.81f * 3), 0);
 Simulation.Add(ttt);
 Simulation.GravityEnabled = false;

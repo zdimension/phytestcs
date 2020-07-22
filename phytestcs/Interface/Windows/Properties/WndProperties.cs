@@ -54,18 +54,13 @@ namespace phytestcs.Interface.Windows.Properties
                 var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
                 btn.Clicked += delegate
                 {
-                    Ui.PropertyWindows[obj].Add((ChildWindowEx) Activator.CreateInstance(type, obj, PosEnfant())!);
+                    Activator.CreateInstance(type, obj, PosEnfant());
                 };
                 Add(btn);
             }
 
             obj.Deleted += () => { CloseAll(); };
-
-            void ClickClose(object sender, SignalArgsVector2f signalArgsVector2F)
-            {
-                CloseAll(true);
-            }
-
+            
             Ui.BackPanel.MousePressed += ClickClose;
             Ui.BackPanel.RightMouseReleased += RightClickClose;
 
@@ -85,6 +80,11 @@ namespace phytestcs.Interface.Windows.Properties
                 Ui.BackPanel.RightMouseReleased -= RightClickClose;
                 CloseAll(true);
             };
+        }
+        
+        private void ClickClose(object sender, SignalArgsVector2f signalArgsVector2F)
+        {
+            CloseAll(true);
         }
 
         private void RightClickClose(object? sender, SignalArgsVector2f e)

@@ -43,6 +43,7 @@ namespace phytestcs.Interface.Windows.Properties
                 (typeof(WndActions), L["Geometry actions"], "icons/small/settings.png"),
                 // csg
                 // controller
+                (typeof(WndSpecial), L["Special"], "icons/small/settings.png"),
                 (typeof(WndScript), L["Script"], "icons/small/script.png"),
             };
 

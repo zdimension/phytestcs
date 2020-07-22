@@ -224,7 +224,13 @@ namespace phytestcs.Objects
         public float RefractiveIndex { get; set; } = 1.5f;
 
         public uint CollideSet { get; set; } = 1;
-
+        
+        /// <summary>
+        /// If true, the object will not collide with others with identical collide set
+        /// </summary>
+        [ObjProp("No self collision")]
+        public bool HeteroCollide { get; set; } = false;
+        
         public Shape Shape { get; }
 
         [ObjProp("Position", "m", "m\u22c5s", "m/s")]
@@ -634,6 +640,9 @@ namespace phytestcs.Objects
                         continue;
 
                     if ((a.CollideSet & b.CollideSet) == 0)
+                        continue;
+
+                    if (a.HeteroCollide && b.HeteroCollide && a.CollideSet == b.CollideSet)
                         continue;
 
                     if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))

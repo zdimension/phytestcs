@@ -105,5 +105,16 @@ namespace phytestcs
         {
             return float.IsNaN(v.X) || float.IsNaN(v.Y);
         }
+        
+        public static string GetAssemblyLoadPath(this System.Type type)
+        {
+            return type.Assembly.Location;
+        }
+
+        public static string GetSystemAssemblyPathByName(string assemblyName)
+        {
+            var root = System.IO.Path.GetDirectoryName (typeof (object).GetAssemblyLoadPath ());
+            return System.IO.Path.Combine (root, assemblyName);
+        }
     }
 }

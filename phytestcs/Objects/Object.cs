@@ -40,6 +40,7 @@ namespace phytestcs.Objects
                 foreach (var s in Shapes)
                     s.FillColor = value;
                 UpdateOutline();
+                UpdatePhysics(0);
             }
         }
 
@@ -208,5 +209,18 @@ namespace phytestcs.Objects
     {
         public Action<T> Setter { get; set; }
         public Expression<Func<T>> Value { get; set; }
+    }
+    
+    public class BaseEventArgs<T> : HandledEventArgs
+        where T : Object
+    {
+        public T This { get; }
+    }
+
+    public class ClickedEventArgs<T> : BaseEventArgs<T>
+        where T : Object, IHasLocalGeom
+    {
+        public int ClickCount { get; }
+        public Vector2f Position { get; }
     }
 }

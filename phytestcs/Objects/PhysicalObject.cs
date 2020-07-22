@@ -772,5 +772,7 @@ namespace phytestcs.Objects
                 }
             }
         }
+        
+        //public EventWrapper<HandledEventArgs> OnClick { get; } = new EventWrapper<HandledEventArgs>();
     }
 }

@@ -1,10 +1,11 @@
-﻿using System.Windows.Forms;
-using phytestcs.Objects;
+﻿using System;
+using System.Windows.Forms;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
 using static phytestcs.Global;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
@@ -47,11 +48,24 @@ namespace phytestcs.Interface.Windows.Properties
 
             Add(selector);
 
+            Color oldColor = default;
+            IntPtr oldPointer = default;
+            
+            bool userChanging = false;
+
+            wrapper.ValueChanged += delegate
+            {
+                UpdateSelector();
+            };
+            
             void DrawSelector()
             {
+                oldColor = wrapper.Value;
+                
                 const float fac = 1f / sqSize;
 
                 var tex = selector.RenderTexture();
+                oldPointer = tex.CPointer;
                 
                 selector.Clear(BackColor);
 
@@ -75,8 +89,28 @@ namespace phytestcs.Interface.Windows.Properties
                     }
                 }
 
+                tex.Texture.Update(RenderImg);
+                
+                _hueSelector.Position = new Vector2f(
+                    margin + hueWidth / 2, 
+                    margin + (float) ((360 - wrapper.H) / hueFac));
+                tex.Draw(_hueSelector);
+                
+                _colorSelector.Position = new Vector2f(
+                    (float)(margin + offset + wrapper.S * sqSize), 
+                    (float)(margin + wrapper.V * sqSize));
+                tex.Draw(_colorSelector);
+            }
+
+            void UpdateSelector()
+            {
+                if (userChanging)
+                    return;
+                
                 if (Mouse.IsButtonPressed(Mouse.Button.Left))
                 {
+                    userChanging = true;
+                    
                     var mpos = Mouse.GetPosition(Render.Window).F() - AbsolutePosition - new Vector2f(0, Renderer.TitleBarHeight);
                     if (selector.MouseOnWidget(mpos))
                     {
@@ -91,28 +125,23 @@ namespace phytestcs.Interface.Windows.Properties
                                 wrapper.Value = RenderImg.GetPixel(margin + (uint) x, margin + (uint) y);
                         }
                     }
+
+                    userChanging = false;
                 }
                 
-                tex.Texture.Update(RenderImg);
-
-                _hueSelector.Position = new Vector2f(
-                    margin + hueWidth / 2, 
-                    margin + (float) ((360 - wrapper.H) / hueFac));
-                tex.Draw(_hueSelector);
-                
-                _colorSelector.Position = new Vector2f(
-                    (float)(margin + offset + wrapper.S * sqSize), 
-                    (float)(margin + wrapper.V * sqSize));
-                tex.Draw(_colorSelector);
+                if (wrapper.Value != oldColor || selector.RenderTexture().CPointer != oldPointer)
+                    DrawSelector();
             }
-
-            Ui.Drawn += DrawSelector;
             
+            DrawSelector();
+
+            Ui.Drawn += UpdateSelector;
+
             Closed += delegate
             {
-                Ui.Drawn -= DrawSelector;
+                Ui.Drawn -= UpdateSelector;
             };
-            
+
             Add(new NumberField<double>(0, 360, unit: "°", bindProp: () => wrapper.H, inline: true, round: 0));
             Add(new NumberField<double>(0, 100, factor: 100, unit: "%", bindProp: () => wrapper.S, inline: true, round: 0));
             Add(new NumberField<double>(0, 100, factor: 100, unit: "%", bindProp: () => wrapper.V, inline: true, round: 0));

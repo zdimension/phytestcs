@@ -19,37 +19,38 @@ namespace phytestcs
         public ColorWrapper(PropertyReference<Color> bindProp)
         {
             (getter, setter) = bindProp.GetAccessors();
+            ValueChanged += setter;
         }
 
         public byte R
         {
             get => getter().R;
-            set => setter(new Color(getter()) { R = value });
+            set => ValueChanged(new Color(getter()) { R = value });
         }
 
         public byte G
         {
             get => getter().G;
-            set => setter(new Color(getter()) { G = value });
+            set => ValueChanged(new Color(getter()) { G = value });
         }
 
         public byte B
         {
             get => getter().B;
-            set => setter(new Color(getter()) { B = value });
+            set => ValueChanged(new Color(getter()) { B = value });
         }
 
         public byte A
         {
             get => getter().A;
-            set => setter(new Color(getter()) { A = value });
+            set => ValueChanged(new Color(getter()) { A = value });
         }
 
         [ObjProp("A")]
         public double Ad
         {
             get => getter().A / 255d;
-            set => setter(new Color(getter()) { A = (byte) (value * 255) });
+            set => ValueChanged(new Color(getter()) { A = (byte) (value * 255) });
         }
 
         public double H
@@ -59,7 +60,7 @@ namespace phytestcs
             {
                 var hsv = ValueHSV;
                 hsv.H = value;
-                setter(hsv.ToColor());
+                ValueChanged(hsv.ToColor());
             }
         }
 
@@ -70,7 +71,7 @@ namespace phytestcs
             {
                 var hsv = ValueHSV;
                 hsv.S = value;
-                setter(hsv.ToColor());
+                ValueChanged(hsv.ToColor());
             }
         }
 
@@ -81,21 +82,23 @@ namespace phytestcs
             {
                 var hsv = ValueHSV;
                 hsv.V = value;
-                setter(hsv.ToColor());
+                ValueChanged(hsv.ToColor());
             }
         }
 
         public Color Value
         {
             get => getter();
-            set => setter(value);
+            set => ValueChanged(value);
         }
 
         public HSVA ValueHSV
         {
             get => getter();
-            set => setter(value);
+            set => ValueChanged(value);
         }
+
+        public event Action<Color> ValueChanged = delegate { };
     }
 
     public struct HSVA

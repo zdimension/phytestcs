@@ -468,7 +468,7 @@ namespace phytestcs
                         if (obj != null && !obj.HasFixate)
                         {
                             added = Simulation.Add(new Tracer(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize,
-                                RandomColor()));
+                                new Color(RandomColor()){A=255}));
                         }
                     }
 

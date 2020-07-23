@@ -22,18 +22,15 @@ namespace phytestcs
             set
             {
                 _code = value;
-                Console.WriteLine("a");
+
                 try
                 {
-                    Value = CSharpScript.EvaluateAsync<T>(value, Scene.DefaultScriptOptions.WithReferences(typeof(T).GetTypeInfo().Assembly)).Result;
+                    Value = CSharpScript.EvaluateAsync<T>(value, Scene.DefaultScriptOptions.AddReferences(typeof(T).GetTypeInfo().Assembly)).Result;
                 }
                 catch(Exception e)
                 {
                     Console.WriteLine(e);
-                    Value = null;
                 }
-
-                Console.WriteLine("b");
             }
         }
 

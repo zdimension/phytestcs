@@ -23,14 +23,14 @@ namespace phytestcs
         public static float DragConstant = 1e3f;
         public static DrawingType DrawMode;
         public static Color DrawColor;
-        public static IMoveable DragObject;
+        public static Object DragObject;
         public static Spring DragSpring;
         public static Vector2f DragObjectRelPos;
 
-        public static Object SelectedObject { get; private set; }
+        public static Object? SelectedObject { get; private set; }
         public static Vector2f DragObjectRelPosDirect { get; set; }
 
-        public static Object SelectObject(Object? obj)
+        public static Object? SelectObject(Object? obj)
         {
             if (SelectedObject != null)
                 SelectedObject.Selected = false;

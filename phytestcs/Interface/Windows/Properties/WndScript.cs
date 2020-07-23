@@ -29,17 +29,35 @@ namespace phytestcs.Interface.Windows.Properties
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .OrderBy(p => p.Name))
             {
-                object converter;
+                object? converter;
                 var type = prop.PropertyType;
+                object? propRef;
 
-                if (!Converters.TryGetValue(type, out converter))
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(EventWrapper<>))
+                {
+                    var ew = prop.GetValue(obj)!;
+                    var lw = ew.GetType().GetProperty("Wrapper")!.GetValue(ew)!;
+                    propRef = new PropertyReference<string>(lw.GetType().GetProperty("Code")!, lw);
+                    type = typeof(string);
+                    /*converter = typeof(PropConverter)
+                            .GetMethod("EventWrapper", BindingFlags.Static)!
+                        .MakeGenericMethod(type.GenericTypeArguments[0])
+                        .Invoke(null, Array.Empty<object>());*/
+                    converter = null;
+                    /*converter = 
+                        typeof(Tools).GetMethod("GetDefault")!.MakeGenericMethod(
+                            typeof(PropConverter<,>).MakeGenericType(type, typeof(string))).Invoke(null, Array.Empty<object>());*/
+                }
+                else if (Converters.TryGetValue(type, out converter))
+                {
+                    propRef = Activator.CreateInstance(typeof(PropertyReference<>).MakeGenericType(type),
+                        prop, obj);
+                }
+                else
                     continue;
 
-                var propRef = Activator.CreateInstance(typeof(PropertyReference<>).MakeGenericType(type),
-                    prop, obj);
-
-                Add((Widget) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), propRef, prop.Name,
-                    converter)!);
+                Add((Widget) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), 
+                    propRef, prop.Name, converter)!);
             }
 
             Show();

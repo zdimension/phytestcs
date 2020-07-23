@@ -31,6 +31,12 @@ namespace phytestcs.Objects
         public string? Name { get; set; }
 
         protected abstract IEnumerable<Shape> Shapes { get; }
+        
+        [ObjProp("Position", "m", "m\u22c5s", "m/s")]
+        public abstract Vector2f Position { get; set; }
+        
+        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s")]
+        public abstract float Angle { get; set; }
 
         public virtual Color Color
         {
@@ -193,6 +199,15 @@ namespace phytestcs.Objects
 
             _bindings.Remove(getMethod);
         }
+        
+        public abstract Vector2f Map(Vector2f local);
+
+        public abstract Vector2f MapInv(Vector2f @global);
+    }
+
+    public abstract class Object<T> : Object where T : Object<T>
+    {
+        public EventWrapper<ClickedEventArgs<T>> OnClick { get; } = new EventWrapper<ClickedEventArgs<T>>();
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]
@@ -224,7 +239,7 @@ namespace phytestcs.Objects
     }
 
     public class ClickedEventArgs<T> : BaseEventArgs<T>
-        where T : Object, IHasLocalGeom
+        where T : Object
     {
         public int ClickCount { get; }
         public Vector2f Position { get; }

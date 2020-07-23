@@ -8,7 +8,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class PhysicalObject : Object, IMoveable, IHasShape, ICollides
+    public class PhysicalObject : Object<PhysicalObject>, IHasShape, ICollides
     {
         public delegate void CollisionHandler(PhysicalObject source);
 
@@ -234,8 +234,7 @@ namespace phytestcs.Objects
         
         public Shape Shape { get; }
 
-        [ObjProp("Position", "m", "m\u22c5s", "m/s")]
-        public Vector2f Position
+        public override Vector2f Position
         {
             get => _position;
             set
@@ -246,8 +245,7 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s")]
-        public float Angle
+        public override float Angle
         {
             get => _angle;
             set
@@ -264,12 +262,12 @@ namespace phytestcs.Objects
         [ObjProp("Inertia multiplier")]
         public float InertiaMultiplier { get; set; } = 1;
 
-        public Vector2f Map(Vector2f local)
+        public override Vector2f Map(Vector2f local)
         {
             return Shape.Transform.TransformPoint(Shape.Origin + local);
         }
 
-        public Vector2f MapInv(Vector2f @global)
+        public override Vector2f MapInv(Vector2f @global)
         {
             return Shape.InverseTransform.TransformPoint(global) - Shape.Origin;
         }
@@ -773,7 +771,5 @@ namespace phytestcs.Objects
                 }
             }
         }
-        
-        //public EventWrapper<HandledEventArgs> OnClick { get; } = new EventWrapper<HandledEventArgs>();
     }
 }

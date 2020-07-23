@@ -104,6 +104,8 @@ namespace phytestcs.Objects
         }
 
         protected override IEnumerable<Shape> Shapes => new[] { End1.Shape, End2.Shape };
+        public override Vector2f Position { get; set; }
+        public override float Angle { get; set; }
 
         public override void UpdatePhysics(float dt)
         {
@@ -198,6 +200,16 @@ namespace phytestcs.Objects
 
                 Render.Window.SetView(Camera.GameView);
             }
+        }
+
+        public override Vector2f Map(Vector2f local)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Vector2f MapInv(Vector2f global)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿namespace phytestcs.Objects
 {
-    public abstract class VirtualObject : Object
+    public abstract class VirtualObject : Object<VirtualObject>
     {
     }
 }

@@ -61,6 +61,17 @@ namespace phytestcs.Interface
                 return new HSVA(h, s, v, a);
             });
 
+        public static PropConverter<EventWrapper<T>, string> EventWrapper<T>()
+            where T : Delegate
+        {
+            return new PropConverter<EventWrapper<T>, string>(
+                lsw => lsw.Wrapper.Code, (value, old) =>
+                {
+                    old.Wrapper.Code = value;
+                    return old;
+                });
+        }
+
         public static PropConverter<TOrig, TDisp> Default<TOrig, TDisp>()
         {
             return new PropConverter<TOrig, TDisp>(

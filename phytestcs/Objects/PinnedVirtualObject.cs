@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public abstract class PinnedVirtualObject : VirtualObject, IMoveable
+    public abstract class PinnedVirtualObject : VirtualObject
     {
         public PinnedVirtualObject(PhysicalObject @object, Vector2f relPos)
         {
@@ -18,16 +18,13 @@ namespace phytestcs.Objects
         public virtual Vector2f RelPos { get; set; }
 
         public float ActualAngle => (Object?.Angle ?? 0) + Angle;
-        public virtual float Angle { get; set; }
+        public override float Angle { get; set; }
 
-        public virtual Vector2f Position
+        public override Vector2f Position
         {
             get => Object?.Map(RelPos) ?? RelPos;
             set => RelPos = Object?.MapInv(value) ?? value;
         }
-
-        public abstract Vector2f Map(Vector2f local);
-        public abstract Vector2f MapInv(Vector2f global);
     }
 
     public abstract class PinnedShapedVirtualObject : PinnedVirtualObject, IHasShape

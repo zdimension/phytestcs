@@ -420,7 +420,7 @@ Rayons :
                 Program._rotCircle.OutlineThickness = 4 / Camera.Zoom;
                 Window.Draw(Program._rotCircle);
 
-                var curAngle = ((IRotatable) Drawing.SelectedObject).Angle;
+                var curAngle = Drawing.SelectedObject!.Angle;
                 var thick = 4 / Camera.Zoom;
 
                 Window.Draw(

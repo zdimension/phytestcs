@@ -166,23 +166,23 @@ namespace phytestcs
         private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
         {
             if (!_rotating && !_moving && Mouse.IsButtonPressed(Mouse.Button.Right) &&
-                ObjectAtPosition(ClickPosition) is Object obj && obj is IRotHasPos rot)
+                ObjectAtPosition(ClickPosition) is { } obj)
             {
                 Drawing.SelectObject(obj);
                 if (obj is PhysicalObject phy)
                     phy.UserFix = true;
                 _rotating = true;
-                _rotatingAngle = rot.Angle;
+                _rotatingAngle = obj.Angle;
                 _rotCircle.Radius = 135 / Camera.Zoom;
                 _rotCircle.CenterOrigin();
-                _rotCircle.Position = rot.Position;
-                _rotText.Position = rot.Position.ToScreen().F();
-                _rotStartAngle = (ClickPosition.ToWorld() - rot.Position).Angle();
+                _rotCircle.Position = obj.Position;
+                _rotText.Position = obj.Position.ToScreen().F();
+                _rotStartAngle = (ClickPosition.ToWorld() - obj.Position).Angle();
             }
 
             if (_rotating)
             {
-                var rotObj = (IRotHasPos) Drawing.SelectedObject;
+                var rotObj = Drawing.SelectedObject;
                 var rotCur = e.Position().ToWorld() - rotObj.Position;
                 _rotDeltaAngle = rotCur.Angle() - _rotStartAngle;
                 var newAng = _rotatingAngle + _rotDeltaAngle;
@@ -327,28 +327,25 @@ namespace phytestcs
                     }
                     else
                     {
-                        var under = ObjectAtPosition(pos);
+                        var obj = ObjectAtPosition(pos);
 
-                        if (under is IMoveable obj)
+                        Drawing.DragObject = obj;
+                        Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
+                        Drawing.DragObjectRelPosDirect = pos.ToWorld() - obj.Position;
+
+                        if (obj is PhysicalObject phy)
                         {
-                            Drawing.DragObject = obj;
-                            Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
-                            Drawing.DragObjectRelPosDirect = pos.ToWorld() - obj.Position;
-
-                            if (obj is PhysicalObject phy)
+                            if (Drawing.DrawMode == DrawingType.Move)
                             {
-                                if (Drawing.DrawMode == DrawingType.Move)
-                                {
-                                    phy.IsMoving = true;
-                                }
-                                else
-                                {
-                                    Simulation.Add(Drawing.DragSpring =
-                                        new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
-                                            phy, Drawing.DragObjectRelPos, null,
-                                            pos.ToWorld(),
-                                            ForceType.Drag) { Damping = 1 });
-                                }
+                                phy.IsMoving = true;
+                            }
+                            else
+                            {
+                                Simulation.Add(Drawing.DragSpring =
+                                    new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
+                                        phy, Drawing.DragObjectRelPos, null,
+                                        pos.ToWorld(),
+                                        ForceType.Drag) { Damping = 1 });
                             }
                         }
                     }

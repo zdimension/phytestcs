@@ -92,9 +92,9 @@ namespace phytestcs.Interface
                     var res = CSharpScript.EvaluateAsync(s.Value).Result;
                     Value = Convert.ToSingle(res, CultureInfo.CurrentCulture);
                 }
-                catch
+                catch (Exception e)
                 {
-                    //
+                    Console.WriteLine(e);
                 }
             }
 

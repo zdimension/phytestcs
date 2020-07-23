@@ -74,9 +74,9 @@ namespace phytestcs.Interface
 
                     _value = value;
                 }
-                catch
+                catch (Exception e)
                 {
-                    //
+                    Console.WriteLine(e);
                 }
             }
         }

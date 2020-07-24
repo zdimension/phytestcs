@@ -208,8 +208,8 @@ namespace phytestcs.Objects
         public EventWrapper<ClickedEventArgs> OnDie { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> OnSpawn { get; } = new EventWrapper<ClickedEventArgs>();
-        public EventWrapper<ClickedEventArgs> PostStep { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<PostStepEventArgs> PostStep { get; } = new EventWrapper<PostStepEventArgs>();
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]
@@ -251,6 +251,16 @@ namespace phytestcs.Objects
         public ClickedEventArgs(object @this, Vector2f position) : base(@this)
         {
             Position = position;
+        }
+    }
+    
+    public class PostStepEventArgs : BaseEventArgs
+    {
+        public float DeltaTime { get; }
+
+        public PostStepEventArgs(object @this, float deltaTime) : base(@this)
+        {
+            DeltaTime = deltaTime;
         }
     }
 }

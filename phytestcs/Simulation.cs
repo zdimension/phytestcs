@@ -183,7 +183,12 @@ namespace phytestcs
                 o.UpdatePhysics(dt);
 
             if (dt != 0)
+            {
                 PhysicalObject.ProcessPairs(dt, WorldCachePhy);
+
+                foreach (var o in WorldCache)
+                    o.PostStep.Invoke(new PostStepEventArgs(o, dt));
+            }
         }
 
         public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject excl = null)

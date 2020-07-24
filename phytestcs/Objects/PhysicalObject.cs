@@ -19,9 +19,6 @@ namespace phytestcs.Objects
 
         private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();
 
-        private readonly CircleShape rotCenter = new CircleShape(CircleSize)
-            { FillColor = Color.Red, Origin = new Vector2f(CircleSize, CircleSize) };
-
         private float _angle;
         private Vector2f[] _globalPointsCache;
 
@@ -140,21 +137,6 @@ namespace phytestcs.Objects
             }
         }
 
-        public Vector2f RotationPoint
-        {
-            get
-            {
-                lock (Forces.SyncRoot)
-                {
-                    if (Forces.Count <= 1)
-                        return default;
-                    var sum = Forces.Sum(f => f.Value.Norm());
-                    if (sum == default)
-                        return default;
-                    return Forces.Sum(f => f.Position * f.Value.Norm()) / sum;
-                }
-            }
-        }
 
         /// <summary>
         /// Total torque around the object's rotation point (<see cref="RotationPoint"/>).
@@ -167,17 +149,9 @@ namespace phytestcs.Objects
         {
             get
             {
-                var avgAppPoint = RotationPoint;
-
                 lock (Forces.SyncRoot)
                 {
-                    return (from f in Forces
-                            let realPos = f.Position - avgAppPoint
-                            let realAngle = f.Value.Angle() - Angle
-                            select f.Value.Norm() *
-                                   (realPos.X / Shape.GetLocalBounds().Width) *
-                                   (float) Math.Sin(realAngle) * realPos.Norm()
-                        ).Sum();
+                    return Forces.Select(f => f.Position.Cross(f.Value)).Sum();
                 }
             }
         }
@@ -365,9 +339,6 @@ namespace phytestcs.Objects
                 _position += Velocity * dt;
 
                 var dA = AngularVelocity * dt;
-                var center = RotationPoint;
-                center.Rotate(dA);
-                _position += RotationPoint - center;
                 _angle += dA;
                 _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
                 UpdatePosition();
@@ -530,9 +501,6 @@ namespace phytestcs.Objects
 
                     Render.Window.SetView(Camera.GameView);
                 }
-
-                rotCenter.Position = Map(RotationPoint);
-                Render.Window.Draw(rotCenter);
             }
         }
 
@@ -618,12 +586,12 @@ namespace phytestcs.Objects
         }
 
         /// <summary>
-        /// Returns the velocity of a particular local point relative to the center of rotation.
-        /// The speed is always normal to the vector from the center of rotation to the point.
+        /// Returns the velocity of a particular local point relative to the center of gravity.
+        /// The speed is always normal to the vector from the center of gravity to the point.
         /// </summary>
         public Vector2f SpeedAtPoint(Vector2f local)
         {
-            return AngularVelocity * (RotationPoint - local).Ortho().Rotate(Angle);
+            return AngularVelocity * local.Ortho().Rotate(Angle);
         }
 
         public static void ProcessPairs(float dt, PhysicalObject[] phy)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using phytestcs.Interface.Windows;
 using phytestcs.Interface.Windows.Properties;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -84,6 +85,13 @@ namespace phytestcs.Interface
             {
                 Program.Window_MouseButtonReleased(f.Value.I(), Mouse.Button.Right);
             };
+            back.Clicked += (sender, f) =>
+            {
+                var pos = f.Value.I();
+                var obj = Tools.ObjectAtPosition(pos);
+
+                obj?.OnClick.Invoke(new ClickedEventArgs(obj, pos.ToWorld()));
+            };
             Gui.Add(back);
         }
 
@@ -104,8 +112,7 @@ namespace phytestcs.Interface
 
             wnd.Visible = false;
             Gui.Add(wnd);
-            
-            
+
             var menu = new MenuBar();
             menu.AddMenu(L["New"]);
             menu.AddMenu(L["Open"]);

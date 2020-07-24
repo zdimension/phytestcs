@@ -231,8 +231,7 @@ namespace phytestcs.Interface
             var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
                 new NumberField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
-                new NumberField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle,
-                    conv: PropConverter.AngleDegrees),
+                new NumberField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle),
                 new CheckField(() => Render.ShowGravityField)
             };
             Gui.Add(wndGrav);

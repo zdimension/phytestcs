@@ -79,7 +79,7 @@ namespace phytestcs
 
         public static Vector2f GravityVector { get; private set; }
 
-        [ObjProp("Gravity angle", "rad")]
+        [ObjProp("Gravity angle", "°")]
         public static float GravityAngle
         {
             get => _gravityAngle;

@@ -217,17 +217,19 @@ namespace phytestcs.Objects
     [AttributeUsageAttribute(AttributeTargets.All)]
     public class ObjPropAttribute : DisplayNameAttribute
     {
-        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null)
+        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null, string shortName = null)
             : base(L[displayName])
         {
             Unit = unit;
             UnitInteg = unitInteg ?? (unit + "⋅s");
             UnitDeriv = unitDeriv ?? (unit + "/s");
+            ShortName = shortName ?? displayName;
         }
 
         public string Unit { get; set; }
         public string UnitInteg { get; set; }
         public string UnitDeriv { get; set; }
+        public string ShortName { get; set; }
     }
 
     public class Binding<T>

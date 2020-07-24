@@ -167,7 +167,7 @@ namespace phytestcs.Interface.Windows.Properties
                 _customExpr = null;
                 try
                 {
-                    _customExpr = CSharpScript.EvaluateAsync<Func<PhysicalObject, float>>($"o=>({txtCustom.Text})", Scene.DefaultScriptOptions, Object).Result;
+                    _customExpr = $"o=>({txtCustom.Text})".Eval<Func<PhysicalObject, float>>(globals: Object).Result;
                 }
                 catch(Exception e)
                 {

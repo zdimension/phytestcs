@@ -117,6 +117,8 @@ namespace phytestcs.Objects
 
         public virtual void Delete(Object source = null)
         {
+            OnDie.Invoke(new BaseEventArgs(this));
+            
             while (_dependents.Any())
             {
                 var first = _dependents.FirstOrDefault();
@@ -205,7 +207,7 @@ namespace phytestcs.Objects
         public abstract Vector2f MapInv(Vector2f @global);
         
         public EventWrapper<ClickedEventArgs> OnClick { get; } = new EventWrapper<ClickedEventArgs>();
-        public EventWrapper<ClickedEventArgs> OnDie { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<BaseEventArgs> OnDie { get; } = new EventWrapper<BaseEventArgs>();
         public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> OnSpawn { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();

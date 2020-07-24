@@ -41,6 +41,9 @@ namespace phytestcs.Objects
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
         public uint CollideSet { get; set; } = 1;
 
+        private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)> _hits =
+            new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)>();
+
         public override void UpdatePhysics(float dt)
         {
             base.UpdatePhysics(dt);
@@ -51,6 +54,8 @@ namespace phytestcs.Objects
             lock (Rays.SyncRoot)
             {
                 Rays.Clear();
+                
+                _hits.Clear();
 
                 void ShootRay(LaserRay ray, int depth = 0)
                 {
@@ -97,10 +102,14 @@ namespace phytestcs.Objects
                     if (!float.IsPositiveInfinity(minDist))
                     {
                         ray.Length = minDist;
-
+                        
                         var (sideStart, sideEnd) = minLine;
                         var side = sideEnd - sideStart;
                         var normal = side.Ortho();
+                        
+                        if (!_hits.ContainsKey(minObj!))
+                            _hits.Add(minObj!, (minInter, normal));
+                        
                         var normalAngle = normal.Angle();
                         var insideObject = side.Cross(ray.Start - sideStart) > 0;
                         if (insideObject)
@@ -147,8 +156,16 @@ namespace phytestcs.Objects
                     }
                 }
 
-                ShootRay(new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color, LaserThickness, 0,
-                    Object?.RefractiveIndex ?? 1, this));
+                var initial = new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color,
+                    LaserThickness, 0,
+                    Object?.RefractiveIndex ?? 1, this);
+                ShootRay(initial);
+
+                foreach (var (obj, (pos, normal)) in _hits)
+                {
+                    obj.OnHitByLaser.Invoke(new CollisionEventArgs(obj, this, pos, normal));
+                    OnLaserHit.Invoke(new CollisionEventArgs(this, obj, pos, normal));
+                }
             }
         }
 
@@ -189,6 +206,8 @@ namespace phytestcs.Objects
 
             Render.NumRays += cache.Length;
         }
+        
+        public EventWrapper<CollisionEventArgs> OnLaserHit { get; } = new EventWrapper<CollisionEventArgs>();
     }
 
     public class LaserRay

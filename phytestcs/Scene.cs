@@ -49,6 +49,7 @@ namespace phytestcs
             .AddImports(
                 "phytestcs", 
                 "phytestcs.Objects", 
+                "phytestcs.Tools",
                 "SFML.Graphics", 
                 "SFML.System",
                 "System");

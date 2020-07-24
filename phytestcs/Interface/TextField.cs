@@ -1,10 +1,22 @@
 ﻿using System;
 using System.Globalization;
+using SFML.System;
 using TGUI;
 
 namespace phytestcs.Interface
 {
-    public class TextField<T> : Panel
+    public class TextFieldBase : Panel
+    {
+        public EditBox Field { get; protected set; }
+        public float NameWidth
+        {
+            get => NameLabel.Size.X;
+            set => NameLabel.Size = new Vector2f(value, NameLabel.Size.Y);
+        }
+        public Label NameLabel { get; protected set; }
+    }
+    
+    public class TextField<T> : TextFieldBase
     {
         private readonly Func<T> _getter;
         private readonly Action<T>? _setter;
@@ -28,25 +40,24 @@ namespace phytestcs.Interface
             name ??= "";
 
             SizeLayout = new Layout2d("100%", "24");
-            var lblName = new Label(name) { PositionLayout = new Layout2d("0", "3") };
-            var lX = lblName.Size.X;
-            Add(lblName);
+            NameLabel = new Label(name) { PositionLayout = new Layout2d("0", "3") };
+            Add(NameLabel, "lblName");
 
             Field = new EditBox
             {
-                PositionLayout = new Layout2d(lblName.Size.X + 5, 3),
-                SizeLayout = new Layout2d("100% - 10 - " + lX.ToString(CultureInfo.InvariantCulture), "18")
+                PositionLayout = new Layout2d("lblName.right + 5", "3"),
+                SizeLayout = new Layout2d("100% - 10 - lblName.width", "18")
             };
             Add(Field);
 
             if (_setter == null)
                 Field.ReadOnly = true;
 
-            void OnValidated(object sender, SignalArgsString s)
+            void Validate()
             {
                 try
                 {
-                    Value = s.Value;
+                    Value = Field.Text = Field.Text.Trim();
                 }
                 catch
                 {
@@ -54,10 +65,24 @@ namespace phytestcs.Interface
                 }
             }
 
-            Field.ReturnKeyPressed += OnValidated;
-        }
+            Field.Unfocused += (sender, args) =>
+            {
+                Validate();
+            };
 
-        public EditBox Field { get; }
+            Field.ReturnKeyPressed += (sender, s) =>
+            {
+                Validate();
+            };
+            /*if (!multiline)
+            {
+                Field.TextChanged += (sender, s) =>
+                {
+                    if (s.Value[^1] == '\n')
+                        Validate();
+                };
+            }*/
+        }
 
         public string Value
         {

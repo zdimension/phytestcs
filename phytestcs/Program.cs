@@ -330,22 +330,26 @@ namespace phytestcs
                         var obj = ObjectAtPosition(pos);
 
                         Drawing.DragObject = obj;
-                        Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
-                        Drawing.DragObjectRelPosDirect = pos.ToWorld() - obj.Position;
 
-                        if (obj is PhysicalObject phy)
+                        if (obj != null)
                         {
-                            if (Drawing.DrawMode == DrawingType.Move)
+                            Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
+                            Drawing.DragObjectRelPosDirect = pos.ToWorld() - obj.Position;
+
+                            if (obj is PhysicalObject phy)
                             {
-                                phy.IsMoving = true;
-                            }
-                            else
-                            {
-                                Simulation.Add(Drawing.DragSpring =
-                                    new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
-                                        phy, Drawing.DragObjectRelPos, null,
-                                        pos.ToWorld(),
-                                        ForceType.Drag) { Damping = 1 });
+                                if (Drawing.DrawMode == DrawingType.Move)
+                                {
+                                    phy.IsMoving = true;
+                                }
+                                else
+                                {
+                                    Simulation.Add(Drawing.DragSpring =
+                                        new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
+                                            phy, Drawing.DragObjectRelPos, null,
+                                            pos.ToWorld(),
+                                            ForceType.Drag) { Damping = 1 });
+                                }
                             }
                         }
                     }

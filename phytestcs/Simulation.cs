@@ -114,14 +114,20 @@ namespace phytestcs
             GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
         }
 
+        private static void AddInternal(Object obj)
+        {
+            World.Add(obj);
+            obj.OnSpawn.Invoke(new BaseEventArgs(obj));
+        }
+
         public static T Add<T>(T obj)
             where T : Object
         {
-            World.Add(obj);
+            AddInternal(obj);
 
             foreach (var par in obj.Parents)
                 if (!World.Contains(par))
-                    World.Add(par);
+                    AddInternal(par);
 
             return obj;
         }

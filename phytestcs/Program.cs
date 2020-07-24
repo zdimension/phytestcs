@@ -9,7 +9,7 @@ using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
 using static phytestcs.Interface.Ui;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 using Object = phytestcs.Objects.Object;
 
 namespace phytestcs

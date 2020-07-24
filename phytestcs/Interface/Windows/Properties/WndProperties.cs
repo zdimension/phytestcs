@@ -4,7 +4,7 @@ using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using Object = phytestcs.Objects.Object;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {

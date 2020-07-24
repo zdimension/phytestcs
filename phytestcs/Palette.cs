@@ -1,6 +1,6 @@
 ﻿using phytestcs.Objects;
 using SFML.Graphics;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 
 namespace phytestcs
 {

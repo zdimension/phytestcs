@@ -3,7 +3,7 @@ using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties

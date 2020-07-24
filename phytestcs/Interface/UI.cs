@@ -9,7 +9,7 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TGUI;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 using Button = TGUI.Button;
 using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;

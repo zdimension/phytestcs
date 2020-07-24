@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using phytestcs.Objects;
 using SFML.System;
-using static phytestcs.Global;
+using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {

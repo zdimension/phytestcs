@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -97,14 +99,14 @@ namespace phytestcs
             return CSharpScript.EvaluateAsync<T>(s, bopt, globalsType: typeof(Tools));
         }
 
-        public static string ToStringRepr<T1, T2>(this (T1, T2) tuple)
+        public static string Repr<T1, T2>(this (T1, T2) tuple)
             where T1 : IFormattable
             where T2 : IFormattable
         {
             return $"({tuple.Item1.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item2.ToString(null, CultureInfo.InvariantCulture)})";
         }
         
-        public static string ToStringRepr<T1, T2, T3>(this (T1, T2, T3) tuple)
+        public static string Repr<T1, T2, T3>(this (T1, T2, T3) tuple)
             where T1 : IFormattable
             where T2 : IFormattable
             where T3 : IFormattable
@@ -112,7 +114,7 @@ namespace phytestcs
             return $"({tuple.Item1.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item2.ToString(null, CultureInfo.InvariantCulture)}, {tuple.Item3.ToString(null, CultureInfo.InvariantCulture)})";
         }
         
-        public static string ToStringRepr<T1, T2, T3, T4>(this (T1, T2, T3, T4) tuple)
+        public static string Repr<T1, T2, T3, T4>(this (T1, T2, T3, T4) tuple)
             where T1 : IFormattable
             where T2 : IFormattable
             where T3 : IFormattable

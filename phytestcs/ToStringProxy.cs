@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -6,6 +8,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using phytestcs.Interface;
+using SFML.Graphics;
+using SFML.System;
 
 namespace phytestcs
 {
@@ -22,7 +26,7 @@ namespace phytestcs
         public static void Log(params object?[] obj)
         {
             foreach(var o in obj)
-                Console.WriteLine(o.Repr());
+                Console.WriteLine(o.Repr(hideFirstType: true));
         }
         
         public static string Repr(this ITuple tuple)
@@ -97,39 +101,51 @@ namespace phytestcs
         {
             if (o == null)
                 return "null";
-
-            if (typeof(Tools).GetMethod("Repr", new[] { o.GetType() }) is {} m && m.GetParameters()[0].ParameterType != typeof(object))
-                return (string) m.Invoke(null, new[] { o })!;
-				
+            
             switch (o)
             {
+                case IRepr r:
+                    return r.Repr();
                 case IFormattable f:
                     return f.ToString(null, CultureInfo.InvariantCulture)!;
                 case ITuple t:
                     return t.Repr();
+                case IEnumerable<object> e:
+                    return e.Repr(maxDepth, currentDepth);
             }
+
+            if (typeof(Tools).GetMethod("Repr", new[] { o.GetType() }) is {} m && m.GetParameters()[0].ParameterType != typeof(object))
+                return (string) m.Invoke(null, new[] { o })!;
 
             if (o.GetType().GetMethod("ToString", Array.Empty<Type>()) is {} m2 && m2.DeclaringType != typeof(object))
                 return (string) m2.Invoke(o, System.Array.Empty<object>())!;
 
             var type = o.GetType();
             var res = new StringBuilder();
-            res.Append(type.Name + " {");
-            if (maxDepth > currentDepth)
+            if (!hideFirstType)
+                res.Append(type.Name + " ");
+            res.Append("{");
+            if (currentDepth > maxDepth)
             {
                 res.Append(" ... }");
             }
             else
             {
-                res.AppendJoin(',', type.GetProperties().Select(prop =>
+                res.AppendJoin(',', 
+                    type
+                        .GetProperties()
+                        .Where(prop => prop.GetIndexParameters().Length == 0)
+                        .Select(prop =>
                 {
                     var r = ($"\n\t{prop.Name} = ");
-                    var val = prop.GetValue(o);
-                    var str = Repr(val, maxDepth, currentDepth + 1);
-                    var lines = str.Split('\n');
-                    r += (lines[0]);
-                    for (var i = 1; i < lines.Length; i++)
-                        r += ("\n\t" + lines[i]);
+                    try
+                    {
+                        r += Repr(prop.GetValue(o), maxDepth, currentDepth + 1).IndentBlock();
+                    }
+                    catch (Exception e)
+                    {
+                        r += L["<error>"];
+                    }
 
                     return r;
                 }));

@@ -101,7 +101,7 @@ namespace phytestcs
         public event Action<Color> ValueChanged = delegate { };
     }
 
-    public struct HSVA
+    public struct HSVA : IRepr
     {
         public void Deconstruct(out double h, out double s, out double v, out double a)
         {
@@ -215,6 +215,11 @@ namespace phytestcs
         public static implicit operator Color(HSVA hsva)
         {
             return hsva.ToColor();
+        }
+
+        public string Repr()
+        {
+            return (H, S, V, A).Repr();
         }
     }
 }

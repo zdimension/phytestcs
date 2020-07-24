@@ -6,7 +6,7 @@ using phytestcs.Interface;
 
 namespace phytestcs
 {
-    public class LambdaStringWrapper<T>
+    public class LambdaStringWrapper<T> : IRepr
         where T : Delegate
     {
         private string _code;
@@ -41,9 +41,13 @@ namespace phytestcs
         }
 
         public T Value { get; private set; }
+        public string Repr()
+        {
+            return $"`{Code}`";
+        }
     }
 
-    public class EventWrapper<T>
+    public class EventWrapper<T> : IRepr
     {
         public event Action<T> Event = delegate { };
         public LambdaStringWrapper<Action<T>> Wrapper { get; }
@@ -60,6 +64,11 @@ namespace phytestcs
         public void Invoke(T obj)
         {
             Event(obj);
+        }
+
+        public string Repr()
+        {
+            return Wrapper.Repr();
         }
     }
 

@@ -62,4 +62,9 @@ namespace phytestcs
             Event(obj);
         }
     }
+
+    public interface IRepr
+    {
+        public string Repr();
+    }
 }

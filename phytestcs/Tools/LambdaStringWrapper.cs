@@ -16,6 +16,12 @@ namespace phytestcs
             Code = initial;
         }
 
+        public LambdaStringWrapper(T initial)
+        {
+            Value = initial;    
+            _code = "delegate { }";
+        }
+
         public string Code
         {
             get => _code;
@@ -27,7 +33,7 @@ namespace phytestcs
                 {
                     Value = value.Eval<T>(so => so.AddReferences(typeof(T).Assembly)).Result;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -44,7 +50,7 @@ namespace phytestcs
 
         public EventWrapper()
         {
-            Wrapper = new LambdaStringWrapper<Action<T>>();
+            Wrapper = new LambdaStringWrapper<Action<T>>(delegate { });
             Event += x =>
             {
                 Wrapper.Value(x);

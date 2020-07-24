@@ -25,7 +25,7 @@ namespace phytestcs
 
                 try
                 {
-                    Value = CSharpScript.EvaluateAsync<T>(value, Scene.DefaultScriptOptions.AddReferences(typeof(T).GetTypeInfo().Assembly)).Result;
+                    Value = value.Eval<T>(so => so.AddReferences(typeof(T).Assembly)).Result;
                 }
                 catch(Exception e)
                 {

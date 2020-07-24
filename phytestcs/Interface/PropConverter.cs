@@ -41,23 +41,23 @@ namespace phytestcs.Interface
             (value, old) => (float) double.Parse(value, CultureInfo.InvariantCulture));
 
         public static readonly PropConverter<Vector2f, string> Vector2FString = new PropConverter<Vector2f, string>(
-            o => (o.X, o.Y).ToStringRepr(), (value, old) =>
+            o => (o.X, o.Y).Repr(), (value, old) =>
             {
-                var (x, y) = value.Eval<(double, double)>();
+                var (x, y) = value.Eval<(double, double)>().Result;
                 return new Vector2f((float) x, (float) y);
             });
         
         public static readonly PropConverter<Color, string> ColorString = new PropConverter<Color, string>(
-            o => (o.R, o.G, o.B, o.A).ToStringRepr(), (value, old) =>
+            o => (o.R, o.G, o.B, o.A).Repr(), (value, old) =>
             {
-                var (r, g, b, a) = value.Eval<(int, int, int, int)>();
+                var (r, g, b, a) = value.Eval<(int, int, int, int)>().Result;
                 return new Color((byte)r, (byte)g, (byte)b, (byte)a);
             });
         
         public static readonly PropConverter<HSVA, string> ColorHsvaString = new PropConverter<HSVA, string>(
-            o => (o.H, o.S, o.V, o.A).ToStringRepr(), (value, old) =>
+            o => (o.H, o.S, o.V, o.A).Repr(), (value, old) =>
             {
-                var (h, s, v, a) = value.Eval<(double, double, double, double)>();
+                var (h, s, v, a) = value.Eval<(double, double, double, double)>().Result;
                 return new HSVA(h, s, v, a);
             });
 
@@ -81,7 +81,7 @@ namespace phytestcs.Interface
 
         public static PropConverter<T, string> EvalString<T>()
         {
-            return new PropConverter<T, string>(o => o?.ToString() ?? "null", (value, old) => value.Eval<T>());
+            return new PropConverter<T, string>(o => o?.ToString() ?? "null", (value, old) => value.Eval<T>().Result);
         }
     }
 

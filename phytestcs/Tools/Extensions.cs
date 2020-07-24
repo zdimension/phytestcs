@@ -89,9 +89,12 @@ namespace phytestcs
             return prop?.GetCustomAttribute<ObjPropAttribute>();
         }
 
-        public static T Eval<T>(this string s)
+        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions> opt=null, object globals=null, Type globalsType=null)
         {
-            return CSharpScript.EvaluateAsync<T>(s).Result;
+            var bopt = Scene.DefaultScriptOptions;
+            if (opt != null)
+                bopt = opt(bopt);
+            return CSharpScript.EvaluateAsync<T>(s, bopt, globalsType: typeof(Tools));
         }
 
         public static string ToStringRepr<T1, T2>(this (T1, T2) tuple)

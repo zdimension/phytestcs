@@ -20,7 +20,7 @@ namespace phytestcs.Objects
         public float ActualAngle => (Object?.Angle ?? 0) + Angle;
         public override float Angle { get; set; }
 
-        public override Vector2f Position
+        public sealed override Vector2f Position
         {
             get => Object?.Map(RelPos) ?? RelPos;
             set => RelPos = Object?.MapInv(value) ?? value;

@@ -210,8 +210,8 @@ namespace phytestcs.Objects
         public EventWrapper<BaseEventArgs> OnDie { get; } = new EventWrapper<BaseEventArgs>();
         public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<ClickedEventArgs> OnSpawn { get; } = new EventWrapper<ClickedEventArgs>();
-        public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<PostStepEventArgs> PostStep { get; } = new EventWrapper<PostStepEventArgs>();
+        //public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]

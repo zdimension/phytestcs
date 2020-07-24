@@ -38,7 +38,7 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Force", "N")]
+        [ObjProp("Force", "N", shortName:"F")]
         public float Force { get; set; }
 
         //public bool FollowGeometry { get; set; } = true;

@@ -32,10 +32,10 @@ namespace phytestcs.Objects
 
         protected abstract IEnumerable<Shape> Shapes { get; }
         
-        [ObjProp("Position", "m", "m\u22c5s", "m/s")]
+        [ObjProp("Position", "m", "m\u22c5s", "m/s", shortName:"x")]
         public abstract Vector2f Position { get; set; }
         
-        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s")]
+        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s", shortName:"θ")]
         public abstract float Angle { get; set; }
 
         public virtual Color Color

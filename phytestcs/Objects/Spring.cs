@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Runtime.InteropServices;
 using phytestcs.Interface;
 using SFML.Graphics;
@@ -44,13 +45,13 @@ namespace phytestcs.Objects
             UpdateForce();
         }
 
-        [ObjProp("Spring constant", "N/m")]
+        [ObjProp("Spring constant", "N/m", shortName:"k")]
         public float Constant { get; set; }
 
-        [ObjProp("Target length", "m")]
+        [ObjProp("Target length", "m", shortName:"l")]
         public float TargetLength { get; set; }
 
-        [ObjProp("Damping")]
+        [ObjProp("Damping", shortName:"ζ")]
         public float Damping { get; set; } = 0.10f;
 
         public SpringEnd End1 { get; }

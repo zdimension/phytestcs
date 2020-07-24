@@ -20,7 +20,7 @@ namespace phytestcs.Objects
             UpdatePhysics(0);
         }
 
-        [ObjProp("Size", "m")]
+        [ObjProp("Size", "m", shortName:"⌀")]
         public float Size
         {
             get => _shape.Size.X;
@@ -34,7 +34,7 @@ namespace phytestcs.Objects
         private float LaserThickness => Size / 6;
         private Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
 
-        [ObjProp("Fade distance", "m")]
+        [ObjProp("Fade distance", "m", shortName:"d")]
         public float FadeDistance { get; set; } = 300;
 
         public override Shape Shape => _shape;

@@ -42,7 +42,7 @@ namespace phytestcs.Objects
             Forces = new SynchronizedCollection<Force> { Gravity, AirFriction, Buoyance };
         }
 
-        [ObjProp("Angular velocity", "rad/s", "rad")]
+        [ObjProp("Angular velocity", "rad/s", "rad", shortName:"ω")]
         public float AngularVelocity { get; set; }
 
         [ObjProp("Velocity", "m/s", "m")]
@@ -50,37 +50,37 @@ namespace phytestcs.Objects
 
         public SynchronizedCollection<Force> Forces { get; }
 
-        [ObjProp("Mass", "kg")]
+        [ObjProp("Mass", "kg", shortName:"m")]
         public float Mass { get; set; }
 
         public float InertialMass => Fixed ? float.PositiveInfinity : Mass;
 
-        [ObjProp("Density", "kg/m²")]
+        [ObjProp("Density", "kg/m²", shortName:"ρ")]
         public float Density
         {
             get => Mass / Shape.Area();
             set => Mass = Shape.Area() * value;
         }
 
-        [ObjProp("Linear kinetic energy", "J", unitDeriv: "W")]
+        [ObjProp("Linear kinetic energy", "J", unitDeriv: "W", shortName:"Kt")]
         public float LinearKineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Velocity.Norm(), 2) / 2;
 
-        [ObjProp("Angular kinetic energy", "J", unitDeriv: "W")]
+        [ObjProp("Angular kinetic energy", "J", unitDeriv: "W", shortName:"Kr")]
         public float AngularKineticEnergy => Fixed ? 0 : MomentOfInertia * (float) Math.Pow(AngularVelocity, 2) / 2;
 
-        [ObjProp("Kinetic energy", "J", unitDeriv: "W")]
+        [ObjProp("Kinetic energy", "J", unitDeriv: "W", shortName:"K")]
         public float KineticEnergy => LinearKineticEnergy + AngularKineticEnergy;
 
-        [ObjProp("Potential gravitational energy", "J", unitDeriv: "W")]
+        [ObjProp("Potential gravitational energy", "J", unitDeriv: "W", shortName:"Ug")]
         public float GravityEnergy => Fixed ? 0 : Weight * Position.WithUpdate(this).Y;
 
-        [ObjProp("Potential attraction energy", "J", unitDeriv: "W")]
+        [ObjProp("Potential attraction energy", "J", unitDeriv: "W", shortName:"Ua")]
         public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(Position, Mass, this);
 
-        [ObjProp("Potential energy", "J", unitDeriv: "W")]
+        [ObjProp("Potential energy", "J", unitDeriv: "W", shortName:"U")]
         public float PotentialEnergy => GravityEnergy + AttractionEnergy;
 
-        [ObjProp("Total energy", "J", unitDeriv: "W")]
+        [ObjProp("Total energy", "J", unitDeriv: "W", shortName:"E")]
         public float TotalEnergy => KineticEnergy + PotentialEnergy;
 
         public bool Fixed => Wall || IsMoving || HasFixate || UserFix;
@@ -93,23 +93,23 @@ namespace phytestcs.Objects
         
         public float Weight => Mass * Simulation.ActualGravity;
 
-        [ObjProp("Restitution")]
+        [ObjProp("Restitution", shortName:"e")]
         public float Restitution { get; set; } = 0.5f;
 
-        [ObjProp("Friction")]
+        [ObjProp("Friction", shortName:"µ")]
         public float Friction { get; set; } = 0.5f;
 
         public bool Killer { get; set; }
         public bool HasFixate { get; set; } = false;
         public bool UserFix { get; set; } = false;
 
-        [ObjProp("Attraction", "Nm²/kg²")]
+        [ObjProp("Attraction", "Nm²/kg²", shortName:"G")]
         public float Attraction { get; set; } = 0;
 
-        [ObjProp("Momentum", "N⋅s", "N⋅s²", "N")]
+        [ObjProp("Momentum", "N⋅s", "N⋅s²", "N", shortName:"p")]
         public Vector2f Momentum => Mass * Velocity;
 
-        [ObjProp("Moment of inertia", "kg⋅m²")] // m^4 ?
+        [ObjProp("Moment of inertia", "kg⋅m²", shortName:"I")] // m^4 ? -> cf second moment
         public float MomentOfInertia
         {
             get
@@ -125,7 +125,7 @@ namespace phytestcs.Objects
 
         protected override IEnumerable<Shape> Shapes => new[] { Shape };
 
-        [ObjProp("Net force", "N", "N⋅s", "N/s")]
+        [ObjProp("Net force", "N", "N⋅s", "N/s", shortName:"F")]
         public Vector2f NetForce
         {
             get
@@ -144,7 +144,7 @@ namespace phytestcs.Objects
         /// <remarks>
         /// Derivative of the angular momentum (<see cref="AngularMomentum"/>).
         /// </remarks>
-        [ObjProp("Net torque", "N⋅m", "J⋅s", "W")]
+        [ObjProp("Net torque", "N⋅m", "J⋅s", "W", shortName:"τ")]
         public float NetTorque
         {
             get
@@ -176,7 +176,7 @@ namespace phytestcs.Objects
         /// Derivative of the linear velocity (<see cref="Velocity"/>).
         /// Antiderivative of the jerk.
         /// </remarks>
-        [ObjProp("Acceleration", "m/s²", "m/s", "m/s³")]
+        [ObjProp("Acceleration", "m/s²", "m/s", "m/s³", shortName:"a")]
         public Vector2f Acceleration => Fixed ? default : (NetForce / Mass);
 
         // <summary>
@@ -186,16 +186,16 @@ namespace phytestcs.Objects
         /// Derivative of the angular velocity (<see cref="AngularVelocity"/>).
         /// Antiderivative of the angular jerk.
         /// </remarks>
-        [ObjProp("Angular acceleration", "rad/s²", "rad/s", "rad/s³")]
+        [ObjProp("Angular acceleration", "rad/s²", "rad/s", "rad/s³", shortName:"α")]
         public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + _angularAirFriction);
 
-        [ObjProp("Angular momentum", "J⋅s")]
+        [ObjProp("Angular momentum", "J⋅s", shortName:"L")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
 
         /// <summary>
         /// Dimensionless ratio between the speed of light in vacuum and the speed of light in the object.
         /// </summary>
-        [ObjProp("Refractive index")]
+        [ObjProp("Refractive index", shortName:"n")]
         public float RefractiveIndex { get; set; } = 1.5f;
 
         public uint CollideSet { get; set; } = 1;

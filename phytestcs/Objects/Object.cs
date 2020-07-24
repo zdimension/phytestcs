@@ -203,11 +203,13 @@ namespace phytestcs.Objects
         public abstract Vector2f Map(Vector2f local);
 
         public abstract Vector2f MapInv(Vector2f @global);
-    }
-
-    public abstract class Object<T> : Object where T : Object<T>
-    {
-        public EventWrapper<ClickedEventArgs<T>> OnClick { get; } = new EventWrapper<ClickedEventArgs<T>>();
+        
+        public EventWrapper<ClickedEventArgs> OnClick { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<ClickedEventArgs> OnDie { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<ClickedEventArgs> OnSpawn { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<ClickedEventArgs> PostStep { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]
@@ -232,16 +234,23 @@ namespace phytestcs.Objects
         public Expression<Func<T>> Value { get; set; }
     }
     
-    public class BaseEventArgs<T> : HandledEventArgs
-        where T : Object
+    public class BaseEventArgs : HandledEventArgs
     {
-        public T This { get; }
+        public dynamic This { get; }
+
+        public BaseEventArgs(object @this)
+        {
+            This = @this;
+        }
     }
 
-    public class ClickedEventArgs<T> : BaseEventArgs<T>
-        where T : Object
+    public class ClickedEventArgs : BaseEventArgs
     {
-        public int ClickCount { get; }
         public Vector2f Position { get; }
+
+        public ClickedEventArgs(object @this, Vector2f position) : base(@this)
+        {
+            Position = position;
+        }
     }
 }

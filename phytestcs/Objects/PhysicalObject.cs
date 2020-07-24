@@ -8,7 +8,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class PhysicalObject : Object<PhysicalObject>, IHasShape, ICollides
+    public class PhysicalObject : Object, IHasShape, ICollides
     {
         public delegate void CollisionHandler(PhysicalObject source);
 
@@ -770,6 +770,23 @@ namespace phytestcs.Objects
                     }
                 }
             }
+        }
+        
+        public EventWrapper<CollisionEventArgs> OnCollide { get; } = new EventWrapper<CollisionEventArgs>();
+        public EventWrapper<CollisionEventArgs> OnHitByLaser { get; } = new EventWrapper<CollisionEventArgs>();
+    }
+    
+    public class CollisionEventArgs : BaseEventArgs
+    {
+        public dynamic Other { get; }
+        public Vector2f Position { get; }
+        public Vector2f Normal { get; }
+
+        public CollisionEventArgs(object @this, dynamic other, Vector2f position, Vector2f normal) : base(@this)
+        {
+            Other = other;
+            Position = position;
+            Normal = normal;
         }
     }
 }

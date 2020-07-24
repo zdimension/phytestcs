@@ -73,6 +73,11 @@ namespace phytestcs
                 (start, end) = (end, start);
             return rng.NextDouble() * (end - start) + start;
         }
+        
+        public static T GetDefault<T>()
+        {
+            return default!;
+        }
     }
 
     public class Ref<T>

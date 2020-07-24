@@ -96,7 +96,7 @@ namespace phytestcs
             var bopt = Scene.DefaultScriptOptions;
             if (opt != null)
                 bopt = opt(bopt);
-            return CSharpScript.EvaluateAsync<T>(s, bopt, globalsType: typeof(Tools));
+            return CSharpScript.EvaluateAsync<T>(s, bopt, globals, globalsType);
         }
 
         public static string Repr<T1, T2>(this (T1, T2) tuple)

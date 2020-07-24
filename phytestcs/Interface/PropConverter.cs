@@ -28,11 +28,11 @@ namespace phytestcs.Interface
         public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
         
         public static readonly PropConverter<bool, string> BoolString = new PropConverter<bool, string>(
-            o => o ? "true" : "false",
-            (value, old) => value switch
+            o => o.Repr(),
+            (value, old) => value.ToUpperInvariant() switch
             {
-                "true" => true,
-                "false" => false,
+                "TRUE" => true,
+                "FALSE" => false,
                 _ => throw new SyntaxErrorException()
             });
 
@@ -41,21 +41,21 @@ namespace phytestcs.Interface
             (value, old) => (float) double.Parse(value, CultureInfo.InvariantCulture));
 
         public static readonly PropConverter<Vector2f, string> Vector2FString = new PropConverter<Vector2f, string>(
-            o => (o.X, o.Y).Repr(), (value, old) =>
+            o => o.Repr(), (value, old) =>
             {
                 var (x, y) = value.Eval<(double, double)>().Result;
                 return new Vector2f((float) x, (float) y);
             });
         
         public static readonly PropConverter<Color, string> ColorString = new PropConverter<Color, string>(
-            o => (o.R, o.G, o.B, o.A).Repr(), (value, old) =>
+            o => o.Repr(), (value, old) =>
             {
                 var (r, g, b, a) = value.Eval<(int, int, int, int)>().Result;
                 return new Color((byte)r, (byte)g, (byte)b, (byte)a);
             });
         
         public static readonly PropConverter<HSVA, string> ColorHsvaString = new PropConverter<HSVA, string>(
-            o => (o.H, o.S, o.V, o.A).Repr(), (value, old) =>
+            o => o.Repr(), (value, old) =>
             {
                 var (h, s, v, a) = value.Eval<(double, double, double, double)>().Result;
                 return new HSVA(h, s, v, a);

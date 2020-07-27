@@ -337,13 +337,20 @@ namespace phytestcs.Objects
             if (!Fixed)
             {
                 _position += Velocity * dt;
+                if (!LockAngle)
+                {
+                    var dA = AngularVelocity * dt;
+                    _angle += dA;
+                    _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
+                }
+                
 
-                var dA = AngularVelocity * dt;
-                _angle += dA;
-                _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
                 UpdatePosition();
             }
         }
+
+        [ObjProp("Lock the angle")]
+        public bool LockAngle { get; set; } = false;
 
         private void UpdatePosition()
         {

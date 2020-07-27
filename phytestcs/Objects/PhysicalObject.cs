@@ -591,7 +591,7 @@ namespace phytestcs.Objects
         /// </summary>
         public Vector2f SpeedAtPoint(Vector2f local)
         {
-            return AngularVelocity * local.Ortho().Rotate(Angle);
+            return -AngularVelocity * local.Ortho().Rotate(Angle);
         }
 
         public static void ProcessPairs(float dt, PhysicalObject[] phy)

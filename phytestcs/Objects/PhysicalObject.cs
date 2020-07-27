@@ -151,7 +151,7 @@ namespace phytestcs.Objects
             {
                 lock (Forces.SyncRoot)
                 {
-                    return Forces.Select(f => f.Position.Cross(f.Value)).Sum();
+                    return Forces.Select(f => f.Position.Cross(f.Value.Rotate(-Angle))).Sum();
                 }
             }
         }

@@ -433,7 +433,7 @@ namespace phytestcs.Objects
                 {
                     if ((Forces[i].TimeToLive -= dt) <= 0)
                         Forces.RemoveAt(i);
-                    /*else
+                    else
                     {
                         if (Forces[i].Source is Hinge h)
                         {
@@ -442,7 +442,7 @@ namespace phytestcs.Objects
                             else
                                 _collIgnore.Add(h.End1.Object);
                         }
-                    }*/
+                    }
                 }
             }
         }

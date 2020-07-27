@@ -104,7 +104,7 @@ namespace phytestcs
         [ObjProp("Simulation speed", "x")]
         public static float TimeScale { get; set; } = 1;
 
-        private static float ActualDT => TargetDT * TimeScale;
+        public static float ActualDT => TargetDT * TimeScale;
 
 
         private static void UpdateGravity()

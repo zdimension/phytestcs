@@ -663,15 +663,31 @@ namespace phytestcs.Objects
 
                         var fA = 1f * ((v1c) - a.Velocity) * a.Mass / dt;
                         var fB = 1f * ((v2c) - b.Velocity) * b.Mass / dt;
-                        var w = new float[np];
+                        var wA = new float[np];
+                        var wB = new float[np];
 
                         if (np == 1)
                         {
-                            w[0] = 1f;
+                            wA[0] = 1f;
+                            wB[0] = 1f;
                         }
                         else if (np == 2)
                         {
-                            if (p2out)
+                            var line = colls[1] - colls[0];
+                            var X = line.Norm();
+                            line /= X;
+                            
+                            var gA = (a.Position - colls[0]).Dot(line);
+                            var dA = X - gA;
+                            wA[0] = dA / X;
+                            wA[1] = gA / X;
+                            
+                            var gB = (b.Position - colls[0]).Dot(line);
+                            var dB = X - gB;
+                            wB[0] = dB / X;
+                            wB[1] = gB / X;
+                         
+                            /*if (p2out)
                             {
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
@@ -681,14 +697,14 @@ namespace phytestcs.Objects
                             {
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
-                            }
+                            }*/
                         }
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
-                            a.Forces.Add(new Force(ForceType.Normal, fA * w[i1], a.MapInv(colls[i1]), dt)
+                            a.Forces.Add(new Force(ForceType.Normal, fA * wA[i1], a.MapInv(colls[i1]), dt)
                                 { Source = b });
-                            b.Forces.Add(new Force(ForceType.Normal, fB * w[i1], b.MapInv(colls[i1]), dt)
+                            b.Forces.Add(new Force(ForceType.Normal, fB * wB[i1], b.MapInv(colls[i1]), dt)
                                 { Source = a });
                         }
 
@@ -704,7 +720,7 @@ namespace phytestcs.Objects
                             {
                                 var local = a.MapInv(colls[i1]);
                                 a.Forces.Add(new Force(ForceType.Friction,
-                                        ff * w[i1] + (-a.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
+                                        ff * wA[i1] + (-a.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
                                     { Source = b });
                             }
                         }
@@ -717,7 +733,7 @@ namespace phytestcs.Objects
                             {
                                 var local = b.MapInv(colls[i1]);
                                 b.Forces.Add(new Force(ForceType.Friction,
-                                        ff * w[i1] + (-b.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
+                                        ff * wB[i1] + (-b.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
                                     { Source = a });
                             }
                         }

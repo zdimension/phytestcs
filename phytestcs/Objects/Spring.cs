@@ -17,7 +17,7 @@ namespace phytestcs.Objects
         private readonly Text _legende = new Text("", Ui.Font, 13) { FillColor = Color.Black };
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject object2 = null, Vector2f object2RelPos = default, ForceType type = null)
+            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
         {
             Constant = constant;
             TargetLength = targetLength;
@@ -25,11 +25,11 @@ namespace phytestcs.Objects
             type ??= ForceType.Spring;
 
             _force1 = new Force(type, new Vector2f(0, 0), object1RelPos) { Source = this };
-            End1 = new SpringEnd(object1, object1RelPos, size);
+            End1 = new SpringEnd(object1, object1RelPos, size, this);
             End1.Object.Forces.Add(_force1);
             BothDepends(End1);
 
-            End2 = new SpringEnd(object2, object2RelPos, size);
+            End2 = new SpringEnd(object2, object2RelPos, size, this);
 
             if (object2 != null)
             {
@@ -218,10 +218,11 @@ namespace phytestcs.Objects
     {
         private readonly CircleShape _shape = new CircleShape();
 
-        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size)
+        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size, Spring parent)
             : base(@object, relPos)
         {
             Size = size;
+            Parent = parent;
         }
 
         public float Size
@@ -236,5 +237,6 @@ namespace phytestcs.Objects
 
         public override Shape Shape => _shape;
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
+        public Spring Parent { get; }
     }
 }

@@ -302,6 +302,11 @@ namespace phytestcs.Interface
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
+            if (obj is SpringEnd se)
+            {
+                obj = se.Parent;
+            }
+
             foreach (var g in PropertyWindows.ToList())
             {
                 if (g.Key != obj && g.Value.FirstOrDefault(w => w.IsMain) is { } ww)

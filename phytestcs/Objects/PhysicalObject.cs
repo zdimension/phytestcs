@@ -357,7 +357,7 @@ namespace phytestcs.Objects
                     //var oldPos = _position;
                     
                     //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
-                    _position = Hinge.OriginalPosition - Hinge.RelPos.Rotate(Angle);
+                    _position = Hinge.OriginalPosition - Hinge.End1.RelPos.Rotate(Angle);
                 }
                 else
                 {

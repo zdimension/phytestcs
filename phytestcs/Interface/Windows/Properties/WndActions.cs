@@ -14,11 +14,11 @@ namespace phytestcs.Interface.Windows.Properties
         {
             (L["Add center hinge"], "icons/small/spring.png", obj =>
             {
-                //var obj2 = PhysObjectAtPosition(obj.Position.ToScreen(), obj);
+                var obj2 = PhysObjectAtPosition(obj.Position.ToScreen(), obj);
                 var obj2Pos = obj.Position;
-               /* if (obj2 != null)
-                    obj2Pos = obj2.MapInv(obj2Pos);*/
-                Simulation.Add(new Hinge(obj, default, DefaultSpringSize));
+                if (obj2 != null)
+                    obj2Pos = obj2.MapInv(obj2Pos);
+                Simulation.Add(new Hinge(DefaultSpringSize, obj, default, obj2, obj2Pos));
             }),
             (L["Add center thruster"], "icons/small/thruster.png",
                 obj => { Simulation.Add(new Thruster(obj, default, DefaultObjectSize)); }),

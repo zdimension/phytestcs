@@ -24,8 +24,8 @@ namespace phytestcs
                 {
                     var s = (string?)typeof(ResourceManagerStringLocalizer)
                         .GetMethod("GetStringSafely", BindingFlags.NonPublic | BindingFlags.Instance)!
-                        .Invoke(L2, new object[] { name, new CultureInfo("fr") });
-                    if (s == null)
+                        .Invoke(L2, new object[] { name, new CultureInfo("en") });
+                    if (false && s == null)
                     {
                         Console.WriteLine($@"    <data name=""{name}"" xml:space=""preserve"">
         <value>{name}</value>

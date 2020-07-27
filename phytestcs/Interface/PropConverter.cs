@@ -24,6 +24,9 @@ namespace phytestcs.Interface
 
         public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
             o => o.Degrees(), (value, old) => value.Radians());
+        
+        public static readonly PropConverter<float, float> AngleDegreesNoWrap = new PropConverter<float, float>(
+            o => o.DegreesNoWrap(), (value, old) => value.Radians());
 
         public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
         

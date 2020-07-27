@@ -35,7 +35,12 @@ namespace phytestcs
 
         public static float Degrees(this float f)
         {
-            return ((float) (f * 180 / Math.PI)).ClampWrap(180);
+            return f.DegreesNoWrap().ClampWrap(180);
+        }
+        
+        public static float DegreesNoWrap(this float f)
+        {
+            return ((float) (f * 180 / Math.PI));
         }
 
         public static float Radians(this float f)

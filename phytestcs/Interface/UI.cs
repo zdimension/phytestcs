@@ -220,6 +220,7 @@ namespace phytestcs.Interface
                 Render.ShowGrid = !Render.ShowGrid;
                 btnGrid.SetRenderer(Render.ShowGrid ? BrToggle : BrDef);
             };
+            buttons.Add(btnGrid);
 
             var btnGrav = new BitmapButton { Image = new Texture("icons/big/gravity.png") };
             btnGrav.SetRenderer(BrToggle);

@@ -439,10 +439,10 @@ namespace phytestcs
                         {
                             var obj2 = PhysObjectAtPosition(mouse, obj);
                             var obj2pos = mouse.ToWorld();
-                            if (obj2 != null)
-                                obj2pos = obj2.MapInv(obj2pos);
+                            /*if (obj2 != null)
+                                obj2pos = obj2.MapInv(obj2pos);*/
                             added = Simulation.Add(
-                                new Hinge(obj, obj.MapInv(mouse.ToWorld()), DefaultSpringSize, obj2, obj2pos));
+                                new Hinge(obj, obj.MapInv(mouse.ToWorld()), DefaultSpringSize));
                         }
                     }
 

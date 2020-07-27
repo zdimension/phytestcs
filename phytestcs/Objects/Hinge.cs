@@ -1,39 +1,51 @@
 ﻿using System;
+using System.Collections.Generic;
+using SFML.Graphics;
 using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class Hinge : Spring
+    public class Hinge : PinnedShapedVirtualObject
     {
         private readonly Force _torque1;
         private readonly Force _torque1Sup;
         private readonly Force _torque2;
         private readonly Force _torque2Sup;
+        private readonly Force _test;
 
-        public Hinge(PhysicalObject object1, Vector2f object1RelPos, float size,
-            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
-            : base(1e4f, 0, size, object1, object1RelPos, object2, object2RelPos, type ?? ForceType.Hinge)
+        public Hinge(PhysicalObject @object, Vector2f relPos, float size, ForceType type = null)
+            : base(@object, relPos)
         {
-            if (object1 == null) throw new ArgumentNullException(nameof(object1));
+            if (@object == null) throw new ArgumentNullException(nameof(@object));
 
-            // Algodoo: 1e8 Nm, 0.5
-            Damping = 1f;
+            // Algodoo equivalent spring: 1e8 Nm, 0.5
+
             type ??= ForceType.Hinge!;
             _torque1 = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
             _torque2 = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
-            object1.Forces.Add(_torque1);
-            object1.Forces.Add(_torque2);
+            _test = new Force(type, new Vector2f(0, 0), relPos) { Source = this };
+            @object.Forces.Add(_torque1);
+            @object.Forces.Add(_torque2);
+            @object.Forces.Add(_test);
+            @object.Hinge = this;
 
-            if (object2 != null)
+            Size = size;
+
+            OriginalPosition = Position;
+        }
+        
+        public Vector2f OriginalPosition { get; set; }
+
+        public float Size
+        {
+            get => _shape.Radius * 2;
+            set
             {
-                _torque1Sup = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
-                _torque2Sup = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
-                object2.Forces.Add(_torque1Sup);
-                object2.Forces.Add(_torque2Sup);
+                _shape.Radius = value / 2;
+                _shape.CenterOrigin();
             }
         }
 
-        public float Size { get; }
 
         [ObjProp("Motor")]
         public bool Motor { get; set; }
@@ -47,22 +59,47 @@ namespace phytestcs.Objects
         [ObjProp("Motor speed", "rpm")]
         public float MotorSpeed { get; set; } = 15;
 
+        public float MotorSpeedRadians => (float) (-MotorSpeed * Math.PI / 30);
+
         [ObjProp("Motor torque", "Nm")]
         public float MotorTorque { get; set; } = 100;
 
+        private readonly CircleShape _shape = new CircleShape();
+        public override Shape Shape => _shape;
+        protected override IEnumerable<Shape> Shapes => new[] { _shape };
+
         public override void Delete(Object source = null)
         {
-            End1.Object.Forces.Remove(_torque1);
-            End1.Object.Forces.Remove(_torque2);
-
-            End2.Object?.Forces.Remove(_torque1Sup);
-            End2.Object?.Forces.Remove(_torque2Sup);
+            Object.Forces.Remove(_torque1);
+            Object.Forces.Remove(_torque2);
+            Object.Forces.Remove(_test);
+            Object.Hinge = null;
 
             base.Delete(source);
         }
 
-        private void UpdateForces()
+        private void UpdateForces(float dt)
         {
+            float force;
+            var diff = Object.AngularVelocity - MotorSpeedRadians;
+            if (Motor && diff != 0)
+            {
+                var minDiscrete = 0f;
+                force = Math.Min(Math.Abs(diff) * Object.MomentOfInertia / Simulation.ActualDT, (float)(MotorTorque * (1 - 0.9999999999 * Math.Exp(-10000 * Math.Pow(diff, 2)))));
+                force *= Math.Sign(diff);
+            }
+            else
+            {
+                force = 0;
+            }
+
+            var origLocal = Object.MapInv(OriginalPosition);
+            _torque1.Position = origLocal + new Vector2f(1, 0);
+            _torque2.Position = origLocal - new Vector2f(1, 0);
+
+            _torque1.Value = new Vector2f(0, -force / 2).Rotate(Object.Angle);
+            _torque2.Value = new Vector2f(0, force / 2).Rotate(Object.Angle);
+            _test.Value = -(Object.NetForce - _test.Value - _torque1.Value - _torque2.Value);
         }
 
         //private Vector2f OppForce => -(Object1.NetForce - _force1.Value);
@@ -84,24 +121,9 @@ namespace phytestcs.Objects
             }
         }*/
 
-        /*public override void UpdatePhysics(float dt)
+        public override void UpdatePhysics(float dt)
         {
-            var force = OppForce;
-            force += force.Normalize() * Force;
-
-            if (Object2 != null)
-            {
-                if (!Object1.Fixed && !Object2.Fixed)
-                    force /= 2;
-                if (!Object1.Fixed)
-                    _force1.Value = force;
-                if (!Object2.Fixed)
-                    _force2.Value = -force;
-            }
-            else
-            {
-                _force1.Value = force;
-            }
-        }*/
+            UpdateForces(dt);
+        }
     }
 }

@@ -137,6 +137,9 @@ namespace phytestcs.Objects
             }
         }
 
+        public Hinge? Hinge { get; set; } = null;
+        
+        
 
         /// <summary>
         /// Total torque around the object's rotation point (<see cref="RotationPoint"/>).
@@ -336,7 +339,6 @@ namespace phytestcs.Objects
 
             if (!Fixed)
             {
-                _position += Velocity * dt;
                 if (!LockAngle)
                 {
                     var dA = AngularVelocity * dt;
@@ -344,6 +346,18 @@ namespace phytestcs.Objects
                     _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
                 }
                 
+                if (Hinge != null)
+                {
+                    Velocity = default;
+                    //var oldPos = _position;
+                    
+                    //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
+                    _position = Hinge.OriginalPosition - Hinge.RelPos.Rotate(Angle);
+                }
+                else
+                {
+                    _position += Velocity * dt;
+                }
 
                 UpdatePosition();
             }
@@ -414,7 +428,7 @@ namespace phytestcs.Objects
                 {
                     if ((Forces[i].TimeToLive -= dt) <= 0)
                         Forces.RemoveAt(i);
-                    else
+                    /*else
                     {
                         if (Forces[i].Source is Hinge h)
                         {
@@ -423,7 +437,7 @@ namespace phytestcs.Objects
                             else
                                 _collIgnore.Add(h.End1.Object);
                         }
-                    }
+                    }*/
                 }
             }
         }

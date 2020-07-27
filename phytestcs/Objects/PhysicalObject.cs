@@ -55,7 +55,7 @@ namespace phytestcs.Objects
 
         public float InertialMass => Fixed ? float.PositiveInfinity : Mass;
 
-        [ObjProp("Density", "kg/m²", shortName:"ρ")]
+        [ObjProp("Density", "kg/m²", shortName: "ρ")]
         public float Density
         {
             get => Mass / Shape.Area();

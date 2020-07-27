@@ -13,7 +13,7 @@ namespace phytestcs.Interface.Windows.Properties
                 conv: PropConverter.VectorAngleDeg));
             Add(new NumberField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter.VectorX));
             Add(new NumberField<Vector2f>(-25, 25, bindProp: () => obj.Velocity, conv: PropConverter.VectorY));
-            Add(new NumberField<float>(0, 25, unit: "°", bindProp: () => obj.AngularVelocity,
+            Add(new NumberField<float>(0, 25, unit: "°/s", bindProp: () => obj.AngularVelocity,
                 conv: PropConverter.AngleDegrees));
 
             Add(new CheckField(() => obj.Appearance.ShowForces));

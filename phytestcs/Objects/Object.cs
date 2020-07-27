@@ -221,8 +221,8 @@ namespace phytestcs.Objects
             : base(L[displayName])
         {
             Unit = unit;
-            UnitInteg = unitInteg ?? (unit + "⋅s");
-            UnitDeriv = unitDeriv ?? (unit + "/s");
+            UnitInteg = unitInteg ?? Objects.Unit.IncreasePower(unit);
+            UnitDeriv = unitDeriv ?? Objects.Unit.DecreasePower(unit);
             ShortName = shortName ?? displayName;
         }
 
@@ -265,6 +265,115 @@ namespace phytestcs.Objects
         public PostStepEventArgs(object @this, float deltaTime) : base(@this)
         {
             DeltaTime = deltaTime;
+        }
+    }
+    
+    public class Unit
+    {
+        public string Name { get; }
+        public Lazy<Unit> _derivative;
+        public Unit Derivative => _derivative.Value;
+        
+        private Lazy<Unit> _antiderivative;
+        public Unit Antiderivative => _antiderivative.Value;
+        
+        public static readonly Dictionary<string, Unit> _units = new Dictionary<string, Unit>();
+		
+		public override string ToString()
+		{
+			return Name;
+		}
+
+        private Unit(string name, Lazy<Unit> deriv, Lazy<Unit> integ)
+        {
+            Name = name;
+            _derivative = deriv;
+            _antiderivative = integ;
+        }
+
+        private static readonly (string, string)[] Powers =
+        {
+            ("⋅s³", "⋅s²"),
+            ("⋅s²", "⋅s"),
+            ( "/s", "/s²" ),
+            ( "/s²", "/s³" ),
+        };
+        
+        public static string IncreasePower(string suffix)
+        {
+			if (suffix.EndsWith("/s"))
+				return suffix[..^2];
+		
+			foreach (var (bef, aft) in Powers)
+            {
+                if (suffix.EndsWith(aft, StringComparison.InvariantCulture))
+                    return suffix[..^aft.Length] + bef;
+            }
+
+            return suffix + "⋅s";
+        }
+        
+        public static string DecreasePower(string suffix)
+        {
+			if (suffix.EndsWith("⋅s"))
+				return suffix[..^2];
+		
+            foreach (var (bef, aft) in Powers)
+            {
+                if (suffix.EndsWith(bef, StringComparison.InvariantCulture))
+                    return suffix[..^bef.Length] + aft;
+            }
+
+            return suffix + "/s";
+        }
+
+        public static Unit FromString(string name, Unit? deriv = null, Unit? integ = null)
+        {
+            Unit res;
+
+            var lDeriv = new Lazy<Unit>(() => deriv ?? FromString(DecreasePower(name)));
+            var lInteg = new Lazy<Unit>(() => integ ?? FromString(IncreasePower(name)));
+
+            if (!_units.TryGetValue(name, out res!))
+            {
+                res = _units[name] = new Unit(name,
+                    lDeriv,
+                lInteg);
+            }
+
+            var lRes = new Lazy<Unit>(() => res);
+            
+            if (deriv != null)
+                deriv._antiderivative = lRes;
+
+            if (integ != null)
+                integ._derivative = lRes;
+
+            return res;
+        }
+
+        public static implicit operator Unit(string name)
+        {
+            return FromString(name);
+        }
+
+        public static readonly Unit Length = FromString("m");
+		public static readonly Unit Velocity = Length.Derivative;
+
+        public Unit Differentiate(int degree = 1)
+        {
+            var unit = this;
+            for (var i = 0; i < degree; i++)
+                unit = unit.Derivative;
+            return unit;
+        }
+        
+        public Unit Integrate(int degree = 1)
+        {
+            var unit = this;
+            for (var i = 0; i < degree; i++)
+                unit = unit.Antiderivative;
+            return unit;
         }
     }
 }

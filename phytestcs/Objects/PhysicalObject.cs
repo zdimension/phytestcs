@@ -430,7 +430,7 @@ namespace phytestcs.Objects
 
         public static PhysicalObject Cercle(float x, float y, float r, Color col)
         {
-            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r)) { Color = col };
+            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r, Render._rotCirclePointCount)) { Color = col };
         }
 
         public override void Draw()

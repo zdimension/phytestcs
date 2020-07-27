@@ -339,6 +339,11 @@ namespace phytestcs.Objects
 
             if (!Fixed)
             {
+                if (Hinge != null && float.IsPositiveInfinity(Hinge.MotorTorque))
+                {
+                    AngularVelocity = Hinge.MotorSpeed;
+                }
+                
                 if (!LockAngle)
                 {
                     var dA = AngularVelocity * dt;

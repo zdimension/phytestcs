@@ -82,7 +82,7 @@ namespace phytestcs.Objects
         {
             float force;
             var diff = Object.AngularVelocity - MotorSpeedRadians;
-            if (Motor && diff != 0)
+            if (Motor && diff != 0 && !float.IsPositiveInfinity(MotorTorque))
             {
                 var minDiscrete = 0f;
                 force = Math.Min(Math.Abs(diff) * Object.MomentOfInertia / Simulation.ActualDT, (float)(MotorTorque * (1 - 0.9999999999 * Math.Exp(-10000 * Math.Pow(diff, 2)))));

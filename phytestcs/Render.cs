@@ -15,7 +15,7 @@ namespace phytestcs
     public static class Render
     {
         public static RectangleShape DrawRectangle = new RectangleShape();
-        public static CircleShape DrawCircle = new CircleShape();
+        public static CircleShape DrawCircle = new CircleShape(1, _rotCirclePointCount);
         public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
         public static int NumRays = 0;
@@ -32,7 +32,7 @@ namespace phytestcs
         public static uint Height = 550;
         public static RenderWindow Window;
 
-        public static uint _rotCirclePointCount = 360;
+        public const uint _rotCirclePointCount = 360;
 
         public static readonly Vector2f[] _rotCirclePoints = (
             from i in Enumerable.Range(0, (int) _rotCirclePointCount)

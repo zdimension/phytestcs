@@ -21,6 +21,13 @@ namespace phytestcs.Objects
 
             UpdatePhysics(0);
         }
+        
+        public override void Delete(Object source = null)
+        {
+            Object.Forces.Remove(_force);
+
+            base.Delete(source);
+        }
 
         public override Vector2f RelPos
         {

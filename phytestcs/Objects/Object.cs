@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.VisualBasic.CompilerServices;
 using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Tools;
@@ -14,7 +15,7 @@ namespace phytestcs.Objects
     {
         private static ulong _idCounter;
 
-        private readonly Dictionary<MethodInfo, Func<object?>> _bindings = new Dictionary<MethodInfo, Func<object?>>();
+        private readonly Dictionary<MethodInfo, (Binding binding, MethodInfo? setter)> _bindings = new Dictionary<MethodInfo, (Binding, MethodInfo?)>();
         private readonly SynchronizedCollection<Object> _dependents = new SynchronizedCollection<Object>();
 
         private readonly SynchronizedCollection<Object> _parents = new SynchronizedCollection<Object>();
@@ -150,8 +151,31 @@ namespace phytestcs.Objects
             Deleted();
         }
 
+        private bool _updating = false;
+
         public virtual void UpdatePhysics(float dt)
         {
+            if (_updating)
+                return;
+            
+            _updating = true;
+            
+            foreach (var (_, (binding, setter)) in _bindings)
+            {
+                if (setter == null) 
+                    continue;
+                
+                try
+                {
+                    setter.Invoke(this, new[] { binding.Value() });
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
+            _updating = false;
         }
 
         public virtual void Draw()
@@ -171,7 +195,7 @@ namespace phytestcs.Objects
         {
             if (targetMethod == null) throw new ArgumentNullException(nameof(targetMethod));
 
-            return _bindings.TryGetValue(targetMethod, out var func) ? func() : targetMethod.Invoke(this, args);
+            return _bindings.TryGetValue(targetMethod, out var binding) ? binding.binding.Value() : targetMethod.Invoke(this, args);
         }
 
         public void Bind<TThis, T>(Expression<Func<TThis, T>> prop, Func<T> value)
@@ -185,7 +209,19 @@ namespace phytestcs.Objects
             var bindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = bindPropInfo.GetGetMethod()!;
 
-            _bindings[getMethod] = () => value();
+            Bind(getMethod, () => value);
+        }
+
+        public Binding Bind(MethodInfo getMethod, Func<object?> value, MethodInfo? setMethod=null)
+        {
+            return Bind(getMethod, new Binding(value), setMethod);
+        }
+
+        public T Bind<T>(MethodInfo getMethod, T binding, MethodInfo? setMethod=null)
+            where T : Binding
+        {
+            _bindings[getMethod] = (binding, setMethod);
+            return binding;
         }
 
         public void Unbind<TThis, T>(Expression<Func<TThis, T>> prop)
@@ -199,7 +235,19 @@ namespace phytestcs.Objects
             var bindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = bindPropInfo.GetGetMethod()!;
 
+            Unbind(getMethod);
+        }
+        
+        public void Unbind(MethodInfo getMethod)
+        {
+            if (_bindings.TryGetValue(getMethod, out var binding))
+                binding.binding.Remove();
             _bindings.Remove(getMethod);
+        }
+
+        public bool IsBound(MethodInfo getMethod, out (Binding?, MethodInfo?) res)
+        {
+            return _bindings.TryGetValue(getMethod, out res);
         }
         
         public abstract Vector2f Map(Vector2f local);
@@ -232,10 +280,40 @@ namespace phytestcs.Objects
         public string ShortName { get; set; }
     }
 
-    public class Binding<T>
+    public class Binding
     {
-        public Action<T> Setter { get; set; }
-        public Expression<Func<T>> Value { get; set; }
+        public virtual Func<object?> Value { get; }
+
+        public Binding(Func<object?> value)
+        {
+            Value = value;
+        }
+
+        public void Remove()
+        {
+            Removed();
+        }
+
+        public event Action Removed = () => { };
+    }
+
+    public class UserBinding : Binding
+    {
+        public LambdaStringWrapper<Func<object?>> Wrapper { get; }
+
+        public UserBinding(string code, object? target)
+            : base(null)
+        {
+            Wrapper = new LambdaStringWrapper<Func<object?>>(code, target);
+        }
+
+        public override Func<object?> Value => Wrapper.Value;
+
+        public string Code
+        {
+            get => Wrapper.Code;
+            set => Wrapper.Code = value;
+        }
     }
     
     public class BaseEventArgs : HandledEventArgs

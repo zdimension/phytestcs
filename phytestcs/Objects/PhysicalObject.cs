@@ -285,87 +285,89 @@ namespace phytestcs.Objects
 
         public override void UpdatePhysics(float dt)
         {
-            if (dt == 0)
-                return;
-
-            if (float.IsNaN(_position.X) || float.IsNaN(_position.Y) || Math.Abs(_position.X) > 5100 ||
-                Math.Abs(_position.Y) > 5100)
+            if (dt != 0)
             {
-                Console.WriteLine($"RIP {Name}");
-                Delete();
-                return;
-            }
-
-            Gravity.Value = Simulation.GravityField(Position, Mass, this);
-
-            if (!Fixed)
-            {
-                if (Simulation.AirFriction)
+                if (float.IsNaN(_position.X) || float.IsNaN(_position.Y) || Math.Abs(_position.X) > 5100 ||
+                    Math.Abs(_position.Y) > 5100)
                 {
-                    var mult = Simulation.AirFrictionMultiplier * AirFrictionMultiplier;
-                    
-                    if (Velocity == default)
+                    Console.WriteLine($"RIP {Name}");
+                    Delete();
+                    return;
+                }
+
+                Gravity.Value = Simulation.GravityField(Position, Mass, this);
+
+                if (!Fixed)
+                {
+                    if (Simulation.AirFriction)
                     {
-                        AirFriction.Value = default;
+                        var mult = Simulation.AirFrictionMultiplier * AirFrictionMultiplier;
+
+                        if (Velocity == default)
+                        {
+                            AirFriction.Value = default;
+                        }
+                        else
+                        {
+                            var velRel = Velocity - Simulation.WindVector;
+                            var vn = velRel.Norm();
+                            var vu = velRel / vn;
+                            var size = Shape.GetGlobalBounds().Size();
+                            var diam1 = Math.Abs(size.Dot(velRel.Ortho()));
+
+                            AirFriction.Value = (-diam1 * mult *
+                                                 (Simulation.AirFrictionQuadratic * vn + Simulation.AirFrictionLinear) *
+                                                 vn) * vu;
+                        }
+
+                        _angularAirFriction = AngularVelocity
+                                              * -Simulation.RotFrictionLinear
+                                              * mult;
                     }
                     else
                     {
-                        var velRel = Velocity - Simulation.WindVector;
-                        var vn = velRel.Norm();
-                        var vu = velRel / vn;
-                        var size = Shape.GetGlobalBounds().Size();
-                        var diam1 = Math.Abs(size.Dot(velRel.Ortho()));
+                        AirFriction.Value = default;
 
-                        AirFriction.Value = (-diam1 * mult *
-                                             (Simulation.AirFrictionQuadratic * vn + Simulation.AirFrictionLinear) *
-                                             vn) * vu;
+                        _angularAirFriction = 0;
                     }
 
-                    _angularAirFriction = AngularVelocity
-                                          * -Simulation.RotFrictionLinear
-                                          * mult;
+                    Buoyance.Value = -Simulation.GravityVector * Shape.Area() * Simulation.AirDensity;
                 }
-                else
+
+                ApplyForces(dt);
+
+                if (!Fixed)
                 {
-                    AirFriction.Value = default;
+                    if (Hinge != null && float.IsPositiveInfinity(Hinge.MotorTorque))
+                    {
+                        AngularVelocity = Hinge.MotorSpeed;
+                    }
 
-                    _angularAirFriction = 0;
+                    if (!LockAngle)
+                    {
+                        var dA = AngularVelocity * dt;
+                        _angle += dA;
+                        _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
+                    }
+
+                    if (Hinge != null)
+                    {
+                        Velocity = default;
+                        //var oldPos = _position;
+
+                        //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
+                        _position = Hinge.OriginalPosition - Hinge.End1.RelPos.Rotate(Angle);
+                    }
+                    else
+                    {
+                        _position += Velocity * dt;
+                    }
+
+                    UpdatePosition();
                 }
-
-                Buoyance.Value = -Simulation.GravityVector * Shape.Area() * Simulation.AirDensity;
             }
-
-            ApplyForces(dt);
-
-            if (!Fixed)
-            {
-                if (Hinge != null && float.IsPositiveInfinity(Hinge.MotorTorque))
-                {
-                    AngularVelocity = Hinge.MotorSpeed;
-                }
-                
-                if (!LockAngle)
-                {
-                    var dA = AngularVelocity * dt;
-                    _angle += dA;
-                    _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
-                }
-                
-                if (Hinge != null)
-                {
-                    Velocity = default;
-                    //var oldPos = _position;
-                    
-                    //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
-                    _position = Hinge.OriginalPosition - Hinge.End1.RelPos.Rotate(Angle);
-                }
-                else
-                {
-                    _position += Velocity * dt;
-                }
-
-                UpdatePosition();
-            }
+            
+            base.UpdatePhysics(dt);
         }
 
         [ObjProp("Lock the angle")]
@@ -373,8 +375,8 @@ namespace phytestcs.Objects
 
         private void UpdatePosition()
         {
-            Shape.Position = _position;
-            Shape.Rotation = _angle.Degrees();
+            Shape.Position = Position;
+            Shape.Rotation = Angle.Degrees();
         }
 
         public static Vector2f ElasticCollision(float m1, float m2, Vector2f v1, Vector2f v2, float r1, float r2,

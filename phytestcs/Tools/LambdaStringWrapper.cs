@@ -10,14 +10,17 @@ namespace phytestcs
         where T : Delegate
     {
         private string _code;
+        private object? _globals = null;
         
-        public LambdaStringWrapper(string initial="delegate { }")
+        public LambdaStringWrapper(string initial="delegate { }", object? globals = null)
         {
+            _globals = globals;
             Code = initial;
         }
 
-        public LambdaStringWrapper(T initial)
+        public LambdaStringWrapper(T initial, object? globals = null)
         {
+            _globals = globals;
             Value = initial;    
             _code = "delegate { }";
         }
@@ -27,20 +30,40 @@ namespace phytestcs
             get => _code;
             set
             {
-                _code = value;
+                _code = value.Trim();
 
-                try
+                var ok = false;
+
+                if (value[0] == '{' && value[^1] == '}')
                 {
-                    Value = value.Eval<T>(so => so.AddReferences(typeof(T).Assembly)).Result;
+                    try
+                    {
+                        Value = $"delegate{{return ({value[1..^1]});}}".Eval<T>(so => ScriptOptions(so.AddReferences(typeof(T).Assembly)), _globals).Result;
+                        ok = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    value = "delegate " + value;
                 }
-                catch (Exception e)
+
+                if (!ok)
                 {
-                    Console.WriteLine(e);
+                    try
+                    {
+                        Value = value.Eval<T>(so => so.AddReferences(typeof(T).Assembly)).Result;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
             }
         }
 
         public T Value { get; private set; }
+        public Func<ScriptOptions, ScriptOptions> ScriptOptions { get; set; } = so => so;
         public string Repr()
         {
             return $"`{Code}`";
@@ -52,9 +75,9 @@ namespace phytestcs
         public event Action<T> Event = delegate { };
         public LambdaStringWrapper<Action<T>> Wrapper { get; }
 
-        public EventWrapper()
+        public EventWrapper(object? globals=null)
         {
-            Wrapper = new LambdaStringWrapper<Action<T>>(delegate { });
+            Wrapper = new LambdaStringWrapper<Action<T>>(delegate { }, globals);
             Event += x =>
             {
                 Wrapper.Value(x);

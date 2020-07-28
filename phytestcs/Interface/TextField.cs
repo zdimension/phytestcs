@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Globalization;
+using System.Reflection;
+using phytestcs.Objects;
 using SFML.System;
 using TGUI;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface
 {
@@ -18,6 +21,7 @@ namespace phytestcs.Interface
     
     public class TextField<T> : TextFieldBase
     {
+        private readonly PropertyReference<T> _bindProp;
         private readonly Func<T> _getter;
         private readonly Action<T>? _setter;
         private readonly PropConverter<T, string> converter;
@@ -29,6 +33,7 @@ namespace phytestcs.Interface
         {
             if (bindProp == null) throw new ArgumentNullException(nameof(bindProp));
 
+            _bindProp = bindProp;
             (_getter, _setter) = bindProp.GetAccessors();
             name ??= bindProp.DisplayName;
             if (conv?.NameFormat != null)
@@ -84,6 +89,8 @@ namespace phytestcs.Interface
             }*/
         }
 
+        private UserBinding? _binding = null;
+
         public string Value
         {
             get => _value;
@@ -91,7 +98,18 @@ namespace phytestcs.Interface
             {
                 try
                 {
-                    _setter?.Invoke(converter.Set(value, _getter()));
+                    var obj = _bindProp.Target as Object;
+                    var pi = _bindProp.Property as PropertyInfo;
+                    
+                    if (pi != null && obj != null && value[0] == '{' && value[^1] == '}')
+                    {
+                        _binding = obj.Bind(pi.GetGetMethod()!, new UserBinding(value, obj), pi.GetSetMethod());
+                    }
+                    else
+                    {
+                        obj?.Unbind(pi?.GetGetMethod()!);
+                        _setter?.Invoke(converter.Set(value, _getter()));
+                    }
 
                     Simulation.UpdatePhysicsInternal(0);
 
@@ -108,11 +126,14 @@ namespace phytestcs.Interface
 
         private void UpdateUI(string val)
         {
-            Field.Text = val.ToString(CultureInfo.CurrentCulture);
+            Field.Text = _binding?.Code ?? val.ToString(CultureInfo.CurrentCulture);
         }
 
         public void Update()
         {
+            if (_binding != null)
+                return;
+            
             var val = converter.Get(_getter());
 
             if (val != _oldLoadedVal)

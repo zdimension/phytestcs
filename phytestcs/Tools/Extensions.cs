@@ -96,7 +96,7 @@ namespace phytestcs
             return prop?.GetCustomAttribute<ObjPropAttribute>();
         }
 
-        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions> opt=null, object globals=null, Type globalsType=null)
+        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions> opt=null, object? globals=null, Type globalsType=null)
         {
             var bopt = Scene.DefaultScriptOptions;
             if (opt != null)

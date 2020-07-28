@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface
 {
     public class PropertyReference<T>
     {
-        private readonly MemberInfo? _property;
+        public MemberInfo? Property { get; }
+        public object? Target { get; }
 
         public PropertyReference(PropertyInfo property, object? target)
         {
-            _property = property ?? throw new ArgumentNullException(nameof(property));
+            Property = property ?? throw new ArgumentNullException(nameof(property));
+            Target = target;
 
             Getter = (Func<T>) property.GetGetMethod()!.CreateDelegate(typeof(Func<T>), target)!;
             Setter = (Action<T>) property.GetSetMethod()?.CreateDelegate(typeof(Action<T>), target)!;
@@ -20,14 +23,14 @@ namespace phytestcs.Interface
         {
             Getter = getter;
             Setter = setter;
-            _property = member;
+            Property = member;
         }
 
         public Func<T> Getter { get; }
         public Action<T>? Setter { get; }
         public bool ReadOnly => Setter == null;
-        public string? Unit => _property?.GetObjProp()?.Unit;
-        public string? DisplayName => _property?.GetObjProp()?.DisplayName ?? _property?.Name;
+        public string? Unit => Property?.GetObjProp()?.Unit;
+        public string? DisplayName => Property?.GetObjProp()?.DisplayName ?? Property?.Name;
 
         public static implicit operator PropertyReference<T>(Expression<Func<T>> property)
         {

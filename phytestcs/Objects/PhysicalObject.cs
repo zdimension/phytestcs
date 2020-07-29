@@ -117,7 +117,7 @@ namespace phytestcs.Objects
                 return InertiaMultiplier * Shape switch
                 {
                     RectangleShape r => Mass * (r.Size.NormSquared()) / 12,
-                    CircleShape c => Mass * (float) Math.Pow(c.Radius, 4) / 2,
+                    CircleShape c => (float)(Mass * Math.Pow(c.Radius, 2) / 2),
                     _ => throw new NotImplementedException()
                 };
             }

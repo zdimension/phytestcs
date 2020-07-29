@@ -54,6 +54,15 @@ namespace phytestcs.Interface
                 SizeLayout = new Layout2d("100% - 10 - lblName.width", "18")
             };
             Add(Field);
+            
+            if (_bindProp.Property is PropertyInfo pi && 
+                _bindProp.Target is Object o &&
+                o.IsBound(pi.GetGetMethod(), out var res) &&
+                res.Item1 is UserBinding ub)
+            {
+                _binding = ub;
+                Field.Text = _binding.Code;
+            }
 
             if (_setter == null)
                 Field.ReadOnly = true;
@@ -104,6 +113,10 @@ namespace phytestcs.Interface
                     if (pi != null && obj != null && value[0] == '{' && value[^1] == '}')
                     {
                         _binding = obj.Bind(pi.GetGetMethod()!, new UserBinding(value, obj), pi.GetSetMethod());
+                        _binding.Removed += delegate
+                        {
+                            _binding = null;
+                        };
                     }
                     else
                     {

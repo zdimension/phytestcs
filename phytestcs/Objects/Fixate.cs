@@ -7,10 +7,10 @@ namespace phytestcs.Objects
     public sealed class Fixate : PinnedShapedVirtualObject
     {
         private readonly RectangleShape _rect1 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
-            .CenterOrigin().With(o => o.Rotation = +45);
+            .CenterOrigin();
 
         private readonly RectangleShape _rect2 = new RectangleShape(new Vector2f(5, 1)) { FillColor = Color.Black }
-            .CenterOrigin().With(o => o.Rotation = -45);
+            .CenterOrigin();
 
         public Fixate(PhysicalObject @object, Vector2f relPos, float size)
             : base(@object, relPos)
@@ -22,7 +22,12 @@ namespace phytestcs.Objects
         public float Size
         {
             get => _rect1.Scale.X;
-            set => _rect1.Scale = _rect2.Scale = new Vector2f(value, value) / 10f;
+            set
+            {
+                _rect1.Scale = _rect2.Scale = new Vector2f(value, value) / 10f;
+                _rect1.CenterOrigin();
+                _rect2.CenterOrigin();
+            }
         }
 
         protected override IEnumerable<Shape> Shapes => new[] { _rect1, _rect2 };
@@ -46,13 +51,11 @@ namespace phytestcs.Objects
             base.DrawOverlay();
 
             _rect1.Position = _rect2.Position = Position;
-
-            using var view = new View(Camera.GameView);
-            view.Rotate(Object.Angle.Degrees());
-            Render.Window.SetView(view);
+            _rect1.Rotation = +45;
+            _rect2.Rotation = -45;
+            
             Render.Window.Draw(_rect1);
             Render.Window.Draw(_rect2);
-            Render.Window.SetView(Camera.GameView);
         }
     }
 }

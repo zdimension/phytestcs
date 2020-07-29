@@ -666,8 +666,16 @@ namespace phytestcs.Objects
                         {
                             // sinon on répartit proportionnellement
                             var vs = Math.Abs(v1p) + Math.Abs(v2p);
-                            dpa = mtv * v1p / vs;
-                            dpb = mtv * v2p / vs;
+                            if (vs == 0)
+                            {
+                                dpa = mtv / 2;
+                                dpb = -mtv / 2;
+                            }
+                            else
+                            {
+                                dpa = mtv * v1p / vs;
+                                dpb = mtv * v2p / vs;
+                            }
                         }
 
                         var (colls, p2out, a_, b_, dpa_, dpb_) = GetForcePoints(a, b, dpa, dpb);

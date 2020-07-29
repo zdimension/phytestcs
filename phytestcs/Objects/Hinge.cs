@@ -17,6 +17,8 @@ namespace phytestcs.Objects
             PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
         : base(1e8f, 0, size, object1, object1RelPos, object2, object2RelPos, type ?? ForceType.Hinge)
         {
+            ShowInfos = false;
+            
             type ??= ForceType.Hinge!;
             _torque1 = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
             _torque2 = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
@@ -25,11 +27,9 @@ namespace phytestcs.Objects
             object1.Hinge = this;
 
             Size = size;
-
-            OriginalPosition = Position;
         }
-        
-        public Vector2f OriginalPosition { get; set; }
+
+        public Vector2f OriginalPosition => End2.Position;
 
         public float Size
         {
@@ -95,13 +95,21 @@ namespace phytestcs.Objects
 
             _torque1.Value = new Vector2f(0, -force / 2).Rotate(End1.Object.Angle);
             _torque2.Value = new Vector2f(0, force / 2).Rotate(End1.Object.Angle);
+
+            var o1net = End1.Object.NetForce - _force1.Value - _torque1.Value - _torque2.Value;
+            var o2net = _force2 == null ? default : (End2.Object.NetForce - _force2.Value);
+            _force1.Value = -o1net + o2net;
+            if (_force2 != null)
+            _force2.Value = -o2net + o1net;
+            //_force1.Value = default;
             
-            _force1.Value = -(End1.Object.NetForce - _force1.Value - _torque1.Value - _torque2.Value);
         }
 
         //private Vector2f OppForce => -(Object1.NetForce - _force1.Value);
-
-        //public override float Force => OppForce.Norm();
+        public override float Force => 0;
+        /*public override float Force =>
+            Math.Sign(DeltaLength) * Math.Min(Math.Abs(base.Force), Math.Abs(DeltaLength) * End1.Object.Mass / Simulation.ActualDT
+            );*/
 
         /*public override float Force
         {
@@ -120,9 +128,11 @@ namespace phytestcs.Objects
 
         public override void UpdatePhysics(float dt)
         {
+            //base.UpdatePhysics(dt);
+            
             UpdateForces(dt);
             
-            base.UpdatePhysics(dt);
+            
         }
     }
 }

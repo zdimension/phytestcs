@@ -58,6 +58,8 @@ namespace phytestcs.Objects
             base.Draw();
 
             UpdatePosition();
+            
+            Shape.OutlineThickness = (Selected ? -7 : 0) / Camera.Zoom;
 
             Render.Window.Draw(Shape);
         }

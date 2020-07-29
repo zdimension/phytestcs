@@ -350,7 +350,7 @@ namespace phytestcs.Objects
                         _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
                     }
 
-                    if (Hinge != null)
+                    /*if (Hinge != null)
                     {
                         Velocity = default;
                         //var oldPos = _position;
@@ -358,7 +358,7 @@ namespace phytestcs.Objects
                         //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
                         _position = Hinge.OriginalPosition - Hinge.End1.RelPos.Rotate(Angle);
                     }
-                    else
+                    else*/
                     {
                         _position += Velocity * dt;
                     }

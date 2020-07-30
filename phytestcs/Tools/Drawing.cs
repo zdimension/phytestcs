@@ -99,10 +99,6 @@ namespace phytestcs
             if (upto != null)
                 end = Math.Min(upto.Value, points.Length);
             var count = (uint) (2 * end);
-            if (startAngle != 0f)
-                count++;
-            if (endAngle != 0f)
-                count++;
             var res = new VertexArray(PrimitiveType.TriangleStrip, count);
             var pos = 0u;
             var col = c;
@@ -128,16 +124,10 @@ namespace phytestcs
                     col2.A = endAlpha;
             }
 
-            if (startAngle != 0f)
-            {
-                res[pos++] =
-                    startAngle > 0
-                        ? new Vertex(a - w * edge / 2 - dir * w * (float) Math.Tan(startAngle), outsideInvert ? col : col2)
-                        : new Vertex(a + w * edge / 2 - dir * w * (float) Math.Tan(-startAngle), outsideInvert ? col2 : col);
-            }
+            var startDiff = dir * (float) (w * Math.Tan(startAngle) / 2);
 
-            res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? col : col2);
-            res[pos++] = new Vertex(a + w * edge / 2, outsideInvert ? col2 : col);
+            res[pos++] = new Vertex(a - w * edge / 2 + startDiff, outsideInvert ? col : col2);
+            res[pos++] = new Vertex(a + w * edge / 2 - startDiff, outsideInvert ? col2 : col);
 
             for (var i = 1; i < end - 1; i++)
             {
@@ -162,16 +152,11 @@ namespace phytestcs
             }
 
             a = points[end - 1];
-            res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? c : c2);
-            res[pos++] = new Vertex(a + w * edge / 2, outsideInvert ? c2 : c);
             
-            if (endAngle != 0f)
-            {
-                res[pos++] =
-                    endAngle > 0
-                        ? new Vertex(a - w * edge / 2 + dir * w * (float) Math.Tan(endAngle), outsideInvert ? c : c2)
-                        : new Vertex(a + w * edge / 2 + dir * w * (float) Math.Tan(-endAngle), outsideInvert ? c2 : c);
-            }
+            var endDiff = dir * (float) (w * Math.Tan(endAngle) / 2);
+            
+            res[pos++] = new Vertex(a - w * edge / 2 - endDiff, outsideInvert ? c : c2);
+            res[pos++] = new Vertex(a + w * edge / 2 + endDiff, outsideInvert ? c2 : c);
 
             return res;
         }

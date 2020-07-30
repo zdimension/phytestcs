@@ -70,6 +70,8 @@ namespace phytestcs
             Render.WorldCache = Array.Empty<Object>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
+            
+            Program.CurrentPalette = Palette.Default;
 
             Simulation.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
             Simulation.Add(PhysicalObject.Rectangle(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));

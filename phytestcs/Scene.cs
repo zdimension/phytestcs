@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace phytestcs
     {
         public static volatile bool Loaded;
         public static Script<object>? Script;
+        public static ExpandoObject My;
 
         public static async Task Restart()
         {
@@ -70,6 +72,7 @@ namespace phytestcs
             Render.WorldCache = Array.Empty<Object>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
+            My = new ExpandoObject();
             
             Program.CurrentPalette = Palette.Default;
 

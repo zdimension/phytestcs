@@ -105,6 +105,8 @@ namespace phytestcs
 
         public static float LaserSuperBoost { get; set; } = 1;
 
+        public static float RainbowSplitMult { get; set; } = 1f / 3;
+
         public static int NumColorsInRainbow
         {
             get => _numColorsInRainbow;

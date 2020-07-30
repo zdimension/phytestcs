@@ -142,19 +142,54 @@ namespace phytestcs.Objects
                         // i.e. 100% of the light is reflected
                         // hence the object is a perfect mirror
                         if (float.IsPositiveInfinity(minObj.RefractiveIndex)) return;
-
+                        
                         var newIndex = insideObject ? 1 : minObj.RefractiveIndex;
-                        newIndex += (float)(1.206e-4d * (((HSVA) ray.Color).H - 180) * (newIndex * newIndex));
-                        var refractionAngle =
-                            normalAngle +
-                            (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / newIndex) +
-                            (float) Math.PI;
-                        var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, ray.Color,
-                            (float) (opacityRefracted * ray.EndStrength * (255 - minObj.Color.A) / 255d),
-                            LaserThickness, ray.EndDistance, newIndex, this);
-                        refractedRay.DebugInfo = "ref ";
-                        refractedRay.Source = ray;
-                        ShootRay(refractedRay, depth + 1);
+
+                        float GetIndex(double hue)
+                        {
+                            return newIndex + (float) (1.206e-4d * (hue - 180) * (newIndex * newIndex));
+                        }
+
+                        float GetAngle(float index)
+                        {
+                            return normalAngle +
+                                   (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / index) +
+                                   (float) Math.PI;
+                        }
+                        
+                        var refractionStrength = opacityRefracted * ray.EndStrength * (255 - minObj.Color.A) / 255d;
+                        var rainbowStrength = refractionStrength * (1 - ray.ColorHsva.S) * Simulation.RainbowSplitMult;
+                        refractionStrength *= ray.ColorHsva.S;
+
+                        if (refractionStrength > 0)
+                        {
+                            var refIndex = GetIndex(ray.ColorHsva.H);
+                            var refractionAngle = GetAngle(refIndex);
+
+                            var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity,
+                                ray.Color,
+                                (float) refractionStrength,
+                                LaserThickness, ray.EndDistance, refIndex, this);
+                            refractedRay.DebugInfo = "ref ";
+                            refractedRay.Source = ray;
+                            ShootRay(refractedRay, depth + 1);
+                        }
+
+                        if (rainbowStrength > 0)
+                        {
+                            var color = new HSVA(0, 1, 1, 1);
+                            for (var i = 0; i < Simulation.NumColorsInRainbow; i++)
+                            {
+                                color.H = 180d * (2 * i + 1) / Simulation.NumColorsInRainbow;
+                                var rainbowIndex = GetIndex(color.H);
+                                var rainbowRay = new LaserRay(minInter, GetAngle(rainbowIndex), float.PositiveInfinity, color,
+                                    (float) rainbowStrength,
+                                    LaserThickness, ray.EndDistance, rainbowIndex, this);
+                                rainbowRay.DebugInfo = "rainbow";
+                                rainbowRay.Source = ray;
+                                ShootRay(rainbowRay, depth + 1);
+                            }
+                        }
                     }
                 }
 
@@ -222,27 +257,29 @@ namespace phytestcs.Objects
             Length = length;
             Strength = strength * Simulation.LaserSuperBoost;
             Color = new Color(color) { A = (byte) Math.Min(255, strength * 255) };
+            ColorHsva = Color;
             Thickness = thickness;
             StartDistance = startDistance;
             RefractiveIndex = refrac;
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
 
-        public Vector2f Start { get; set; }
-        public float Angle { get; set; }
+        public Vector2f Start { get; }
+        public float Angle { get; }
 
         public float Length { get; set; }
 
         //public Vector2f End => Start + Tools.FromPolar(Length, Angle);
-        public float Strength { get; set; }
-        public Color Color { get; set; }
+        public float Strength { get; }
+        public Color Color { get; }
+        public HSVA ColorHsva { get; }
         public float EndStrength => Math.Max(0, Strength * (1 - Length / (Parent.FadeDistance - StartDistance)));
         public byte EndAlpha => (byte) Math.Min(255, EndStrength * 255);
         public Color EndColor => new Color(Color) { A = EndAlpha };
-        public float Thickness { get; set; }
-        public float StartDistance { get; set; }
+        public float Thickness { get; }
+        public float StartDistance { get; }
         public float EndDistance => StartDistance + Length;
-        public float RefractiveIndex { get; set; }
+        public float RefractiveIndex { get; }
         public string? DebugInfo { get; set; }
         public LaserRay? Source { get; set; }
         public Laser Parent { get; set; }

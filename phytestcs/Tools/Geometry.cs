@@ -87,5 +87,24 @@ namespace phytestcs
             arr[^1] = arr[0];
             return arr;
         }
+
+        public static float MomentOfInertia(this Shape s)
+        {
+            var points = s.PointsLocal();
+            var pcount = points.Length;
+            points = points.Wrap();
+            var top = 0f;
+            var bottom = 0f;
+            for (var i = 0; i < pcount; i++)
+            {
+                var a = points[i];
+                var b = points[i + 1];
+                var weight = Math.Abs(b.Cross(a));
+                top += weight * (a.Dot(a) + a.Dot(b) + b.Dot(b));
+                bottom += weight;
+            }
+            return top / (6 * bottom);
+        }
+
     }
 }

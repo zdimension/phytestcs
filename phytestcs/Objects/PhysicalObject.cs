@@ -118,6 +118,7 @@ namespace phytestcs.Objects
                 {
                     RectangleShape r => Mass * (r.Size.NormSquared()) / 12,
                     CircleShape c => (float)(Mass * Math.Pow(c.Radius, 2) / 2),
+                    { } s => Mass * s.MomentOfInertia(),
                     _ => throw new NotImplementedException()
                 };
             }

@@ -50,6 +50,11 @@ namespace phytestcs
             return a + ((dynamic) b - a) / 2;
         }
 
+        public static Vector2f Average(this ICollection<Vector2f> arr)
+        {
+            return arr.Sum() / arr.Count;
+        }
+
         public static (double min, double max) Extrema(this IEnumerable<double> source)
         {
             var min = double.PositiveInfinity;

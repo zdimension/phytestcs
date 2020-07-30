@@ -15,7 +15,16 @@ namespace phytestcs
                 case CircleShape c:
                     return (float) Math.Abs(Math.PI * Math.Pow(c.Radius, 2));
                 default:
-                    throw new NotImplementedException();
+                    var points = forme.PointsLocal();
+                    var pcount = points.Length;
+                    points = points.Wrap();
+                    var area = 0f;
+                    for (var i = 0; i < pcount; i++)
+                    {
+                        area += points[i].Cross(points[i + 1]);
+                    }
+
+                    return area;
             }
         }
 

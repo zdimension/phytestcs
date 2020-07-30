@@ -35,6 +35,8 @@ namespace phytestcs
 
         public static Object[] WorldCache = null;
         public static PhysicalObject[] WorldCachePhy = null;
+        private static float _laserFuzziness = 0.7f;
+        private static int _numColorsInRainbow = 12;
 
         static Simulation()
         {
@@ -100,6 +102,22 @@ namespace phytestcs
                 UpdateGravity();
             }
         }
+
+        public static float LaserSuperBoost { get; set; } = 1;
+
+        public static int NumColorsInRainbow
+        {
+            get => _numColorsInRainbow;
+            set => _numColorsInRainbow = value.Clamp(1, 30);
+        }
+
+        public static float LaserFuzziness
+        {
+            get => _laserFuzziness;
+            set => _laserFuzziness = value.Clamp(0, 1);
+        }
+
+        public static float LaserWidth { get; set; } = 0.2f;
 
         [ObjProp("Simulation speed", "x")]
         public static float TimeScale { get; set; } = 1;

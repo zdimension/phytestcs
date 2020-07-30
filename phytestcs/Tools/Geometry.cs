@@ -106,5 +106,17 @@ namespace phytestcs
             return top / (6 * bottom);
         }
 
+        public static Vector2f CenterOfGravity(this Shape s)
+        {
+            switch (s)
+            {
+                case CircleShape c:
+                    return new Vector2f(c.Radius, c.Radius);
+                case RectangleShape r:
+                    return r.Size / 2;
+                default:
+                    return s.PointsLocal().Average();
+            }
+        }
     }
 }

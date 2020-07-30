@@ -33,7 +33,7 @@ namespace phytestcs.Objects
             Name = name;
 
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
-            Shape.Origin = Shape.GetLocalBounds().Size() / 2;
+            Shape.Origin = Shape.CenterOfGravity();
             _position = Shape.Position = pos;
 
             Wall = wall;

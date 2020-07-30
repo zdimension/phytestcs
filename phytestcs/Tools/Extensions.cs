@@ -15,6 +15,16 @@ namespace phytestcs
 {
     public static class Extensions
     {
+        public static T Clamp<T>(this T v, T min, T max)
+            where T : IComparable<T>
+        {
+            if (v.CompareTo(min) < 0)
+                return min;
+            if (v.CompareTo(max) > 0)
+                return max;
+            return v;
+        }
+
         public static float ClampWrap(this float angle, float bound)
         {
             if (angle > bound)

@@ -1,4 +1,5 @@
-﻿var obj1 = Simulation.Add(PhysicalObject.Rectangle(2, -0.3f, 1, 1, Color.Green));
+﻿CurrentPalette = Palette.Optics;
+var obj1 = Simulation.Add(PhysicalObject.Rectangle(2, -0.3f, 1, 1, Color.Green));
 obj1.Angle=(float)Math.PI / 5;
 obj1.Color = new Color(0, 255, 0, 10);
 

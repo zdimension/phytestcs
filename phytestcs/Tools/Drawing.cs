@@ -86,18 +86,24 @@ namespace phytestcs
         }
 
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
-            int? upto = null, Color? c2_ = null, byte endAlpha=0, bool blendLin=false, bool outsideInvert=false)
+            int? upto = null, Color? c2_ = null, byte endAlpha=0, bool blendLin=false, bool outsideInvert=false, float startAngle=0f, float endAngle=0f)
         {
             if (points.Length <= 1 || (upto != null && upto <= 1))
                 return new VertexArray(PrimitiveType.TriangleStrip, 0);
 
             var a = points[0];
             var b = points[1];
-            var edge = (b - a).Ortho().Normalize();
+            var dir = (b - a).Normalize();
+            var edge = dir.Ortho();
             var end = points.Length;
             if (upto != null)
                 end = Math.Min(upto.Value, points.Length);
-            var res = new VertexArray(PrimitiveType.TriangleStrip, (uint) (2 * end));
+            var count = (uint) (2 * end);
+            if (startAngle != 0f)
+                count++;
+            if (endAngle != 0f)
+                count++;
+            var res = new VertexArray(PrimitiveType.TriangleStrip, count);
             var pos = 0u;
             var col = c;
             var c2 = c2_ ?? c;
@@ -118,6 +124,16 @@ namespace phytestcs
             if (blend)
             {
                 col.A = endAlpha;
+                if (c2_ == null)
+                    col2.A = endAlpha;
+            }
+
+            if (startAngle != 0f)
+            {
+                res[pos++] =
+                    startAngle > 0
+                        ? new Vertex(a - w * edge / 2 - dir * w * (float) Math.Tan(startAngle), outsideInvert ? col : col2)
+                        : new Vertex(a + w * edge / 2 - dir * w * (float) Math.Tan(-startAngle), outsideInvert ? col2 : col);
             }
 
             res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? col : col2);
@@ -135,7 +151,10 @@ namespace phytestcs
 
                 if (blend)
                 {
-                    col.A = alpha(i);
+                    var al = alpha(i);
+                    col.A = al;
+                    if (c2_ == null)
+                        col2.A = al;
                 }
 
                 res[pos++] = new Vertex(p1 - length * miter, outsideInvert ? col : col2);
@@ -145,6 +164,14 @@ namespace phytestcs
             a = points[end - 1];
             res[pos++] = new Vertex(a - w * edge / 2, outsideInvert ? c : c2);
             res[pos++] = new Vertex(a + w * edge / 2, outsideInvert ? c2 : c);
+            
+            if (endAngle != 0f)
+            {
+                res[pos++] =
+                    endAngle > 0
+                        ? new Vertex(a - w * edge / 2 + dir * w * (float) Math.Tan(endAngle), outsideInvert ? c : c2)
+                        : new Vertex(a + w * edge / 2 + dir * w * (float) Math.Tan(-endAngle), outsideInvert ? c2 : c);
+            }
 
             return res;
         }

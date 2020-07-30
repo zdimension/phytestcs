@@ -46,7 +46,7 @@ namespace phytestcs
         {
             CurrentPalette = Palette.Default;
 
-            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "jeu", Styles.Default,
+            Render.Window = new RenderWindow(new VideoMode(Render.Width, Render.Height), "physics", Styles.Default,
                 new ContextSettings { AntialiasingLevel = 4 });
             //Render.Window.SetVerticalSyncEnabled(true);
             //Window.SetFramerateLimit(240);

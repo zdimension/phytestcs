@@ -10,7 +10,7 @@ namespace phytestcs
             var points = new Vector2f[s.GetPointCount()];
             for (uint i = 0; i < points.Length; i++)
             {
-                points[i] = s.GetPoint(i);
+                points[i] = s.GetPoint(i) - s.Origin;
             }
 
             return points;

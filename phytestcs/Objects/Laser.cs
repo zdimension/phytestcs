@@ -179,7 +179,7 @@ namespace phytestcs.Objects
             {
                 var (start, end) = (laserRay.Start, laserRay.GetEndClipped());
                 var dir = end - start;
-                var newThick = laserRay.Thickness / 3;
+                var newThick = laserRay.Thickness * Simulation.LaserFuzziness / 2;
                 var norm = dir.Ortho().Normalize() * newThick;
                 var inside = laserRay.Color;
                 var outside = new Color(laserRay.Color) { A = 0 };

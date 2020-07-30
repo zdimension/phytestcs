@@ -44,6 +44,8 @@ namespace phytestcs.Objects
         private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)> _hits =
             new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)>();
 
+        public const float StrengthEpsilon = 0.9f / 255f;
+
         public override void UpdatePhysics(float dt)
         {
             base.UpdatePhysics(dt);
@@ -62,7 +64,7 @@ namespace phytestcs.Objects
                     if (depth > 100 || Rays.Count >= Program.NumRays)
                         return;
 
-                    if (ray.Color.A == 0)
+                    if (ray.Strength <= StrengthEpsilon)
                         return;
 
                     Rays.Add(ray);
@@ -130,7 +132,7 @@ namespace phytestcs.Objects
                         var opacityReflected = 1 - opacityRefracted;
 
                         var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
-                            ray.EndColor.MultiplyAlpha(opacityReflected), LaserThickness, ray.EndDistance,
+                            ray.Color, (float) (ray.EndStrength * opacityReflected), LaserThickness, ray.EndDistance,
                             ray.RefractiveIndex, this);
                         reflectedRay.Source = ray;
                         ShootRay(reflectedRay, depth + 1);
@@ -146,9 +148,8 @@ namespace phytestcs.Objects
                             normalAngle +
                             (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / newIndex) +
                             (float) Math.PI;
-                        var newColor = ray.EndColor;
-                        newColor.A = (byte) (opacityRefracted * newColor.A * (255 - minObj.Color.A) / 255d);
-                        var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, newColor,
+                        var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity, ray.Color,
+                            (float) (opacityRefracted * ray.EndStrength * (255 - minObj.Color.A) / 255d),
                             LaserThickness, ray.EndDistance, newIndex, this);
                         refractedRay.DebugInfo = "ref ";
                         refractedRay.Source = ray;
@@ -156,7 +157,7 @@ namespace phytestcs.Objects
                     }
                 }
 
-                var initial = new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color,
+                var initial = new LaserRay(LaserStartingPoint, ActualAngle, float.PositiveInfinity, Color, 1,
                     LaserThickness, 0,
                     Object?.RefractiveIndex ?? 1, this);
                 ShootRay(initial);
@@ -212,13 +213,14 @@ namespace phytestcs.Objects
 
     public class LaserRay
     {
-        public LaserRay(Vector2f start, float angle, float length, Color color, float thickness, float startDistance,
+        public LaserRay(Vector2f start, float angle, float length, Color color, float strength, float thickness, float startDistance,
             float refrac, Laser parent)
         {
             Start = start;
             Angle = angle;
             Length = length;
-            Color = color;
+            Strength = strength * Simulation.LaserSuperBoost;
+            Color = new Color(color) { A = (byte) Math.Min(255, strength * 255) };
             Thickness = thickness;
             StartDistance = startDistance;
             RefractiveIndex = refrac;
@@ -231,8 +233,10 @@ namespace phytestcs.Objects
         public float Length { get; set; }
 
         //public Vector2f End => Start + Tools.FromPolar(Length, Angle);
+        public float Strength { get; set; }
         public Color Color { get; set; }
-        public byte EndAlpha => (byte) Math.Max(0, Color.A * (1 - Length / (Parent.FadeDistance - StartDistance)));
+        public float EndStrength => Math.Max(0, Strength * (1 - Length / (Parent.FadeDistance - StartDistance)));
+        public byte EndAlpha => (byte) Math.Min(255, EndStrength * 255);
         public Color EndColor => new Color(Color) { A = EndAlpha };
         public float Thickness { get; set; }
         public float StartDistance { get; set; }

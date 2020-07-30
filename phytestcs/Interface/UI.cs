@@ -104,8 +104,8 @@ namespace phytestcs.Interface
                 btn.Clicked += async delegate
                 {
                     wnd.Close();
-                    Program.CurrentPalette = palette;
                     await Scene.New().ConfigureAwait(true);
+                    Program.CurrentPalette = palette;
                 };
                 wnd.Add(btn);
             }

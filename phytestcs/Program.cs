@@ -61,7 +61,7 @@ namespace phytestcs
             Camera.Center();
             Camera.CalculateWindow();
 
-            Render.Statistics = new Text("", Ui.Font, 20);
+            Render.Statistics = new Text("", Ui.Font, 14);
 
             Render.Window.Closed += Window_Closed;
             Render.Window.Resized += Window_Resized;

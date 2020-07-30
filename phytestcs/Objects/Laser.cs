@@ -144,6 +144,7 @@ namespace phytestcs.Objects
                         if (float.IsPositiveInfinity(minObj.RefractiveIndex)) return;
 
                         var newIndex = insideObject ? 1 : minObj.RefractiveIndex;
+                        newIndex += (float)(1.206e-4d * (((HSVA) ray.Color).H - 180) * (newIndex * newIndex));
                         var refractionAngle =
                             normalAngle +
                             (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / newIndex) +

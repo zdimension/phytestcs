@@ -31,7 +31,7 @@ namespace phytestcs.Objects
             }
         }
 
-        private float LaserThickness => Size * Simulation.LaserWidth;
+        private float LaserThickness => Size * Simulation.LaserWidth / 2;
         private Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
 
         [ObjProp("Fade distance", "m", shortName:"d")]
@@ -213,11 +213,16 @@ namespace phytestcs.Objects
             var cache = Rays.ToArrayLocked();
 
             foreach (var laserRay in cache)
+            var thicknessFactor = Math.Pow(Simulation.LaserFuzziness, 2) * 0.9f + 1; 
+            
             {
                 var (start, end) = (laserRay.Start, laserRay.GetEndClipped());
                 var dir = end - start;
+                var realThick = laserRay.Thickness * thicknessFactor;
+                var centerThick = (1 - Simulation.LaserFuzziness) * realThick;
+                var outerThick = (float)(realThick - centerThick);
                 var newThick = laserRay.Thickness * Simulation.LaserFuzziness / 2;
-                var norm = dir.Ortho().Normalize() * newThick;
+                var norm = dir.Ortho().Normalize() * (float)(realThick / 2);
                 var inside = laserRay.Color;
                 var outside = new Color(laserRay.Color) { A = 0 };
                 var endAlpha = laserRay.EndAlpha;
@@ -226,19 +231,19 @@ namespace phytestcs.Objects
                 {
                     end + norm,
                     start + norm
-                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside), new RenderStates(BlendMode.Add));
+                }, inside, outerThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside), new RenderStates(BlendMode.Add));
                 
                 Render.Window.Draw(Tools.VertexLineTri(new[]
                 {
                     end,
                     start
-                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true), new RenderStates(BlendMode.Add));
+                }, inside, (float) centerThick, true, endAlpha: endAlpha, blendLin: true, startAngle: laserRay.IncidenceAngle, endAngle:laserRay.SourceAngle), new RenderStates(BlendMode.Add));
                 
                 Render.Window.Draw(Tools.VertexLineTri(new[]
                 {
                     end - norm,
                     start - norm
-                }, inside, newThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true), new RenderStates(BlendMode.Add));
+                }, inside, outerThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true), new RenderStates(BlendMode.Add));
             }
 
             Render.NumRays += cache.Length;
@@ -283,6 +288,8 @@ namespace phytestcs.Objects
         public string? DebugInfo { get; set; }
         public LaserRay? Source { get; set; }
         public Laser Parent { get; set; }
+        public float IncidenceAngle { get; set; }
+        public float SourceAngle { get; set; }
 
         public Vector2f GetEndClipped()
         {

@@ -31,7 +31,7 @@ namespace phytestcs.Objects
             }
         }
 
-        private float LaserThickness => Size / 6;
+        private float LaserThickness => Size * Simulation.LaserWidth;
         private Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
 
         [ObjProp("Fade distance", "m", shortName:"d")]

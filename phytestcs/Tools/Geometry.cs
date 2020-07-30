@@ -71,5 +71,12 @@ namespace phytestcs
 
             return false;
         }
+
+        public static T[] Wrap<T>(this T[] arr)
+        {
+            Array.Resize(ref arr, arr.Length + 1);
+            arr[^1] = arr[0];
+            return arr;
+        }
     }
 }

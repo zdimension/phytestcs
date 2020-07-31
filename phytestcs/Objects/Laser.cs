@@ -127,13 +127,15 @@ namespace phytestcs.Objects
                         var reflectedAngle = normalAngle - incidenceAngle;
 
                         ray.DebugInfo += $"i={incidenceAngle.Degrees(),6:F3}° D={minDist:F8}m";
+                        ray.IncidenceAngle = incidenceAngle;
 
                         var opacityRefracted = Math.Exp(-Math.Log10(minObj!.RefractiveIndex));
                         var opacityReflected = 1 - opacityRefracted;
 
                         var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
-                            ray.Color, (float) (ray.EndStrength * opacityReflected), LaserThickness, ray.EndDistance,
+                            ray.Color, (float) (ray.EndStrength * opacityReflected), ray.Thickness, ray.EndDistance,
                             ray.RefractiveIndex, this);
+                        reflectedRay.SourceAngle = (float) (incidenceAngle);
                         reflectedRay.Source = ray;
                         ShootRay(reflectedRay, depth + 1);
 
@@ -160,6 +162,12 @@ namespace phytestcs.Objects
                         var refractionStrength = opacityRefracted * ray.EndStrength * (255 - minObj.Color.A) / 255d;
                         var rainbowStrength = refractionStrength * (1 - ray.ColorHsva.S) * Simulation.RainbowSplitMult;
                         refractionStrength *= ray.ColorHsva.S;
+                        
+                        var sideAngle = normalAngle + Math.PI / 2;
+                        float refractionThickness(float angle)
+                        {
+                            return (float) (ray.Thickness * Math.Sin(angle - sideAngle) / Math.Cos(sideAngle - ray.Angle + Math.PI / 2));
+                        }
 
                         if (refractionStrength > 0)
                         {
@@ -169,7 +177,8 @@ namespace phytestcs.Objects
                             var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity,
                                 ray.Color,
                                 (float) refractionStrength,
-                                LaserThickness, ray.EndDistance, refIndex, this);
+                                refractionThickness(refractionAngle), ray.EndDistance, refIndex, this);
+                            refractedRay.SourceAngle = normalAngle - refractionAngle;
                             refractedRay.DebugInfo = "ref ";
                             refractedRay.Source = ray;
                             ShootRay(refractedRay, depth + 1);
@@ -182,9 +191,11 @@ namespace phytestcs.Objects
                             {
                                 color.H = 180d * (2 * i + 1) / Simulation.NumColorsInRainbow;
                                 var rainbowIndex = GetIndex(color.H);
-                                var rainbowRay = new LaserRay(minInter, GetAngle(rainbowIndex), float.PositiveInfinity, color,
+                                var angle = GetAngle(rainbowIndex);
+                                var rainbowRay = new LaserRay(minInter, angle, float.PositiveInfinity, color,
                                     (float) rainbowStrength,
-                                    LaserThickness, ray.EndDistance, rainbowIndex, this);
+                                    refractionThickness(angle), ray.EndDistance, rainbowIndex, this);
+                                rainbowRay.SourceAngle = normalAngle - angle;
                                 rainbowRay.DebugInfo = "rainbow";
                                 rainbowRay.Source = ray;
                                 ShootRay(rainbowRay, depth + 1);

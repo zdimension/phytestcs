@@ -119,6 +119,8 @@ namespace phytestcs
             set => _laserFuzziness = value.Clamp(0, 1);
         }
 
+        public static bool PointyLasers { get; set; } = true;
+
         public static float LaserWidth { get; set; } = 0.2f;
 
         [ObjProp("Simulation speed", "x")]

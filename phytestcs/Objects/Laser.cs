@@ -222,39 +222,47 @@ namespace phytestcs.Objects
             base.Draw();
 
             var cache = Rays.ToArrayLocked();
+            var thicknessFactor = Math.Pow(Simulation.LaserFuzziness, 2) * 0.9f + 1;
 
             foreach (var laserRay in cache)
-            var thicknessFactor = Math.Pow(Simulation.LaserFuzziness, 2) * 0.9f + 1; 
-            
             {
                 var (start, end) = (laserRay.Start, laserRay.GetEndClipped());
                 var dir = end - start;
+                var dirN = dir.Normalize();
                 var realThick = laserRay.Thickness * thicknessFactor;
                 var centerThick = (1 - Simulation.LaserFuzziness) * realThick;
-                var outerThick = (float)(realThick - centerThick);
-                var newThick = laserRay.Thickness * Simulation.LaserFuzziness / 2;
-                var norm = dir.Ortho().Normalize() * (float)(realThick / 2);
+                var outerThick = (float) (realThick - centerThick);
+                var halfThick = (float) (realThick / 2);
+                var norm = dir.Ortho().Normalize() * halfThick;
                 var inside = laserRay.Color;
                 var outside = new Color(laserRay.Color) { A = 0 };
                 var endAlpha = laserRay.EndAlpha;
+                var startDiff = dirN * (float) (halfThick * Math.Tan(laserRay.SourceAngle));
+                var endDiff = dirN * (float) (halfThick * Math.Tan(laserRay.IncidenceAngle));
 
                 Render.Window.Draw(Tools.VertexLineTri(new[]
-                {
-                    end + norm,
-                    start + norm
-                }, inside, outerThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside), new RenderStates(BlendMode.Add));
-                
+                    {
+                        end + norm - endDiff,
+                        start + norm + startDiff
+                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, c2_: outside,
+                    startAngle: laserRay.IncidenceAngle, endAngle: laserRay.SourceAngle,
+                    squaryEnd: !Simulation.PointyLasers), new RenderStates(BlendMode.Add));
+
                 Render.Window.Draw(Tools.VertexLineTri(new[]
-                {
-                    end,
-                    start
-                }, inside, (float) centerThick, true, endAlpha: endAlpha, blendLin: true, startAngle: laserRay.IncidenceAngle, endAngle:laserRay.SourceAngle), new RenderStates(BlendMode.Add));
-                
+                    {
+                        end,
+                        start
+                    }, inside, (float) centerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp,
+                    startAngle: laserRay.IncidenceAngle, endAngle: laserRay.SourceAngle,
+                    squaryEnd: !Simulation.PointyLasers), new RenderStates(BlendMode.Add));
+
                 Render.Window.Draw(Tools.VertexLineTri(new[]
-                {
-                    end - norm,
-                    start - norm
-                }, inside, outerThick, true, endAlpha: endAlpha, blendLin: true, c2_: outside, outsideInvert: true), new RenderStates(BlendMode.Add));
+                    {
+                        end - norm + endDiff,
+                        start - norm - startDiff
+                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, c2_: outside,
+                    outsideInvert: true, startAngle: laserRay.IncidenceAngle, endAngle: laserRay.SourceAngle,
+                    squaryEnd: !Simulation.PointyLasers), new RenderStates(BlendMode.Add));
             }
 
             Render.NumRays += cache.Length;

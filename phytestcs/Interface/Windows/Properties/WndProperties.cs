@@ -29,6 +29,7 @@ namespace phytestcs.Interface.Windows.Properties
             var windows = new[]
             {
                 (typeof(WndPlot), L["Plot"], "icons/small/plot.png"),
+                (typeof(WndSelection), L["Selection"], "icons/small/settings.png"),
                 (typeof(WndAppearance), L["Appearance"], "icons/small/appearance.png"),
                 // text
                 (typeof(WndMaterial), L["Material"], "icons/small/settings.png"),

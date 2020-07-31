@@ -35,12 +35,34 @@ namespace phytestcs
 
         public static Object[] WorldCache = null;
         public static PhysicalObject[] WorldCachePhy = null;
+        public static Object[] WorldCacheNonLaser = null;
         private static float _laserFuzziness = 0.7f;
         private static int _numColorsInRainbow = 12;
 
         static Simulation()
         {
             UpdateGravity();
+        }
+
+        public static void SortZDepth()
+        {
+            lock (World.SyncRoot)
+            {
+                int j;
+                Object temp;
+                for (int i = 1; i <= World.Count - 1; i++)
+                {
+                    temp = World[i];
+                    j = i - 1;
+                    while (j >= 0 && !(temp is Laser) && (World[j].ZDepth > temp.ZDepth || World[j] is Laser))
+                    {
+                        World[j + 1] = World[j];
+                        j--;
+                    }
+
+                    World[j + 1] = temp;
+                }
+            }
         }
 
         [ObjProp("Gravity strength", "m/s²")]
@@ -140,6 +162,7 @@ namespace phytestcs
         {
             World.Add(obj);
             obj.OnSpawn.Invoke(new BaseEventArgs(obj));
+            SortZDepth();
         }
 
         public static T Add<T>(T obj)
@@ -202,6 +225,7 @@ namespace phytestcs
         {
             WorldCache = World.ToArrayLocked();
             WorldCachePhy = WorldCache.OfType<PhysicalObject>().ToArray();
+            WorldCacheNonLaser = WorldCache.Where(x => !(x is Laser)).ToArray();
 
             AttractorsCache = WorldCachePhy.Where(o => o.Attraction != 0f).ToArray();
 

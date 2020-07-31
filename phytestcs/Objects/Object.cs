@@ -77,6 +77,16 @@ namespace phytestcs.Objects
             }
         }
 
+        public float ZDepth
+        {
+            get => _zDepth;
+            set
+            {
+                _zDepth = value; 
+                Simulation.SortZDepth();
+            }
+        }
+
         public IReadOnlyList<Object> Parents => _parents.ToList().AsReadOnly();
 
         public IReadOnlyList<Object> Dependents => _dependents.ToList().AsReadOnly();
@@ -152,6 +162,7 @@ namespace phytestcs.Objects
         }
 
         private bool _updating = false;
+        private float _zDepth = 1;
 
         public virtual void UpdatePhysics(float dt)
         {

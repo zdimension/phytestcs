@@ -102,8 +102,14 @@ namespace phytestcs
             var b = points[1];
             var dir = (b - a).Normalize();
             var edge = dir.Ortho();
+            
             if (outsideInvert)
+            {
                 edge = -edge;
+                startAngle = -startAngle;
+                endAngle = -endAngle;
+            }
+
             var end = points.Length;
             if (upto != null)
                 end = Math.Min(upto.Value, points.Length);

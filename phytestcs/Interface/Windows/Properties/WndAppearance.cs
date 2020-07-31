@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -20,6 +21,10 @@ namespace phytestcs.Interface.Windows.Properties
         private static readonly Color BackColor = new Color(30, 30, 30);
         private readonly Image RenderImg = new Image(totalSize + 2 * margin + 10, sqSize + 2 * margin, BackColor);
         private static readonly Image HueImg = new Image(hueWidth, sqSize);
+        private const int absorbHeight = 80;
+        private const float hueFacHoriz = 360f / hueWidthHoriz;
+        public const int hueWidthHoriz = 250 - 2 * margin;
+        private static readonly Image HueImgHoriz = new Image(hueWidthHoriz, absorbHeight);
 
         public static readonly Color SelectorOutline = new Color(255, 255, 255, 192);
         private readonly RectangleShape _hueSelector = new RectangleShape(new Vector2f(hueWidth, 4))
@@ -27,6 +32,9 @@ namespace phytestcs.Interface.Windows.Properties
         
         private readonly RectangleShape _colorSelector = new RectangleShape(new Vector2f(8, 8))
             { OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent, Origin = new Vector2f(4, 4)};
+
+        private readonly Image _absorbanceImg;
+
         static WndAppearance()
         {
             for (uint y = 0; y < sqSize; y++)
@@ -34,6 +42,13 @@ namespace phytestcs.Interface.Windows.Properties
                 var col = new HSVA(y * hueFac, 1, 1, 1);
                 for (uint x = 0; x < hueWidth; x++)
                     HueImg.SetPixel(x, y, col);
+            }
+            
+            for (uint x = 0; x < hueWidthHoriz; x++)
+            {
+                var col = new HSVA(x * hueFacHoriz, 1, 1, 1);
+                for (uint y = 0; y < absorbHeight; y++)
+                    HueImgHoriz.SetPixel(x, y, col);
             }
         }
         
@@ -122,7 +137,7 @@ namespace phytestcs.Interface.Windows.Properties
                             if (x <= hueWidth)
                                 wrapper.H = y * hueFac;
                             else if (x >= offset)
-                                wrapper.Value = RenderImg.GetPixel(margin + (uint) x, margin + (uint) y);
+                                wrapper.Value = new Color(RenderImg.GetPixel(margin + (uint) x, margin + (uint) y)){A=wrapper.A};
                         }
                     }
 
@@ -159,6 +174,64 @@ namespace phytestcs.Interface.Windows.Properties
             };
 
             Add(btnRandom);
+
+            if (obj is PhysicalObject phy)
+            {
+                Add(new NumberField<float>(30, 2000, bindProp: () => phy.ColorFilterWidth, log: true) { RightValue = float.PositiveInfinity });
+                
+                _absorbanceImg = new Image(250, absorbHeight + 2 * margin, BackColor);
+                
+                var absorbance = new Canvas();
+                absorbance.SizeLayout = new Layout2d(_absorbanceImg.Size.X, _absorbanceImg.Size.Y);
+                absorbance.Clear(BackColor);
+
+                Add(absorbance);
+
+                IntPtr oldPointerAbs = default;
+                
+                var oldHue = -1d;
+                var oldWidth = -1f;
+
+                void DrawAbsorbance()
+                {
+                    oldHue = wrapper.H;
+                    oldWidth = phy.ColorFilterWidth;
+                    
+                    var tex = absorbance.RenderTexture();
+                    oldPointerAbs = tex.CPointer;
+
+                    absorbance.Clear(BackColor);
+                    
+                    _absorbanceImg.Copy(HueImgHoriz, margin, margin);
+
+                    var objHue = phy.ColorHsva.H;
+                    for (uint x = 0; x < hueWidthHoriz; x++)
+                    {
+                        var transmittance = (int)((1 - Transmittance(x * hueFacHoriz, objHue, phy.ColorFilterWidth)) * absorbHeight) + 1;
+                        for (uint y = 0; y < transmittance; y++)
+                        {
+                            _absorbanceImg.SetPixel(margin + x, margin + y, BackColor);
+                        }
+                    }
+                    
+                    tex.Texture.Update(_absorbanceImg);
+                }
+                
+                void UpdateAbsorbance()
+                {
+                    if (wrapper.H != oldHue || phy.ColorFilterWidth != oldWidth || absorbance.RenderTexture().CPointer != oldPointerAbs)
+                        DrawAbsorbance();
+                }
+                
+                DrawAbsorbance();
+                
+                Ui.Drawn += UpdateAbsorbance;
+
+                Closed += delegate
+                {
+                    Ui.Drawn -= UpdateAbsorbance;
+                };
+            }
 
             Show();
         }

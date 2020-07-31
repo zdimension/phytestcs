@@ -10,7 +10,6 @@ namespace phytestcs.Interface.Windows.Properties
         {
             Add(new NumberField<float>(0.01f, 100, bindProp: () => obj.AirFrictionMultiplier, log: true) { LeftValue = 0 });
             Add(new NumberField<float>(0.01f, 100, bindProp: () => obj.InertiaMultiplier, log: true) { LeftValue = 0 });
-            Add(new NumberField<float>(30, 2000, bindProp: () => obj.ColorFilterWidth, log: true) { RightValue = float.PositiveInfinity });
 
             Show();
         }

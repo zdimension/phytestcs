@@ -376,7 +376,7 @@ namespace phytestcs.Objects
 
         public bool ColorFilter => !float.IsPositiveInfinity(ColorFilterWidth);
         
-        [ObjProp("Width of the color absorbance peak")]
+        [ObjProp("Filter tolerance", "°")]
         public float ColorFilterWidth { get; set; } = float.PositiveInfinity;
 
         private void UpdatePosition()

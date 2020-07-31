@@ -83,6 +83,11 @@ namespace phytestcs
         {
             return default!;
         }
+
+        public static double Transmittance(double hue, double obj, float width)
+        {
+            return Math.Exp(-Math.Pow((hue - obj) / width, 2));
+        }
     }
 
     public class Ref<T>

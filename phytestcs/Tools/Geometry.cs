@@ -20,9 +20,7 @@ namespace phytestcs
                     points = points.Wrap();
                     var area = 0f;
                     for (var i = 0; i < pcount; i++)
-                    {
                         area += points[i].Cross(points[i + 1]);
-                    }
 
                     return area;
             }
@@ -103,6 +101,7 @@ namespace phytestcs
                 top += weight * (a.Dot(a) + a.Dot(b) + b.Dot(b));
                 bottom += weight;
             }
+
             return top / (6 * bottom);
         }
 

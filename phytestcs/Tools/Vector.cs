@@ -10,7 +10,7 @@ namespace phytestcs
     public static partial class Tools
     {
         /// <summary>
-        /// Creates a vector from its polar form
+        ///     Creates a vector from its polar form
         /// </summary>
         /// <param name="r">Magnitude</param>
         /// <param name="theta">Angle</param>
@@ -23,7 +23,7 @@ namespace phytestcs
         public static Vector2f Normalize(this Vector2f vec)
         {
             var n = vec.Norm();
-            if (Single.IsNaN(n)) return default;
+            if (float.IsNaN(n)) return default;
             return new Vector2f(vec.X / n, vec.Y / n);
         }
 

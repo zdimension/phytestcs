@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using TGUI;
 
 namespace phytestcs.Interface
 {
     public class NumberField<T> : Panel
     {
+        private readonly PropConverter<T, float>? _converter;
         private readonly Func<T>? _getter;
         private readonly Action<T>? _setter;
-        private readonly PropConverter<T, float>? _converter;
 
         private float? _oldLoadedVal;
         private bool _uiLoading;
@@ -19,15 +18,16 @@ namespace phytestcs.Interface
         public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
             bool deci = true,
             Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor=1, bool inline=false, int? round=null)
-            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor, inline, round)
+            PropConverter<T, float> conv = null, float factor = 1, bool inline = false, int? round = null)
+            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor,
+                inline, round)
         {
         }
 
         public NumberField(float min, float max, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
             PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor=1, bool inline=false, int? round=2)
+            PropConverter<T, float> conv = null, float factor = 1, bool inline = false, int? round = 2)
         {
             Log = log;
             Factor = factor;
@@ -102,13 +102,9 @@ namespace phytestcs.Interface
 
             float smin, smax;
             if (Log)
-            {
                 (smin, smax) = ((float) Math.Log10(min), (float) Math.Log10(max));
-            }
             else
-            {
                 (smin, smax) = (min, max);
-            }
 
             Slider = new Slider(smin, smax);
             if (!Log)
@@ -139,9 +135,7 @@ namespace phytestcs.Interface
                 else
                 {
                     if (Log)
-                    {
                         sv = (float) Math.Round(Math.Pow(10, sv), arr);
-                    }
                 }
 
                 Value = sv;
@@ -186,7 +180,7 @@ namespace phytestcs.Interface
             Slider.Value = Log ? (float) Math.Log10(val) : val;
             _uiLoading = false;
             if (Round != null)
-                val = (float)Math.Round(val, Round.Value);
+                val = (float) Math.Round(val, Round.Value);
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
         }
 

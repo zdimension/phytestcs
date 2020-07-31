@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -60,6 +57,8 @@ namespace phytestcs.Interface.Windows.Properties
         private readonly Canvas _canvas = new Canvas(LGraphe, Hauteur);
 
         private readonly View _canvasView;
+
+        private readonly ComboBox _drop;
         private readonly SynchronizedCollection<Vector2f> _points = new SynchronizedCollection<Vector2f>();
 
         private readonly Text _textInt = new Text("", Ui.Font, 14)
@@ -67,7 +66,7 @@ namespace phytestcs.Interface.Windows.Properties
             FillColor = Color.White
         };
 
-        private readonly ComboBox _drop;
+        private Func<PhysicalObject, float>? _customExpr;
         private float _plotStart;
 
         static WndPlot()
@@ -114,9 +113,7 @@ namespace phytestcs.Interface.Windows.Properties
             _drop.AddItem($"** {L["Custom"]} **");
 
             foreach (var p in Props)
-            {
                 _drop.AddItem(p.Item1);
-            }
 
             _drop.PositionLayout = new Layout2d(MargeX, HauteurLigne);
             _drop.SizeLayout = new Layout2d(LargeurBtn, HauteurBtn);
@@ -137,7 +134,7 @@ namespace phytestcs.Interface.Windows.Properties
 
             Simulation.AfterUpdate += UpdatePlot;
             Ui.Drawn += DrawPlot;
-            
+
             var btnCsv = new BitmapButton(L["Export to CSV"])
             {
                 Image = new Texture("icons/small/csv.png"),
@@ -145,8 +142,8 @@ namespace phytestcs.Interface.Windows.Properties
                 PositionLayout = new Layout2d(MargeX, 2 * HauteurLigne)
             };
             hl.Add(btnCsv);
-            
-            var txtCustom = new TextBox()
+
+            var txtCustom = new TextBox
             {
                 SizeLayout = new Layout2d(LargeurBtn, HauteurBtn),
                 PositionLayout = new Layout2d(MargeX, 3 * HauteurLigne),
@@ -169,13 +166,14 @@ namespace phytestcs.Interface.Windows.Properties
                 {
                     _customExpr = $"o=>({txtCustom.Text})".Eval<Func<PhysicalObject, float>>(globals: Object).Result;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
+
                 ClearPlot();
             };
-            
+
             _drop.ItemSelected += delegate
             {
                 txtCustom.Visible = btnApplyCustom.Visible = true;
@@ -195,14 +193,6 @@ namespace phytestcs.Interface.Windows.Properties
             };
         }
 
-        private void ClearPlot()
-        {
-            _plotStart = Simulation.SimDuration;
-            _points.Clear();
-        }
-
-        private Func<PhysicalObject, float>? _customExpr = null;
-        
         private (string, ObjPropAttribute?, Func<PhysicalObject, float>?) _currentLine
         {
             get
@@ -212,6 +202,12 @@ namespace phytestcs.Interface.Windows.Properties
                     return ("y", null, _customExpr);
                 return Props[idx - 1];
             }
+        }
+
+        private void ClearPlot()
+        {
+            _plotStart = Simulation.SimDuration;
+            _points.Clear();
         }
 
         private void UpdatePlot()
@@ -232,7 +228,8 @@ namespace phytestcs.Interface.Windows.Properties
             for (var i = 0; i < xLines; i++)
             {
                 var x = (i - 1) * xFact;
-                xGrid[2 * i + 0] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
+                xGrid[2 * i + 0] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2),
+                    ColGrille);
                 xGrid[2 * i + 1] =
                     new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
             }
@@ -248,8 +245,10 @@ namespace phytestcs.Interface.Windows.Properties
             for (var i = 0; i < yLines; i++)
             {
                 var y = minY + (i - 1) * -yFact + ySpan - offY;
-                yGrid[2 * i + 0] = new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X / 2, y), ColGrille);
-                yGrid[2 * i + 1] = new Vertex(new Vector2f(_canvasView.Center.X + _canvasView.Size.X / 2, y), ColGrille);
+                yGrid[2 * i + 0] =
+                    new Vertex(new Vector2f(_canvasView.Center.X - _canvasView.Size.X / 2, y), ColGrille);
+                yGrid[2 * i + 1] =
+                    new Vertex(new Vector2f(_canvasView.Center.X + _canvasView.Size.X / 2, y), ColGrille);
             }
 
             _canvas.Draw(yGrid, PrimitiveType.Lines);
@@ -280,9 +279,9 @@ namespace phytestcs.Interface.Windows.Properties
                 _canvas.View = _canvasView;
 
                 {
-                    var zoomY = (_canvas.Size.Y / Marge) / taille.Y;
+                    var zoomY = _canvas.Size.Y / Marge / taille.Y;
                     var (fY, _) = Render.CalculateRuler(zoomY, 10);
-                    var zoomX = (_canvas.Size.X / Marge) / taille.X;
+                    var zoomX = _canvas.Size.X / Marge / taille.X;
                     var (fX, _) = Render.CalculateRuler(zoomX, 10);
 
                     var fdX = (decimal) fX;
@@ -299,7 +298,7 @@ namespace phytestcs.Interface.Windows.Properties
                         byte a = 40;
                         if (Math.Abs(coord) < factor)
                         {
-                            w = (int) Math.Round(6 / zoom * 45 / (float)factor);
+                            w = (int) Math.Round(6 / zoom * 45 / (float) factor);
                             a = 160;
                         }
                         else if (coord % (5 * factor) == 0)
@@ -318,7 +317,7 @@ namespace phytestcs.Interface.Windows.Properties
                                 continue;
 
                             var (w, a) = thickness(zoomX, fdX, x);
-                            lines.AddRange(Tools.VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
+                            lines.AddRange(VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
                                 new Color(255, 255, 255, a), w * fX / 100));
                         }
 
@@ -329,13 +328,13 @@ namespace phytestcs.Interface.Windows.Properties
                                 continue;
 
                             var (h, a) = thickness(zoomY, fdY, y);
-                            lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
+                            lines.AddRange(VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
                                 new Color(255, 255, 255, a), h * fY / 100));
                         }
 
                     _canvas.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
                 }
-                
+
                 //DrawPlotGrid(minY, maxY);
 
                 _canvas.Draw(new[]
@@ -357,10 +356,8 @@ namespace phytestcs.Interface.Windows.Properties
                     {
                         int k;
                         for (k = 0; k < cache.Length; k++)
-                        {
                             if (cache[k].X > rpos.X)
                                 break;
-                        }
 
                         if (k > 0)
                         {
@@ -398,7 +395,7 @@ namespace phytestcs.Interface.Windows.Properties
                                     new Vertex(new Vector2f(cache[k].X - 10, deriv * (cache[k].X - 10) + cB),
                                         colDeriv),
                                     new Vertex(new Vector2f(cache[k].X + 10, deriv * (cache[k].X + 10) + cB),
-                                        colDeriv),
+                                        colDeriv)
                                 };
 
                                 _canvas.Draw(lignes, PrimitiveType.Lines);
@@ -453,9 +450,7 @@ dy/dx = {-deriv,6:F2} {_currentLine.Item2?.UnitDeriv ?? ""}";
             lock (_points.SyncRoot)
             {
                 foreach (var (x, y) in _points)
-                {
                     sb.AppendLine($"{x};{-y}");
-                }
             }
 
             File.WriteAllText(sfd.FileName, sb.ToString());

@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
-using Object = phytestcs.Objects.Object;
 using static phytestcs.Tools;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
@@ -23,16 +21,6 @@ namespace phytestcs.Interface.Windows.Properties
             [typeof(bool)] = PropConverter.BoolString
         };
 
-        [Flags]
-        private enum PropType
-        {
-            Default = 1 << 0,
-            Property = 1 << 1,
-            Event = 1 << 2,
-            Writable = 1 << 3,
-            Computed = 1 << 4
-        }
-        
         public WndScript(Object obj, Vector2f pos)
             : base(obj, obj.Name, 440, pos)
         {
@@ -48,7 +36,7 @@ namespace phytestcs.Interface.Windows.Properties
             var drop = new ComboBox();
             foreach (var mode in modes)
                 drop.AddItem(mode.Key);
-            
+
             Add(drop);
 
             var fields = new List<(TextFieldBase, PropType)>();
@@ -79,17 +67,19 @@ namespace phytestcs.Interface.Windows.Properties
                     ptype |= PropType.Property;
                 }
                 else
+                {
                     continue;
+                }
 
                 if (prop.GetSetMethod() == null)
                     ptype |= PropType.Computed;
                 else
                     ptype |= PropType.Writable;
 
-                fields.Add(((TextFieldBase) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type), 
+                fields.Add(((TextFieldBase) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type),
                     propRef, prop.Name, converter)!, ptype));
             }
-            
+
             drop.ItemSelected += (sender, item) =>
             {
                 _children.Clear();
@@ -99,7 +89,6 @@ namespace phytestcs.Interface.Windows.Properties
                 var type = modes[item.Item];
                 var maxX = 0f;
                 foreach (var (w, t) in fields)
-                {
                     if ((t & type) == type)
                     {
                         w.NameLabel.AutoSize = true;
@@ -108,17 +97,24 @@ namespace phytestcs.Interface.Windows.Properties
                             maxX = width;
                         Add(w);
                     }
-                }
 
                 foreach (var (w, t) in fields)
-                {
                     w.NameWidth = maxX;
-                }
             };
-            
+
             drop.SetSelectedItemByIndex(0);
 
             Show();
+        }
+
+        [Flags]
+        private enum PropType
+        {
+            Default = 1 << 0,
+            Property = 1 << 1,
+            Event = 1 << 2,
+            Writable = 1 << 3,
+            Computed = 1 << 4
         }
     }
 }

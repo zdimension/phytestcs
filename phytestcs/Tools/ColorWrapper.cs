@@ -134,28 +134,18 @@ namespace phytestcs
             V = max;
             A = a;
             if (S == 0)
-            {
                 return;
-            }
 
             if (r == max)
-            {
                 H = (g - b) / delta;
-            }
             else if (g == max)
-            {
                 H = (b - r) / delta + 2.0;
-            }
             else if (b == max)
-            {
                 H = (r - g) / delta + 4.0;
-            }
 
             H *= 60.0;
             if (H < 0)
-            {
                 H += 360.0;
-            }
         }
 
         public Color ToColor()

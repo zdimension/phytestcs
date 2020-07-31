@@ -14,11 +14,12 @@ namespace phytestcs
 {
     public static class Render
     {
+        public const uint _rotCirclePointCount = 360;
         public static RectangleShape DrawRectangle = new RectangleShape();
         public static CircleShape DrawCircle = new CircleShape(1, _rotCirclePointCount);
         public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
-        public static int NumRays = 0;
+        public static int NumRays;
         public static Text Statistics;
         private static readonly Text PauseText = new Text("EN PAUSE", Ui.Font, 20) { FillColor = Color.Red };
 
@@ -31,8 +32,6 @@ namespace phytestcs
         public static uint Width = 900;
         public static uint Height = 550;
         public static RenderWindow Window;
-
-        public const uint _rotCirclePointCount = 360;
 
         public static readonly Vector2f[] _rotCirclePoints = (
             from i in Enumerable.Range(0, (int) _rotCirclePointCount)
@@ -100,7 +99,7 @@ namespace phytestcs
                     continue;
 
                 var (w, a) = thickness(x);
-                lines.AddRange(Tools.VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
+                lines.AddRange(VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
                     new Color(255, 255, 255, a), w * f / 100));
             }
 
@@ -110,7 +109,7 @@ namespace phytestcs
                     continue;
 
                 var (h, a) = thickness(y);
-                lines.AddRange(Tools.VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
+                lines.AddRange(VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
                     new Color(255, 255, 255, a), h * f / 100));
             }
 
@@ -127,7 +126,6 @@ namespace phytestcs
             Window.Draw(DrawSprite);
 
             if (press)
-            {
                 switch (Drawing.DrawMode)
                 {
                     case DrawingType.Rectangle:
@@ -158,7 +156,6 @@ namespace phytestcs
                         break;
                     }
                 }
-            }
         }
 
         public static void DrawGame()
@@ -167,25 +164,20 @@ namespace phytestcs
             NumRays = 0;
 
             foreach (var obj in WorldCache)
-            {
                 obj.Draw();
-            }
 
             if (ShowGrid)
                 DrawGrid();
 
             foreach (var obj in WorldCache)
-            {
                 obj.DrawOverlay();
-            }
         }
 
         public static void DrawStatistics()
         {
-            var ecin = Enumerable.Sum<Object>(Simulation.WorldCache,
-                o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
-            var epes = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as PhysicalObject)?.GravityEnergy ?? 0);
-            var eela = Enumerable.Sum<Object>(Simulation.WorldCache, o => (o as Spring)?.ElasticEnergy ?? 0);
+            var ecin = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.LinearKineticEnergy ?? 0);
+            var epes = Simulation.WorldCache.Sum(o => (o as PhysicalObject)?.GravityEnergy ?? 0);
+            var eela = Simulation.WorldCache.Sum(o => (o as Spring)?.ElasticEnergy ?? 0);
 
             var epot = epes + eela;
             var etot = epot + ecin;
@@ -229,10 +221,8 @@ m = {objPhy.Mass,7:F2} kg
 R = {objPhy.NetForce.Display()}
 ";
                         foreach (var force in objPhy.Forces.ToArrayLocked())
-                        {
                             Statistics.DisplayedString +=
                                 $"  - {force.Value.Display()} (TTL={force.TimeToLive,4:F3}) {force.Type.Name}\n";
-                        }
 
                         Statistics.DisplayedString +=
                             $@"
@@ -245,7 +235,7 @@ R = {objPhy.NetTorque,7:F2}
                     case Laser laser:
                     {
                         Statistics.DisplayedString +=
-                            $@"
+                            @"
 Laser
 Rayons :
 ";
@@ -283,9 +273,7 @@ Rayons :
             {
                 ruler = zoom * factor;
                 if (ruler < 0)
-                {
                     Debug.Assert(false);
-                }
 
                 if (ruler < min)
                     factor *= 10;
@@ -301,26 +289,24 @@ Rayons :
         public static void DrawGravityField()
         {
             for (var x = 15; x < Width; x += 50)
+            for (var y = 15; y < Height; y += 50)
             {
-                for (var y = 15; y < Height; y += 50)
+                var world = new Vector2i(x, y).ToWorld();
+                var gravity = Simulation.GravityField(world);
+                if (gravity == default)
+                    continue;
+                var pos = new Vector2f(x, y);
+                var twhite = new Color(255, 255, 255, 0);
+                var white = new Color(255, 255, 255, 180);
+                var trans = Transform.Identity;
+                trans.Rotate(-gravity.Angle().Degrees());
+                Window.Draw(new[]
                 {
-                    var world = new Vector2i(x, y).ToWorld();
-                    var gravity = Simulation.GravityField(world);
-                    if (gravity == default)
-                        continue;
-                    var pos = new Vector2f(x, y);
-                    var twhite = new Color(255, 255, 255, 0);
-                    var white = new Color(255, 255, 255, 180);
-                    var trans = Transform.Identity;
-                    trans.Rotate(-gravity.Angle().Degrees());
-                    Window.Draw(new[]
-                    {
-                        new Vertex(pos + trans.TransformPoint(new Vector2f(0, 2)), white),
-                        new Vertex(pos + trans.TransformPoint(new Vector2f(30, 2)), twhite),
-                        new Vertex(pos + trans.TransformPoint(new Vector2f(30, -2)), twhite),
-                        new Vertex(pos + trans.TransformPoint(new Vector2f(0, -2)), white)
-                    }, PrimitiveType.Quads);
-                }
+                    new Vertex(pos + trans.TransformPoint(new Vector2f(0, 2)), white),
+                    new Vertex(pos + trans.TransformPoint(new Vector2f(30, 2)), twhite),
+                    new Vertex(pos + trans.TransformPoint(new Vector2f(30, -2)), twhite),
+                    new Vertex(pos + trans.TransformPoint(new Vector2f(0, -2)), white)
+                }, PrimitiveType.Quads);
             }
         }
 
@@ -378,13 +364,13 @@ Rayons :
                     new Vertex(new Vector2f(d + Width - margin - r, d + Height - margin - 5), col),
                     new Vertex(new Vector2f(d + Width - margin - r, d + Height - margin + 5), col),
                     new Vertex(new Vector2f(d + Width - margin, d + Height - margin - 5), col),
-                    new Vertex(new Vector2f(d + Width - margin, d + Height - margin + 5), col),
+                    new Vertex(new Vector2f(d + Width - margin, d + Height - margin + 5), col)
                 }, PrimitiveType.Lines);
 
                 d--;
             }
 
-            DrawAxes(new Vector2f(margin, Height - margin), 30);
+            DrawAxes(new Vector2f(margin, Height - margin));
 
             txtScale.Position = new Vector2f(Width - margin - 3, Height - margin - 25);
             txtScale.Origin = new Vector2f(txtScale.GetLocalBounds().Width, 0);
@@ -424,7 +410,7 @@ Rayons :
                 var thick = 4 / Camera.Zoom;
 
                 Window.Draw(
-                    Tools.CircleOutline(
+                    CircleOutline(
                         Program._rotCircle.Position,
                         Program._rotCircle.Radius + Program._rotCircle.OutlineThickness,
                         thick,
@@ -432,7 +418,7 @@ Rayons :
                         curAngle));
 
                 Window.Draw(
-                    Tools.CircleSector(
+                    CircleSector(
                         Program._rotCircle.Position,
                         (Mouse.GetPosition(Window).ToWorld() - Program._rotCircle.Position).Norm(),
                         new Color(255, 0, 255, 100),

@@ -9,9 +9,7 @@ namespace phytestcs
         {
             var points = new Vector2f[s.GetPointCount()];
             for (uint i = 0; i < points.Length; i++)
-            {
                 points[i] = s.GetPoint(i) - s.Origin;
-            }
 
             return points;
         }
@@ -21,9 +19,7 @@ namespace phytestcs
             var t = s.Transform;
             var points = new Vector2f[s.GetPointCount()];
             for (uint i = 0; i < points.Length; i++)
-            {
                 points[i] = t.TransformPoint(s.GetPoint(i));
-            }
 
             return points;
         }
@@ -33,8 +29,8 @@ namespace phytestcs
         {
             static double isLeft(Vector2f p0, Vector2f p1, Vector2f p2)
             {
-                return ((p1.X - p0.X) * (p2.Y - p0.Y)
-                        - (p2.X - p0.X) * (p1.Y - p0.Y));
+                return (p1.X - p0.X) * (p2.Y - p0.Y)
+                       - (p2.X - p0.X) * (p1.Y - p0.Y);
             }
 
             var wn = 0; // the  winding number counter

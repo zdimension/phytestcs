@@ -9,7 +9,6 @@ using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
 using static phytestcs.Interface.Ui;
-using static phytestcs.Tools;
 using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
@@ -20,9 +19,9 @@ namespace phytestcs
 
         private static (DateTime, Vector2i) _lastMove;
 
-        public static bool _rotating = false;
-        public static bool _moving = false;
-        private static float _rotatingAngle = 0;
+        public static bool _rotating;
+        public static bool _moving;
+        private static float _rotatingAngle;
 
         public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount)
             { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
@@ -30,8 +29,8 @@ namespace phytestcs
         public static Text _rotText = new Text("", Ui.Font, 18)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
-        public static float _rotDeltaAngle = 0;
-        public static float _rotStartAngle = 0;
+        public static float _rotDeltaAngle;
+        public static float _rotStartAngle;
 
         private static Vector2f CameraMoveVel;
 
@@ -42,7 +41,7 @@ namespace phytestcs
         public static Palette CurrentPalette;
 
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             CurrentPalette = Palette.Default;
 
@@ -80,9 +79,7 @@ namespace phytestcs
 
                     var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
                     if (delta > 0)
-                    {
                         Thread.Sleep((int) delta);
-                    }
                 }
             });
             /*var tmrPhy = new System.Timers.Timer() {Interval = 10};
@@ -237,9 +234,7 @@ namespace phytestcs
         private static void Window_DoubleClick()
         {
             if (Drawing.SelectedObject != null)
-            {
                 OpenProperties(Drawing.SelectedObject, LastClick.F());
-            }
         }
 
         public static void Window_MouseButtonReleased(Vector2i pos, Mouse.Button btn)
@@ -247,16 +242,12 @@ namespace phytestcs
             var moved = pos != ClickPosition;
 
             if (!moved && !_rotating)
-            {
                 Drawing.SelectObject(ObjectAtPosition(pos));
-            }
 
             if (btn == Mouse.Button.Left)
             {
                 if (pos == LastClick && (DateTime.Now - MouseDownTime).TotalMilliseconds < DoubleClickTime)
-                {
                     Window_DoubleClick();
-                }
 
                 if (Drawing.DragObject != null)
                 {
@@ -271,9 +262,7 @@ namespace phytestcs
                 }
 
                 if (Drawing.DrawMode != DrawingType.Off)
-                {
                     FinishDrawing();
-                }
             }
 
             if (btn == Mouse.Button.Right)
@@ -297,9 +286,7 @@ namespace phytestcs
                     {
                         var obj = ObjectAtPosition(pos);
                         if (obj != null)
-                        {
                             OpenProperties(obj, pos.F());
-                        }
                     }
                 }
             }
@@ -339,17 +326,13 @@ namespace phytestcs
                             if (obj is PhysicalObject phy)
                             {
                                 if (Drawing.DrawMode == DrawingType.Move)
-                                {
                                     phy.IsMoving = true;
-                                }
                                 else
-                                {
                                     Simulation.Add(Drawing.DragSpring =
                                         new Spring(Drawing.DragConstant, 0, DefaultSpringSize,
                                             phy, Drawing.DragObjectRelPos, null,
                                             pos.ToWorld(),
                                             ForceType.Drag) { Damping = 1 });
-                                }
                             }
                         }
                     }
@@ -366,7 +349,7 @@ namespace phytestcs
             }
         }
 
-        static void FinishDrawing()
+        private static void FinishDrawing()
         {
             var mouse = Mouse.GetPosition(Render.Window);
             var moved = mouse != ClickPosition;
@@ -422,9 +405,7 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null && !obj.HasFixate)
-                        {
                             added = Simulation.Add(new Fixate(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
-                        }
                     }
 
                     break;
@@ -467,10 +448,8 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null && !obj.HasFixate)
-                        {
                             added = Simulation.Add(new Tracer(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize,
-                                new Color(RandomColor()){A=255}));
-                        }
+                                new Color(RandomColor()) { A = 255 }));
                     }
 
                     break;
@@ -482,9 +461,7 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null)
-                        {
                             added = Simulation.Add(new Thruster(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
-                        }
                     }
 
                     break;
@@ -536,7 +513,7 @@ namespace phytestcs
                 case Keyboard.Key.Up:
                     MoveForce.Value = new Vector2f(MoveForce.Value.X, Simulation.Jump);
                     break;
-                
+
                 case Keyboard.Key.Num0:
                     SetDrawMode(DrawingType.Off);
                     break;
@@ -555,7 +532,7 @@ namespace phytestcs
                 case Keyboard.Key.Num5:
                     SetDrawMode(DrawingType.Move);
                     break;
-               
+
                 case Keyboard.Key.Add:
                     Simulation.TimeScale *= 2;
                     break;
@@ -565,7 +542,6 @@ namespace phytestcs
             }
 
             if (e.Control)
-            {
                 switch (e.Code)
                 {
                     case Keyboard.Key.Delete:
@@ -608,7 +584,6 @@ namespace phytestcs
                         Simulation.Player.Position = new Vector2f(0, 1);
                         break;
                 }
-            }
         }
 
         private static void Window_Resized(object sender, SizeEventArgs e)

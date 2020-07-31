@@ -38,9 +38,7 @@ namespace phytestcs.Interface
             };
 
             if (bindProp != null && _setter == null)
-            {
                 Field.Enabled = false;
-            }
 
             Add(Field);
 

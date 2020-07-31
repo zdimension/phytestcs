@@ -3,8 +3,8 @@ using System.Linq;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
-using Object = phytestcs.Objects.Object;
 using static phytestcs.Tools;
+using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
@@ -15,7 +15,10 @@ namespace phytestcs.Interface.Windows.Properties
         {
             IsMain = true;
 
-            Vector2f PosEnfant() => Position + new Vector2f(Size.X, 0);
+            Vector2f PosEnfant()
+            {
+                return Position + new Vector2f(Size.X, 0);
+            }
 
             var btnEff = new BitmapButton { Text = L["Clear"], Image = new Texture("icons/small/delete.png") };
             btnEff.Clicked += delegate { obj.Delete(); };
@@ -45,7 +48,7 @@ namespace phytestcs.Interface.Windows.Properties
                 // csg
                 // controller
                 (typeof(WndSpecial), L["Special"], "icons/small/settings.png"),
-                (typeof(WndScript), L["Script"], "icons/small/script.png"),
+                (typeof(WndScript), L["Script"], "icons/small/script.png")
             };
 
             foreach (var (type, name, icon) in windows)
@@ -54,24 +57,19 @@ namespace phytestcs.Interface.Windows.Properties
                     continue;
 
                 var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
-                btn.Clicked += delegate
-                {
-                    Activator.CreateInstance(type, obj, PosEnfant());
-                };
+                btn.Clicked += delegate { Activator.CreateInstance(type, obj, PosEnfant()); };
                 Add(btn);
             }
 
             obj.Deleted += () => { CloseAll(); };
-            
+
             Ui.BackPanel.MousePressed += ClickClose;
             Ui.BackPanel.RightMouseReleased += RightClickClose;
 
             PositionChanged += (sender, f) =>
             {
                 foreach (var w in Ui.PropertyWindows[obj].Where(w => w != this && !w.WasMoved))
-                {
                     w.StartPosition = w.Position = f.Value + new Vector2f(Size.X, 0);
-                }
 
                 StartPosition = Position;
             };
@@ -83,7 +81,7 @@ namespace phytestcs.Interface.Windows.Properties
                 CloseAll(true);
             };
         }
-        
+
         private void ClickClose(object sender, SignalArgsVector2f signalArgsVector2F)
         {
             CloseAll(true);

@@ -22,6 +22,26 @@ namespace phytestcs
         public static Script<object>? Script;
         public static ExpandoObject My;
 
+        public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default
+            .AddReferences(
+                typeof(Scene).Assembly,
+                typeof(Color).Assembly,
+                typeof(Vector2f).Assembly,
+                typeof(Console).GetTypeInfo().Assembly
+            )
+            .AddReferences(
+                MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
+                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Private.CoreLib.dll"))
+            )
+            .AddImports(
+                "phytestcs",
+                "phytestcs.Objects",
+                "phytestcs.Tools",
+                "SFML.Graphics",
+                "SFML.System",
+                "System");
+
         public static async Task Restart()
         {
             await Load(Script).ConfigureAwait(true);
@@ -35,26 +55,6 @@ namespace phytestcs
             scr.Compile();
             return scr;
         }
-
-        public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default
-            .AddReferences(
-                typeof(Scene).Assembly, 
-                typeof(Color).Assembly,
-                typeof(Vector2f).Assembly,
-                typeof(Console).GetTypeInfo().Assembly
-                )
-            .AddReferences(
-                MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
-                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName ("System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName ("System.Private.CoreLib.dll"))
-                )
-            .AddImports(
-                "phytestcs", 
-                "phytestcs.Objects", 
-                "phytestcs.Tools",
-                "SFML.Graphics", 
-                "SFML.System",
-                "System");
 
         public static async Task New()
         {
@@ -73,7 +73,7 @@ namespace phytestcs
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
             My = new ExpandoObject();
-            
+
             Program.CurrentPalette = Palette.Default;
 
             Simulation.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
@@ -110,7 +110,7 @@ namespace phytestcs
 
                 Simulation.Player?.Forces.Add(Program.MoveForce);
             }
-            
+
 
             Simulation.UpdatePhysicsInternal(0);
 
@@ -129,8 +129,7 @@ namespace phytestcs
 
             void r(int x1, int y1, int x2, int y2)
             {
-                Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], default, square[y2][x2],
-                        default)
+                Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], default, square[y2][x2])
                     { ShowInfos = false });
             }
 
@@ -144,9 +143,7 @@ namespace phytestcs
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
-                    {
                         r(j - 1, i, j, i);
-                    }
 
                     if (i > 0)
                     {
@@ -185,30 +182,28 @@ namespace phytestcs
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
-                    {
                         Simulation.Add(new Spring(spring, dist, 0.1f,
                                 square[i][j - 1], default,
-                                square[i][j], default)
+                                square[i][j])
                             { ShowInfos = false });
-                    }
 
                     if (i > 0)
                     {
                         Simulation.Add(new Spring(spring, dist, 0.1f,
                                 square[i - 1][j], default,
-                                square[i][j], default)
+                                square[i][j])
                             { ShowInfos = false });
 
                         if (j > 0)
                         {
                             Simulation.Add(new Spring(spring, diago, 0.1f,
                                     square[i - 1][j - 1], default,
-                                    square[i][j], default)
+                                    square[i][j])
                                 { ShowInfos = false });
 
                             Simulation.Add(new Spring(spring, diago, 0.1f,
                                     square[i - 1][j], default,
-                                    square[i][j - 1], default)
+                                    square[i][j - 1])
                                 { ShowInfos = false });
                         }
                     }

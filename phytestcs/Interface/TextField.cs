@@ -11,20 +11,24 @@ namespace phytestcs.Interface
     public class TextFieldBase : Panel
     {
         public EditBox Field { get; protected set; }
+
         public float NameWidth
         {
             get => NameLabel.Size.X;
             set => NameLabel.Size = new Vector2f(value, NameLabel.Size.Y);
         }
+
         public Label NameLabel { get; protected set; }
     }
-    
+
     public class TextField<T> : TextFieldBase
     {
         private readonly PropertyReference<T> _bindProp;
         private readonly Func<T> _getter;
         private readonly Action<T>? _setter;
         private readonly PropConverter<T, string> converter;
+
+        private UserBinding? _binding;
 
         private string? _oldLoadedVal;
         private string _value;
@@ -54,8 +58,8 @@ namespace phytestcs.Interface
                 SizeLayout = new Layout2d("100% - 10 - lblName.width", "18")
             };
             Add(Field);
-            
-            if (_bindProp.Property is PropertyInfo pi && 
+
+            if (_bindProp.Property is PropertyInfo pi &&
                 _bindProp.Target is Object o &&
                 o.IsBound(pi.GetGetMethod(), out var res) &&
                 res.Item1 is UserBinding ub)
@@ -79,15 +83,9 @@ namespace phytestcs.Interface
                 }
             }
 
-            Field.Unfocused += (sender, args) =>
-            {
-                Validate();
-            };
+            Field.Unfocused += (sender, args) => { Validate(); };
 
-            Field.ReturnKeyPressed += (sender, s) =>
-            {
-                Validate();
-            };
+            Field.ReturnKeyPressed += (sender, s) => { Validate(); };
             /*if (!multiline)
             {
                 Field.TextChanged += (sender, s) =>
@@ -98,8 +96,6 @@ namespace phytestcs.Interface
             }*/
         }
 
-        private UserBinding? _binding = null;
-
         public string Value
         {
             get => _value;
@@ -109,14 +105,11 @@ namespace phytestcs.Interface
                 {
                     var obj = _bindProp.Target as Object;
                     var pi = _bindProp.Property as PropertyInfo;
-                    
+
                     if (pi != null && obj != null && value[0] == '{' && value[^1] == '}')
                     {
                         _binding = obj.Bind(pi.GetGetMethod()!, new UserBinding(value, obj), pi.GetSetMethod());
-                        _binding.Removed += delegate
-                        {
-                            _binding = null;
-                        };
+                        _binding.Removed += delegate { _binding = null; };
                     }
                     else
                     {
@@ -146,7 +139,7 @@ namespace phytestcs.Interface
         {
             if (_binding != null)
                 return;
-            
+
             var val = converter.Get(_getter());
 
             if (val != _oldLoadedVal)

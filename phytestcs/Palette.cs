@@ -44,6 +44,7 @@ namespace phytestcs
         public bool DrawClouds;
 
         public Color SkyColor;
+
         public Color SelectionColor
         {
             get
@@ -107,7 +108,7 @@ namespace phytestcs
             {
                 Appearance = new ObjectAppearance(true)
                 {
-                    DrawCircleCakes = false,
+                    DrawCircleCakes = false
                 },
                 DrawClouds = false,
                 ColorRange = new ColorRange
@@ -233,7 +234,7 @@ namespace phytestcs
                     End = new HSVA(359.9, 0, 1, 0)
                 },
                 SkyColor = new Color(0, 0, 0, 255)
-            }),
+            })
         };
     }
 }

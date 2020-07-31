@@ -18,7 +18,7 @@ namespace phytestcs.Interface.Windows.Properties
                     string.Format(CultureInfo.InvariantCulture, L["Collision layer {0}"], (char) ('A' + i)),
                     new PropertyReference<bool>(() => wrapper[bit], val => wrapper[bit] = val)));
             }
-            
+
             Add(new CheckField(() => obj.HeteroCollide));
 
             Show();

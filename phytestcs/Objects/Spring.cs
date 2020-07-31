@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Runtime.InteropServices;
 using phytestcs.Interface;
 using SFML.Graphics;
@@ -45,13 +44,13 @@ namespace phytestcs.Objects
             UpdateForce();
         }
 
-        [ObjProp("Spring constant", "N/m", shortName:"k")]
+        [ObjProp("Spring constant", "N/m", shortName: "k")]
         public float Constant { get; set; }
 
-        [ObjProp("Target length", "m", shortName:"l")]
+        [ObjProp("Target length", "m", shortName: "l")]
         public float TargetLength { get; set; }
 
-        [ObjProp("Damping", shortName:"ζ")]
+        [ObjProp("Damping", shortName: "ζ")]
         public float Damping { get; set; } = 0.10f;
 
         public SpringEnd End1 { get; }
@@ -79,9 +78,7 @@ namespace phytestcs.Objects
                 var force = Constant * DeltaLength;
 
                 if (Damping != 0)
-                {
                     force += -Speed * Damping * 20;
-                }
 
                 return force;
             }
@@ -183,9 +180,7 @@ namespace phytestcs.Objects
                 lines[2 + d - 1] = new Vertex(p + hd, color);
 
                 for (var i = 0; i < lines.Length; i++)
-                {
                     lines[i].Position = transform.TransformPoint(lines[i].Position);
-                }
 
                 Render.Window.Draw(lines, PrimitiveType.LineStrip);
             }

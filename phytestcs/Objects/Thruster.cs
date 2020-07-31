@@ -21,13 +21,6 @@ namespace phytestcs.Objects
 
             UpdatePhysics(0);
         }
-        
-        public override void Delete(Object source = null)
-        {
-            Object.Forces.Remove(_force);
-
-            base.Delete(source);
-        }
 
         public override Vector2f RelPos
         {
@@ -45,12 +38,19 @@ namespace phytestcs.Objects
             }
         }
 
-        [ObjProp("Force", "N", shortName:"F")]
+        [ObjProp("Force", "N", shortName: "F")]
         public float Force { get; set; }
 
         //public bool FollowGeometry { get; set; } = true;
         public override Shape Shape => _shape;
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
+
+        public override void Delete(Object source = null)
+        {
+            Object.Forces.Remove(_force);
+
+            base.Delete(source);
+        }
 
         public override void UpdatePhysics(float dt)
         {

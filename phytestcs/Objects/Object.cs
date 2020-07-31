@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.VisualBasic.CompilerServices;
 using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Tools;
@@ -15,11 +14,16 @@ namespace phytestcs.Objects
     {
         private static ulong _idCounter;
 
-        private readonly Dictionary<MethodInfo, (Binding binding, MethodInfo? setter)> _bindings = new Dictionary<MethodInfo, (Binding, MethodInfo?)>();
+        private readonly Dictionary<MethodInfo, (Binding binding, MethodInfo? setter)> _bindings =
+            new Dictionary<MethodInfo, (Binding, MethodInfo?)>();
+
         private readonly SynchronizedCollection<Object> _dependents = new SynchronizedCollection<Object>();
 
         private readonly SynchronizedCollection<Object> _parents = new SynchronizedCollection<Object>();
         private bool _selected;
+
+        private bool _updating;
+        private float _zDepth = 1;
         public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
 
         protected Object()
@@ -32,11 +36,11 @@ namespace phytestcs.Objects
         public string? Name { get; set; }
 
         protected abstract IEnumerable<Shape> Shapes { get; }
-        
-        [ObjProp("Position", "m", "m\u22c5s", "m/s", shortName:"x")]
+
+        [ObjProp("Position", "m", "m\u22c5s", "m/s", "x")]
         public abstract Vector2f Position { get; set; }
-        
-        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s", shortName:"θ")]
+
+        [ObjProp("Angle", "rad", "rad\u22c5s", "rad/s", "θ")]
         public abstract float Angle { get; set; }
 
         public virtual Color Color
@@ -56,7 +60,7 @@ namespace phytestcs.Objects
             get => Color;
             set => Color = value;
         }
-
+        
         public bool Selected
         {
             get => _selected;
@@ -82,7 +86,7 @@ namespace phytestcs.Objects
             get => _zDepth;
             set
             {
-                _zDepth = value; 
+                _zDepth = value;
                 Simulation.SortZDepth();
             }
         }
@@ -90,6 +94,12 @@ namespace phytestcs.Objects
         public IReadOnlyList<Object> Parents => _parents.ToList().AsReadOnly();
 
         public IReadOnlyList<Object> Dependents => _dependents.ToList().AsReadOnly();
+
+        public EventWrapper<ClickedEventArgs> OnClick { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<BaseEventArgs> OnDie { get; } = new EventWrapper<BaseEventArgs>();
+        public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
+        public EventWrapper<BaseEventArgs> OnSpawn { get; } = new EventWrapper<BaseEventArgs>();
+        public EventWrapper<PostStepEventArgs> PostStep { get; } = new EventWrapper<PostStepEventArgs>();
 
         public virtual void Dispose()
         {
@@ -100,7 +110,9 @@ namespace phytestcs.Objects
         {
             Color color;
             if (Selected)
+            {
                 color = Program.CurrentPalette.SelectionColor;
+            }
             else
             {
                 color = Color.Multiply(1f - 0.5f * Color.A / 255f);
@@ -129,7 +141,7 @@ namespace phytestcs.Objects
         public virtual void Delete(Object source = null)
         {
             OnDie.Invoke(new BaseEventArgs(this));
-            
+
             while (_dependents.Any())
             {
                 var first = _dependents.FirstOrDefault();
@@ -161,26 +173,23 @@ namespace phytestcs.Objects
             Deleted();
         }
 
-        private bool _updating = false;
-        private float _zDepth = 1;
-
         public virtual void UpdatePhysics(float dt)
         {
             if (_updating)
                 return;
-            
+
             _updating = true;
-            
+
             foreach (var (_, (binding, setter)) in _bindings)
             {
-                if (setter == null) 
+                if (setter == null)
                     continue;
-                
+
                 try
                 {
                     setter.Invoke(this, new[] { binding.Value() });
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -206,7 +215,9 @@ namespace phytestcs.Objects
         {
             if (targetMethod == null) throw new ArgumentNullException(nameof(targetMethod));
 
-            return _bindings.TryGetValue(targetMethod, out var binding) ? binding.binding.Value() : targetMethod.Invoke(this, args);
+            return _bindings.TryGetValue(targetMethod, out var binding)
+                ? binding.binding.Value()
+                : targetMethod.Invoke(this, args);
         }
 
         public void Bind<TThis, T>(Expression<Func<TThis, T>> prop, Func<T> value)
@@ -216,19 +227,19 @@ namespace phytestcs.Objects
             if (typeof(TThis) != GetType())
                 throw new ArgumentException(nameof(TThis));
 
-            var expr = ((MemberExpression) prop.Body);
+            var expr = (MemberExpression) prop.Body;
             var bindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = bindPropInfo.GetGetMethod()!;
 
             Bind(getMethod, () => value);
         }
 
-        public Binding Bind(MethodInfo getMethod, Func<object?> value, MethodInfo? setMethod=null)
+        public Binding Bind(MethodInfo getMethod, Func<object?> value, MethodInfo? setMethod = null)
         {
             return Bind(getMethod, new Binding(value), setMethod);
         }
 
-        public T Bind<T>(MethodInfo getMethod, T binding, MethodInfo? setMethod=null)
+        public T Bind<T>(MethodInfo getMethod, T binding, MethodInfo? setMethod = null)
             where T : Binding
         {
             _bindings[getMethod] = (binding, setMethod);
@@ -242,13 +253,13 @@ namespace phytestcs.Objects
             if (typeof(TThis) != GetType())
                 throw new ArgumentException(nameof(TThis));
 
-            var expr = ((MemberExpression) prop.Body);
+            var expr = (MemberExpression) prop.Body;
             var bindPropInfo = (PropertyInfo) expr.Member;
             var getMethod = bindPropInfo.GetGetMethod()!;
 
             Unbind(getMethod);
         }
-        
+
         public void Unbind(MethodInfo getMethod)
         {
             if (_bindings.TryGetValue(getMethod, out var binding))
@@ -260,23 +271,18 @@ namespace phytestcs.Objects
         {
             return _bindings.TryGetValue(getMethod, out res);
         }
-        
+
         public abstract Vector2f Map(Vector2f local);
 
-        public abstract Vector2f MapInv(Vector2f @global);
-        
-        public EventWrapper<ClickedEventArgs> OnClick { get; } = new EventWrapper<ClickedEventArgs>();
-        public EventWrapper<BaseEventArgs> OnDie { get; } = new EventWrapper<BaseEventArgs>();
-        public EventWrapper<ClickedEventArgs> OnKey { get; } = new EventWrapper<ClickedEventArgs>();
-        public EventWrapper<BaseEventArgs> OnSpawn { get; } = new EventWrapper<BaseEventArgs>();
-        public EventWrapper<PostStepEventArgs> PostStep { get; } = new EventWrapper<PostStepEventArgs>();
+        public abstract Vector2f MapInv(Vector2f global);
         //public EventWrapper<ClickedEventArgs> Update { get; } = new EventWrapper<ClickedEventArgs>();
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]
     public class ObjPropAttribute : DisplayNameAttribute
     {
-        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null, string shortName = null)
+        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null,
+            string shortName = null)
             : base(L[displayName])
         {
             Unit = unit;
@@ -293,12 +299,12 @@ namespace phytestcs.Objects
 
     public class Binding
     {
-        public virtual Func<object?> Value { get; }
-
         public Binding(Func<object?> value)
         {
             Value = value;
         }
+
+        public virtual Func<object?> Value { get; }
 
         public void Remove()
         {
@@ -310,13 +316,13 @@ namespace phytestcs.Objects
 
     public class UserBinding : Binding
     {
-        public LambdaStringWrapper<Func<object?>> Wrapper { get; }
-
         public UserBinding(string code, object? target)
             : base(null)
         {
             Wrapper = new LambdaStringWrapper<Func<object?>>(code, target);
         }
+
+        public LambdaStringWrapper<Func<object?>> Wrapper { get; }
 
         public override Func<object?> Value => Wrapper.Value;
 
@@ -326,52 +332,54 @@ namespace phytestcs.Objects
             set => Wrapper.Code = value;
         }
     }
-    
+
     public class BaseEventArgs : HandledEventArgs
     {
-        public dynamic This { get; }
-
         public BaseEventArgs(object @this)
         {
             This = @this;
         }
+
+        public dynamic This { get; }
     }
 
     public class ClickedEventArgs : BaseEventArgs
     {
-        public Vector2f Position { get; }
-
         public ClickedEventArgs(object @this, Vector2f position) : base(@this)
         {
             Position = position;
         }
+
+        public Vector2f Position { get; }
     }
-    
+
     public class PostStepEventArgs : BaseEventArgs
     {
-        public float DeltaTime { get; }
-
         public PostStepEventArgs(object @this, float deltaTime) : base(@this)
         {
             DeltaTime = deltaTime;
         }
+
+        public float DeltaTime { get; }
     }
-    
+
     public class Unit
     {
-        public string Name { get; }
-        public Lazy<Unit> _derivative;
-        public Unit Derivative => _derivative.Value;
-        
-        private Lazy<Unit> _antiderivative;
-        public Unit Antiderivative => _antiderivative.Value;
-        
         public static readonly Dictionary<string, Unit> _units = new Dictionary<string, Unit>();
-		
-		public override string ToString()
-		{
-			return Name;
-		}
+
+        private static readonly (string, string)[] Powers =
+        {
+            ("⋅s³", "⋅s²"),
+            ("⋅s²", "⋅s"),
+            ("/s", "/s²"),
+            ("/s²", "/s³")
+        };
+
+        public static readonly Unit Length = FromString("m");
+        public static readonly Unit Velocity = Length.Derivative;
+
+        private Lazy<Unit> _antiderivative;
+        public Lazy<Unit> _derivative;
 
         private Unit(string name, Lazy<Unit> deriv, Lazy<Unit> integ)
         {
@@ -380,38 +388,35 @@ namespace phytestcs.Objects
             _antiderivative = integ;
         }
 
-        private static readonly (string, string)[] Powers =
+        public string Name { get; }
+        public Unit Derivative => _derivative.Value;
+        public Unit Antiderivative => _antiderivative.Value;
+
+        public override string ToString()
         {
-            ("⋅s³", "⋅s²"),
-            ("⋅s²", "⋅s"),
-            ( "/s", "/s²" ),
-            ( "/s²", "/s³" ),
-        };
-        
+            return Name;
+        }
+
         public static string IncreasePower(string suffix)
         {
-			if (suffix.EndsWith("/s"))
-				return suffix[..^2];
-		
-			foreach (var (bef, aft) in Powers)
-            {
+            if (suffix.EndsWith("/s"))
+                return suffix[..^2];
+
+            foreach (var (bef, aft) in Powers)
                 if (suffix.EndsWith(aft, StringComparison.InvariantCulture))
                     return suffix[..^aft.Length] + bef;
-            }
 
             return suffix + "⋅s";
         }
-        
+
         public static string DecreasePower(string suffix)
         {
-			if (suffix.EndsWith("⋅s"))
-				return suffix[..^2];
-		
+            if (suffix.EndsWith("⋅s"))
+                return suffix[..^2];
+
             foreach (var (bef, aft) in Powers)
-            {
                 if (suffix.EndsWith(bef, StringComparison.InvariantCulture))
                     return suffix[..^bef.Length] + aft;
-            }
 
             return suffix + "/s";
         }
@@ -424,14 +429,12 @@ namespace phytestcs.Objects
             var lInteg = new Lazy<Unit>(() => integ ?? FromString(IncreasePower(name)));
 
             if (!_units.TryGetValue(name, out res!))
-            {
                 res = _units[name] = new Unit(name,
                     lDeriv,
-                lInteg);
-            }
+                    lInteg);
 
             var lRes = new Lazy<Unit>(() => res);
-            
+
             if (deriv != null)
                 deriv._antiderivative = lRes;
 
@@ -446,9 +449,6 @@ namespace phytestcs.Objects
             return FromString(name);
         }
 
-        public static readonly Unit Length = FromString("m");
-		public static readonly Unit Velocity = Length.Derivative;
-
         public Unit Differentiate(int degree = 1)
         {
             var unit = this;
@@ -456,7 +456,7 @@ namespace phytestcs.Objects
                 unit = unit.Derivative;
             return unit;
         }
-        
+
         public Unit Integrate(int degree = 1)
         {
             var unit = this;

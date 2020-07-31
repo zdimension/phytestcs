@@ -72,7 +72,7 @@ namespace phytestcs.Interface.Windows.Properties
                 o.Restitution = 0.4f;
                 o.Density = 0.6f;
                 o.Color = new Color(255, 165, 63, 255);
-            }),
+            })
         };
 
         public WndMaterial(PhysicalObject obj, Vector2f pos)
@@ -89,7 +89,8 @@ namespace phytestcs.Interface.Windows.Properties
             Add(new NumberField<float>(0.001f, 1000f, bindProp: () => obj.Mass, log: true));
             Add(new NumberField<float>(0, 2, bindProp: () => obj.Friction) { RightValue = float.PositiveInfinity });
             Add(new NumberField<float>(0, 1, bindProp: () => obj.Restitution));
-            Add(new NumberField<float>(1, 100, bindProp: () => obj.RefractiveIndex, log: true) { RightValue = float.PositiveInfinity });
+            Add(new NumberField<float>(1, 100, bindProp: () => obj.RefractiveIndex, log: true)
+                { RightValue = float.PositiveInfinity });
             Add(new NumberField<float>(0.01f, 100, bindProp: () => obj.Attraction, log: true) { LeftValue = 0 });
             Show();
         }

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface
 {
     public class PropertyReference<T>
     {
-        public MemberInfo? Property { get; }
-        public object? Target { get; }
-
         public PropertyReference(PropertyInfo property, object? target)
         {
             Property = property ?? throw new ArgumentNullException(nameof(property));
@@ -25,6 +21,9 @@ namespace phytestcs.Interface
             Setter = setter;
             Property = member;
         }
+
+        public MemberInfo? Property { get; }
+        public object? Target { get; }
 
         public Func<T> Getter { get; }
         public Action<T>? Setter { get; }

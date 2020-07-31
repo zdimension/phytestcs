@@ -42,7 +42,7 @@ namespace phytestcs.Objects
             return Shape.Transform.TransformPoint(Shape.Origin + local);
         }
 
-        public override Vector2f MapInv(Vector2f @global)
+        public override Vector2f MapInv(Vector2f global)
         {
             return Shape.InverseTransform.TransformPoint(global) - Shape.Origin;
         }
@@ -58,7 +58,7 @@ namespace phytestcs.Objects
             base.Draw();
 
             UpdatePosition();
-            
+
             Shape.OutlineThickness = (Selected ? -7 : 0) / Camera.Zoom;
 
             Render.Window.Draw(Shape);

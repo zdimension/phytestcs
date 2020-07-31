@@ -20,10 +20,10 @@ namespace phytestcs.Objects
             FadeTime = fadeTime;
         }
 
-        [ObjProp("Fade time", "s", shortName:"τ")]
+        [ObjProp("Fade time", "s", shortName: "τ")]
         public float FadeTime { get; set; }
 
-        [ObjProp("Size", "m", shortName:"⌀")]
+        [ObjProp("Size", "m", shortName: "⌀")]
         public float Size
         {
             get => _shape.Radius * 2;

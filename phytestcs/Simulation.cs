@@ -33,36 +33,15 @@ namespace phytestcs
         public static DateTime LastUpdate = DateTime.Now;
         public static volatile float UPS;
 
-        public static Object[] WorldCache = null;
-        public static PhysicalObject[] WorldCachePhy = null;
-        public static Object[] WorldCacheNonLaser = null;
+        public static Object[] WorldCache;
+        public static PhysicalObject[] WorldCachePhy;
+        public static Object[] WorldCacheNonLaser;
         private static float _laserFuzziness = 0.7f;
         private static int _numColorsInRainbow = 12;
 
         static Simulation()
         {
             UpdateGravity();
-        }
-
-        public static void SortZDepth()
-        {
-            lock (World.SyncRoot)
-            {
-                int j;
-                Object temp;
-                for (int i = 1; i <= World.Count - 1; i++)
-                {
-                    temp = World[i];
-                    j = i - 1;
-                    while (j >= 0 && !(temp is Laser) && (World[j].ZDepth > temp.ZDepth || World[j] is Laser))
-                    {
-                        World[j + 1] = World[j];
-                        j--;
-                    }
-
-                    World[j + 1] = temp;
-                }
-            }
         }
 
         [ObjProp("Gravity strength", "m/s²")]
@@ -150,6 +129,27 @@ namespace phytestcs
 
         public static float ActualDT => TargetDT * TimeScale;
 
+        public static void SortZDepth()
+        {
+            lock (World.SyncRoot)
+            {
+                int j;
+                Object temp;
+                for (var i = 1; i <= World.Count - 1; i++)
+                {
+                    temp = World[i];
+                    j = i - 1;
+                    while (j >= 0 && !(temp is Laser) && (World[j].ZDepth > temp.ZDepth || World[j] is Laser))
+                    {
+                        World[j + 1] = World[j];
+                        j--;
+                    }
+
+                    World[j + 1] = temp;
+                }
+            }
+        }
+
 
         private static void UpdateGravity()
         {
@@ -196,9 +196,7 @@ namespace phytestcs
         public static void SetPause(bool val)
         {
             if (!(Pause = val))
-            {
                 PauseA = DateTime.Now;
-            }
 
             Ui.BtnPlay.Image = Pause ? Ui.ImgPlay : Ui.ImgPause;
             Ui.BtnPlay.SetRenderer(!Pause ? Ui.BrRed : Ui.BrGreen);

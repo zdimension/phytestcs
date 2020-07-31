@@ -22,7 +22,7 @@ namespace phytestcs
         public static View MainView;
 
         /// <summary>
-        /// Pixels par mètre
+        ///     Pixels par mètre
         /// </summary>
         public static float Zoom => Render.Width / GameView.Size.X;
 

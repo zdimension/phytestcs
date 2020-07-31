@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using phytestcs.Interface.Windows;
 using phytestcs.Interface.Windows.Properties;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -25,7 +24,7 @@ namespace phytestcs.Interface
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
         public static Gui Gui;
 
-        private static List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> _actions =
+        private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> _actions =
             new List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)>
             {
                 (DrawingType.Off, "drag", new Ref<BitmapButton>(), new Ref<Texture>()),
@@ -37,13 +36,13 @@ namespace phytestcs.Interface
                 (DrawingType.Hinge, "hinge", new Ref<BitmapButton>(), new Ref<Texture>()),
                 (DrawingType.Tracer, "tracer", new Ref<BitmapButton>(), new Ref<Texture>()),
                 (DrawingType.Thruster, "thruster", new Ref<BitmapButton>(), new Ref<Texture>()),
-                (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>()),
+                (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>())
             };
 
-        private static readonly RendererData BrDef = Tools.GenerateButtonColor(new Color(210, 210, 210));
-        private static readonly RendererData BrToggle = Tools.GenerateButtonColor(new Color(108, 108, 215));
-        public static readonly RendererData BrGreen = Tools.GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
-        public static readonly RendererData BrRed = Tools.GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
+        private static readonly RendererData BrDef = GenerateButtonColor(new Color(210, 210, 210));
+        private static readonly RendererData BrToggle = GenerateButtonColor(new Color(108, 108, 215));
+        public static readonly RendererData BrGreen = GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
+        public static readonly RendererData BrRed = GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
         public static Panel BackPanel;
 
@@ -88,7 +87,7 @@ namespace phytestcs.Interface
             back.Clicked += (sender, f) =>
             {
                 var pos = f.Value.I();
-                var obj = Tools.ObjectAtPosition(pos);
+                var obj = ObjectAtPosition(pos);
 
                 obj?.OnClick.Invoke(new ClickedEventArgs(obj, pos.ToWorld()));
             };
@@ -120,7 +119,9 @@ namespace phytestcs.Interface
             menu.MenuItemClicked += async (sender, s) =>
             {
                 if (s.Value == L["Exit"])
+                {
                     Environment.Exit(0);
+                }
                 else if (s.Value == L["Open"])
                 {
                     var ofp = new OpenFileDialog
@@ -135,9 +136,7 @@ namespace phytestcs.Interface
                     };
 
                     if (ofp.ShowDialog() == DialogResult.OK)
-                    {
                         await Scene.Load(Scene.LoadScript(ofp.FileName)).ConfigureAwait(true);
-                    }
                 }
                 else if (s.Value == L["New"])
                 {
@@ -172,11 +171,9 @@ namespace phytestcs.Interface
                 {
                     // ReSharper disable once AssignmentInConditionalExpression
                     if (w.Visible = !w.Visible)
-                    {
                         w.StartPosition = w.Position =
                             b.AbsolutePosition + new Vector2f(center ? (-w.FullSize.X + b.FullSize.X) / 2 : 0,
                                 -w.FullSize.Y);
-                    }
                 }
 
                 if (right)
@@ -251,7 +248,7 @@ namespace phytestcs.Interface
                 new NumberField<float>(0.01f, 100,
                     bindProp: () => Simulation.AirDensity, log: true),
                 new NumberField<float>(0.01f, 100,
-                    bindProp: () => Simulation.AirFrictionMultiplier, log: true)  { LeftValue = 0 },
+                    bindProp: () => Simulation.AirFrictionMultiplier, log: true) { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 10,
                     bindProp: () => Simulation.AirFrictionLinear, log: true) { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 1,
@@ -303,17 +300,11 @@ namespace phytestcs.Interface
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             if (obj is SpringEnd se)
-            {
                 obj = se.Parent;
-            }
 
             foreach (var g in PropertyWindows.ToList())
-            {
                 if (g.Key != obj && g.Value.FirstOrDefault(w => w.IsMain) is { } ww)
-                {
                     ww.Close();
-                }
-            }
 
             if (!PropertyWindows.ContainsKey(obj))
             {
@@ -336,9 +327,7 @@ namespace phytestcs.Interface
         public static void ClearPropertyWindows()
         {
             foreach (var o in PropertyWindows.Keys.ToArray())
-            {
                 o.InvokeDeleted();
-            }
         }
 
         public static event Action Drawn = () => { };

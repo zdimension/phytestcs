@@ -3,7 +3,6 @@ using System.Data;
 using System.Globalization;
 using SFML.Graphics;
 using SFML.System;
-using TGUI;
 using static phytestcs.Tools;
 
 namespace phytestcs.Interface
@@ -20,16 +19,16 @@ namespace phytestcs.Interface
             o => o.Y, (value, old) => new Vector2f(old.X, value), L["{0} (Y)"]);
 
         public static readonly PropConverter<Vector2f, float> VectorAngle = new PropConverter<Vector2f, float>(
-            o => o.Angle(), (value, old) => Tools.FromPolar(old.Norm(), value), L["{0} (θ)"]);
+            o => o.Angle(), (value, old) => FromPolar(old.Norm(), value), L["{0} (θ)"]);
 
         public static readonly PropConverter<float, float> AngleDegrees = new PropConverter<float, float>(
             o => o.Degrees(), (value, old) => value.Radians());
-        
+
         public static readonly PropConverter<float, float> AngleDegreesNoWrap = new PropConverter<float, float>(
             o => o.DegreesNoWrap(), (value, old) => value.Radians());
 
         public static readonly PropConverter<Vector2f, float> VectorAngleDeg = VectorAngle.Then(AngleDegrees);
-        
+
         public static readonly PropConverter<bool, string> BoolString = new PropConverter<bool, string>(
             o => o.Repr(),
             (value, old) => value.ToUpperInvariant() switch
@@ -49,14 +48,14 @@ namespace phytestcs.Interface
                 var (x, y) = value.Eval<(double, double)>().Result;
                 return new Vector2f((float) x, (float) y);
             });
-        
+
         public static readonly PropConverter<Color, string> ColorString = new PropConverter<Color, string>(
             o => o.Repr(), (value, old) =>
             {
                 var (r, g, b, a) = value.Eval<(int, int, int, int)>().Result;
-                return new Color((byte)r, (byte)g, (byte)b, (byte)a);
+                return new Color((byte) r, (byte) g, (byte) b, (byte) a);
             });
-        
+
         public static readonly PropConverter<HSVA, string> ColorHsvaString = new PropConverter<HSVA, string>(
             o => o.Repr(), (value, old) =>
             {

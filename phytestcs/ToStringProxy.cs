@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using phytestcs.Interface;
 using SFML.Graphics;
 using SFML.System;
 
@@ -25,17 +21,17 @@ namespace phytestcs
     {
         public static void Log(params object?[] obj)
         {
-            foreach(var o in obj)
+            foreach (var o in obj)
                 Console.WriteLine(o.Repr(hideFirstType: true));
         }
-        
+
         public static string Repr(this ITuple tuple)
         {
             if (tuple == null) throw new ArgumentNullException(nameof(tuple));
             return $"({string.Join(", ", Enumerable.Range(0, tuple.Length).Select(x => Repr(tuple[x])))})";
         }
 
-        public static string Repr(this IEnumerable<object> coll, int maxDepth=5, int currentDepth=0)
+        public static string Repr(this IEnumerable<object> coll, int maxDepth = 5, int currentDepth = 0)
         {
             var res = new StringBuilder();
             res.Append("[");
@@ -45,7 +41,7 @@ namespace phytestcs
             }
             else
             {
-                res.AppendJoin(',', 
+                res.AppendJoin(',',
                     coll
                         .Select(prop =>
                         {
@@ -97,11 +93,11 @@ namespace phytestcs
             return $"\"{s}\"";
         }
 
-        public static string Repr(this object? o, int maxDepth=5, int currentDepth=0, bool hideFirstType=false)
+        public static string Repr(this object? o, int maxDepth = 5, int currentDepth = 0, bool hideFirstType = false)
         {
             if (o == null)
                 return "null";
-            
+
             switch (o)
             {
                 case IRepr r:
@@ -114,11 +110,12 @@ namespace phytestcs
                     return e.Repr(maxDepth, currentDepth);
             }
 
-            if (typeof(Tools).GetMethod("Repr", new[] { o.GetType() }) is {} m && m.GetParameters()[0].ParameterType != typeof(object))
+            if (typeof(Tools).GetMethod("Repr", new[] { o.GetType() }) is {} m &&
+                m.GetParameters()[0].ParameterType != typeof(object))
                 return (string) m.Invoke(null, new[] { o })!;
 
             if (o.GetType().GetMethod("ToString", Array.Empty<Type>()) is {} m2 && m2.DeclaringType != typeof(object))
-                return (string) m2.Invoke(o, System.Array.Empty<object>())!;
+                return (string) m2.Invoke(o, Array.Empty<object>())!;
 
             var type = o.GetType();
             var res = new StringBuilder();
@@ -131,24 +128,24 @@ namespace phytestcs
             }
             else
             {
-                res.AppendJoin(',', 
+                res.AppendJoin(',',
                     type
                         .GetProperties()
                         .Where(prop => prop.GetIndexParameters().Length == 0)
                         .Select(prop =>
-                {
-                    var r = ($"\n\t{prop.Name} = ");
-                    try
-                    {
-                        r += Repr(prop.GetValue(o), maxDepth, currentDepth + 1).IndentBlock();
-                    }
-                    catch (Exception e)
-                    {
-                        r += L["<error>"];
-                    }
+                        {
+                            var r = $"\n\t{prop.Name} = ";
+                            try
+                            {
+                                r += Repr(prop.GetValue(o), maxDepth, currentDepth + 1).IndentBlock();
+                            }
+                            catch (Exception e)
+                            {
+                                r += L["<error>"];
+                            }
 
-                    return r;
-                }));
+                            return r;
+                        }));
                 res.Append("\n}");
             }
 

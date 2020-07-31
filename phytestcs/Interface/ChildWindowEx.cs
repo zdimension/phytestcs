@@ -30,17 +30,13 @@ namespace phytestcs.Interface
             };
 
             if (hide)
-            {
                 Closed += delegate { Visible = false; };
-            }
             else
-            {
                 Closed += delegate
                 {
                     Ui.Gui.Remove(this);
                     Dispose();
                 };
-            }
         }
 
         public Vector2f? StartPosition { get; set; }

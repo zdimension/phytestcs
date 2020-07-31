@@ -8,6 +8,11 @@ namespace phytestcs.Objects
 {
     public class Laser : PinnedShapedVirtualObject, ICollides
     {
+        public const float StrengthEpsilon = 0.9f / 255f;
+
+        private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)> _hits =
+            new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)>();
+
         private readonly RectangleShape _shape = new RectangleShape();
 
         public readonly SynchronizedCollection<LaserRay> Rays = new SynchronizedCollection<LaserRay>();
@@ -20,7 +25,7 @@ namespace phytestcs.Objects
             UpdatePhysics(0);
         }
 
-        [ObjProp("Size", "m", shortName:"⌀")]
+        [ObjProp("Size", "m", shortName: "⌀")]
         public float Size
         {
             get => _shape.Size.X;
@@ -34,17 +39,14 @@ namespace phytestcs.Objects
         private float LaserThickness => Size * Simulation.LaserWidth / 2;
         private Vector2f LaserStartingPoint => Map(new Vector2f(Size / 2, 0));
 
-        [ObjProp("Fade distance", "m", shortName:"d")]
+        [ObjProp("Fade distance", "m", shortName: "d")]
         public float FadeDistance { get; set; } = 300;
 
         public override Shape Shape => _shape;
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
+
+        public EventWrapper<LaserCollisionEventArgs> OnLaserHit { get; } = new EventWrapper<LaserCollisionEventArgs>();
         public uint CollideSet { get; set; } = 1;
-
-        private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)> _hits =
-            new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)>();
-
-        public const float StrengthEpsilon = 0.9f / 255f;
 
         public override void UpdatePhysics(float dt)
         {
@@ -56,7 +58,7 @@ namespace phytestcs.Objects
             lock (Rays.SyncRoot)
             {
                 Rays.Clear();
-                
+
                 _hits.Clear();
 
                 void ShootRay(LaserRay ray, int depth = 0)
@@ -82,7 +84,6 @@ namespace phytestcs.Objects
                     (Vector2f, Vector2f) minLine = default;
 
                     foreach (var obj in Simulation.WorldCachePhy.Where(o => (CollideSet & o.CollideSet) != 0))
-                    {
                         for (var i = 0; i < obj.GlobalPointsCache.Length; i++)
                         {
                             var a = obj.GlobalPointsCache[i];
@@ -96,7 +97,6 @@ namespace phytestcs.Objects
                                 minObj = obj;
                             }
                         }
-                    }
 
                     if (minDist > ray.Length)
                         return;
@@ -104,21 +104,21 @@ namespace phytestcs.Objects
                     if (!float.IsPositiveInfinity(minDist))
                     {
                         ray.Length = minDist;
-                        
+
                         var (sideStart, sideEnd) = minLine;
                         var side = sideEnd - sideStart;
                         var normal = side.Ortho();
-                        
+
                         if (!_hits.ContainsKey(minObj!))
                             _hits.Add(minObj!, (minInter, normal, ray));
-                        
+
                         var normalAngle = normal.Angle();
                         var insideObject = side.Cross(ray.Start - sideStart) > 0;
                         if (insideObject)
                             normalAngle += (float) Math.PI;
 
                         var incidenceAngle = ray.Angle - normalAngle;
-                        if (incidenceAngle > (Math.PI / 2))
+                        if (incidenceAngle > Math.PI / 2)
                             incidenceAngle -= (float) Math.PI;
                         else if (incidenceAngle < -(Math.PI / 2))
                             incidenceAngle += (float) Math.PI;
@@ -135,7 +135,7 @@ namespace phytestcs.Objects
                         var reflectedRay = new LaserRay(minInter, reflectedAngle, float.PositiveInfinity,
                             ray.Color, (float) (ray.EndStrength * opacityReflected), ray.Thickness, ray.EndDistance,
                             ray.RefractiveIndex, this);
-                        reflectedRay.SourceAngle = (float) (incidenceAngle);
+                        reflectedRay.SourceAngle = (float) incidenceAngle;
                         reflectedRay.Source = ray;
                         ShootRay(reflectedRay, depth + 1);
 
@@ -144,7 +144,7 @@ namespace phytestcs.Objects
                         // i.e. 100% of the light is reflected
                         // hence the object is a perfect mirror
                         if (float.IsPositiveInfinity(minObj.RefractiveIndex)) return;
-                        
+
                         var newIndex = insideObject ? 1 : minObj.RefractiveIndex;
 
                         float GetIndex(double hue)
@@ -158,7 +158,7 @@ namespace phytestcs.Objects
                                    (float) Math.Asin(Math.Sin(incidenceAngle) * ray.RefractiveIndex / index) +
                                    (float) Math.PI;
                         }
-                        
+
                         var refractionStrength = opacityRefracted * ray.EndStrength;
                         Func<double, double> colorStrength;
                         var alphaD = (255 - minObj.Color.A) / 255d;
@@ -171,13 +171,16 @@ namespace phytestcs.Objects
                         {
                             colorStrength = x => alphaD;
                         }
+
                         var rainbowStrength = refractionStrength * (1 - ray.ColorHsva.S) * Simulation.RainbowSplitMult;
                         refractionStrength *= ray.ColorHsva.S;
-                        
+
                         var sideAngle = normalAngle + Math.PI / 2;
+
                         float refractionThickness(float angle)
                         {
-                            return (float) (ray.Thickness * Math.Sin(angle - sideAngle) / Math.Cos(sideAngle - ray.Angle + Math.PI / 2));
+                            return (float) (ray.Thickness * Math.Sin(angle - sideAngle) /
+                                            Math.Cos(sideAngle - ray.Angle + Math.PI / 2));
                         }
 
                         if (refractionStrength > 0)
@@ -278,13 +281,12 @@ namespace phytestcs.Objects
 
             Render.NumRays += cache.Length;
         }
-        
-        public EventWrapper<LaserCollisionEventArgs> OnLaserHit { get; } = new EventWrapper<LaserCollisionEventArgs>();
     }
 
     public class LaserRay
     {
-        public LaserRay(Vector2f start, float angle, float length, Color color, float strength, float thickness, float startDistance,
+        public LaserRay(Vector2f start, float angle, float length, Color color, float strength, float thickness,
+            float startDistance,
             float refrac, Laser parent)
         {
             Start = start;
@@ -329,15 +331,15 @@ namespace phytestcs.Objects
             return Start + Tools.FromPolar(length, Angle);
         }
     }
-    
+
     public class LaserCollisionEventArgs : CollisionEventArgs
     {
-        public LaserRay Ray { get; }
-
         public LaserCollisionEventArgs(object @this, object other, Vector2f position, Vector2f normal, LaserRay ray) :
             base(@this, other, position, normal)
         {
             Ray = ray;
         }
+
+        public LaserRay Ray { get; }
     }
 }

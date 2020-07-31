@@ -2,12 +2,18 @@
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
-using static phytestcs.Tools;
 
 namespace phytestcs
 {
     public static partial class Tools
     {
+        public enum BlendType
+        {
+            Linear,
+            Exp,
+            ExpSymmetric
+        }
+
         private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8,
             (float) (-Math.PI / 16));
 
@@ -63,7 +69,7 @@ namespace phytestcs
                 (byte) Clamp(a.G * f, 0, 255),
                 (byte) Clamp(a.B * f, 0, 255));
         }
-        
+
         public static Vertex[] VertexLineThin(Vector2f a, Vector2f b, Color c)
         {
             return new[]
@@ -81,28 +87,22 @@ namespace phytestcs
                 new Vertex(a - edge / 2, c),
                 new Vertex(a + edge / 2, c),
                 new Vertex(b + edge / 2, c),
-                new Vertex(b - edge / 2, c),
+                new Vertex(b - edge / 2, c)
             };
         }
 
-        public enum BlendType
-        {
-            Linear,
-            Exp,
-            ExpSymmetric
-        }
-
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
-            int? upto = null, Color? c2_ = null, byte endAlpha=0, BlendType blendMode=BlendType.ExpSymmetric, bool outsideInvert=false, float startAngle=0f, float endAngle=0f, bool squaryEnd=false)
+            int? upto = null, Color? c2_ = null, byte endAlpha = 0, BlendType blendMode = BlendType.ExpSymmetric,
+            bool outsideInvert = false, float startAngle = 0f, float endAngle = 0f, bool squaryEnd = false)
         {
-            if (points.Length <= 1 || (upto != null && upto <= 1))
+            if (points.Length <= 1 || upto != null && upto <= 1)
                 return new VertexArray(PrimitiveType.TriangleStrip, 0);
 
             var a = points[0];
             var b = points[1];
             var dir = (b - a).Normalize();
             var edge = dir.Ortho();
-            
+
             if (outsideInvert)
             {
                 edge = -edge;
@@ -155,6 +155,7 @@ namespace phytestcs
             var startDiff = dir * (float) (w * Math.Tan(startAngle) / 2);
 
             var addSign = squaryEnd ? -1 : 1;
+
             void AddPair(Vector2f origin, Vector2f delta, Color color1, Color color2)
             {
                 res[pos++] = new Vertex(origin + addSign * delta, color1);
@@ -183,16 +184,16 @@ namespace phytestcs
 
                 AddPair(p1, length * miter, col, col2);
             }
-            
+
             var endDiff = dir * (float) (w * Math.Tan(endAngle) / 2);
 
-            AddPair( points[end - 1], w * edge / 2 + endDiff, c, c2);
+            AddPair(points[end - 1], w * edge / 2 + endDiff, c, c2);
 
             return res;
         }
 
         /// <summary>
-        /// Returns the outline for a circle
+        ///     Returns the outline for a circle
         /// </summary>
         /// <param name="center">Circle center</param>
         /// <param name="radius">Distance from the center to the inner side of the outline</param>
@@ -223,7 +224,7 @@ namespace phytestcs
         }
 
         /// <summary>
-        /// Returns a circle sector
+        ///     Returns a circle sector
         /// </summary>
         /// <param name="center">Circle center</param>
         /// <param name="radius">Radius</param>
@@ -274,7 +275,7 @@ namespace phytestcs
         }
 
         /// <summary>
-        /// Returns a random color uniformly from the RGB space
+        ///     Returns a random color uniformly from the RGB space
         /// </summary>
         /// <returns>Color</returns>
         public static Color RandomColor()
@@ -283,7 +284,7 @@ namespace phytestcs
         }
 
         /// <summary>
-        /// Returns a random color uniformly from the RGB space
+        ///     Returns a random color uniformly from the RGB space
         /// </summary>
         /// <returns>Color</returns>
         public static Color RandomColorGlobal()

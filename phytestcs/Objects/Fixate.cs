@@ -8,6 +8,7 @@ namespace phytestcs.Objects
     public sealed class Fixate : PinnedShapedVirtualObject
     {
         private static readonly Vector2f RectSize = new Vector2f(5, 1) / 8f;
+
         private readonly RectangleShape _rect1 = new RectangleShape(RectSize) { FillColor = Color.Black }
             .CenterOrigin();
 
@@ -50,8 +51,9 @@ namespace phytestcs.Objects
             _rect1.Rotation = +45;
             _rect2.Rotation = -45;
 
-            _rect1.OutlineThickness = _rect2.OutlineThickness = Selected ? -Math.Min(7 / Size / Camera.Zoom, _rect1.Size.Y)  : 0;
-            
+            _rect1.OutlineThickness =
+                _rect2.OutlineThickness = Selected ? -Math.Min(7 / Size / Camera.Zoom, _rect1.Size.Y) : 0;
+
             Render.Window.Draw(_rect1);
             Render.Window.Draw(_rect2);
         }
@@ -59,8 +61,6 @@ namespace phytestcs.Objects
         public override void DrawOverlay()
         {
             base.DrawOverlay();
-
-            
         }
     }
 }

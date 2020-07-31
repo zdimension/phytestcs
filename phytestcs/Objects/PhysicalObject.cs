@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using phytestcs.Interface;
 using SFML.Graphics;
@@ -20,13 +19,12 @@ namespace phytestcs.Objects
         private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();
 
         private float _angle;
-        private Vector2f[] _globalPointsCache;
-
-        private float _globalPointsCacheTime = -1;
-        private Vector2f _position;
 
         private float _angularAirFriction;
-        public bool AttractionIsLinear { get; set; } = false;
+        private Vector2f[] _globalPointsCache;
+
+        private readonly float _globalPointsCacheTime = -1;
+        private Vector2f _position;
 
         public PhysicalObject(Vector2f pos, Shape shape, bool wall = false, string name = "")
         {
@@ -42,7 +40,9 @@ namespace phytestcs.Objects
             Forces = new SynchronizedCollection<Force> { Gravity, AirFriction, Buoyance };
         }
 
-        [ObjProp("Angular velocity", "rad/s", "rad", shortName:"ω")]
+        public bool AttractionIsLinear { get; set; } = false;
+
+        [ObjProp("Angular velocity", "rad/s", "rad", shortName: "ω")]
         public float AngularVelocity { get; set; }
 
         [ObjProp("Velocity", "m/s", "m")]
@@ -50,7 +50,7 @@ namespace phytestcs.Objects
 
         public SynchronizedCollection<Force> Forces { get; }
 
-        [ObjProp("Mass", "kg", shortName:"m")]
+        [ObjProp("Mass", "kg", shortName: "m")]
         public float Mass { get; set; }
 
         public float InertialMass => Fixed ? float.PositiveInfinity : Mass;
@@ -62,25 +62,25 @@ namespace phytestcs.Objects
             set => Mass = Shape.Area() * value;
         }
 
-        [ObjProp("Linear kinetic energy", "J", unitDeriv: "W", shortName:"Kt")]
+        [ObjProp("Linear kinetic energy", "J", unitDeriv: "W", shortName: "Kt")]
         public float LinearKineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Velocity.Norm(), 2) / 2;
 
-        [ObjProp("Angular kinetic energy", "J", unitDeriv: "W", shortName:"Kr")]
+        [ObjProp("Angular kinetic energy", "J", unitDeriv: "W", shortName: "Kr")]
         public float AngularKineticEnergy => Fixed ? 0 : MomentOfInertia * (float) Math.Pow(AngularVelocity, 2) / 2;
 
-        [ObjProp("Kinetic energy", "J", unitDeriv: "W", shortName:"K")]
+        [ObjProp("Kinetic energy", "J", unitDeriv: "W", shortName: "K")]
         public float KineticEnergy => LinearKineticEnergy + AngularKineticEnergy;
 
-        [ObjProp("Potential gravitational energy", "J", unitDeriv: "W", shortName:"Ug")]
+        [ObjProp("Potential gravitational energy", "J", unitDeriv: "W", shortName: "Ug")]
         public float GravityEnergy => Fixed ? 0 : Weight * Position.WithUpdate(this).Y;
 
-        [ObjProp("Potential attraction energy", "J", unitDeriv: "W", shortName:"Ua")]
+        [ObjProp("Potential attraction energy", "J", unitDeriv: "W", shortName: "Ua")]
         public float AttractionEnergy => Fixed ? 0 : Simulation.AttractionEnergy(Position, Mass, this);
 
-        [ObjProp("Potential energy", "J", unitDeriv: "W", shortName:"U")]
+        [ObjProp("Potential energy", "J", unitDeriv: "W", shortName: "U")]
         public float PotentialEnergy => GravityEnergy + AttractionEnergy;
 
-        [ObjProp("Total energy", "J", unitDeriv: "W", shortName:"E")]
+        [ObjProp("Total energy", "J", unitDeriv: "W", shortName: "E")]
         public float TotalEnergy => KineticEnergy + PotentialEnergy;
 
         public bool Fixed => Wall || IsMoving || HasFixate || UserFix;
@@ -90,34 +90,34 @@ namespace phytestcs.Objects
         private Force Gravity { get; } = new Force(ForceType.Gravity, new Vector2f(0, 0), default);
         private Force AirFriction { get; } = new Force(ForceType.AirFriction, new Vector2f(0, 0), default);
         private Force Buoyance { get; } = new Force(ForceType.Buoyancy, new Vector2f(0, 0), default);
-        
+
         public float Weight => Mass * Simulation.ActualGravity;
 
-        [ObjProp("Restitution", shortName:"e")]
+        [ObjProp("Restitution", shortName: "e")]
         public float Restitution { get; set; } = 0.5f;
 
-        [ObjProp("Friction", shortName:"µ")]
+        [ObjProp("Friction", shortName: "µ")]
         public float Friction { get; set; } = 0.5f;
 
         public bool Killer { get; set; }
         public bool HasFixate { get; set; } = false;
         public bool UserFix { get; set; } = false;
 
-        [ObjProp("Attraction", "Nm²/kg²", shortName:"G")]
+        [ObjProp("Attraction", "Nm²/kg²", shortName: "G")]
         public float Attraction { get; set; } = 0;
 
-        [ObjProp("Momentum", "N⋅s", "N⋅s²", "N", shortName:"p")]
+        [ObjProp("Momentum", "N⋅s", "N⋅s²", "N", "p")]
         public Vector2f Momentum => Mass * Velocity;
 
-        [ObjProp("Moment of inertia", "kg⋅m²", shortName:"I")] // m^4 ? -> cf second moment
+        [ObjProp("Moment of inertia", "kg⋅m²", shortName: "I")] // m^4 ? -> cf second moment
         public float MomentOfInertia
         {
             get
             {
                 return InertiaMultiplier * Shape switch
                 {
-                    RectangleShape r => Mass * (r.Size.NormSquared()) / 12,
-                    CircleShape c => (float)(Mass * Math.Pow(c.Radius, 2) / 2),
+                    RectangleShape r => Mass * r.Size.NormSquared() / 12,
+                    CircleShape c => (float) (Mass * Math.Pow(c.Radius, 2) / 2),
                     { } s => Mass * s.MomentOfInertia(),
                     _ => throw new NotImplementedException()
                 };
@@ -126,7 +126,7 @@ namespace phytestcs.Objects
 
         protected override IEnumerable<Shape> Shapes => new[] { Shape };
 
-        [ObjProp("Net force", "N", "N⋅s", "N/s", shortName:"F")]
+        [ObjProp("Net force", "N", "N⋅s", "N/s", "F")]
         public Vector2f NetForce
         {
             get
@@ -139,16 +139,15 @@ namespace phytestcs.Objects
         }
 
         public Hinge? Hinge { get; set; } = null;
-        
-        
+
 
         /// <summary>
-        /// Total torque around the object's rotation point (<see cref="RotationPoint"/>).
+        ///     Total torque around the object's rotation point (<see cref="RotationPoint" />).
         /// </summary>
         /// <remarks>
-        /// Derivative of the angular momentum (<see cref="AngularMomentum"/>).
+        ///     Derivative of the angular momentum (<see cref="AngularMomentum" />).
         /// </remarks>
-        [ObjProp("Net torque", "N⋅m", "J⋅s", "W", shortName:"τ")]
+        [ObjProp("Net torque", "N⋅m", "J⋅s", "W", "τ")]
         public float NetTorque
         {
             get
@@ -165,52 +164,46 @@ namespace phytestcs.Objects
             get
             {
                 if (_globalPointsCache == null || Simulation.SimDuration != _globalPointsCacheTime)
-                {
                     _globalPointsCache = Shape.PointsGlobal();
-                }
 
                 return _globalPointsCache;
             }
         }
 
         /// <summary>
-        /// Rate of change of the linear velocity. 
+        ///     Rate of change of the linear velocity.
         /// </summary>
         /// <remarks>
-        /// Derivative of the linear velocity (<see cref="Velocity"/>).
-        /// Antiderivative of the jerk.
+        ///     Derivative of the linear velocity (<see cref="Velocity" />).
+        ///     Antiderivative of the jerk.
         /// </remarks>
-        [ObjProp("Acceleration", "m/s²", "m/s", "m/s³", shortName:"a")]
-        public Vector2f Acceleration => Fixed ? default : (NetForce / Mass);
+        [ObjProp("Acceleration", "m/s²", "m/s", "m/s³", "a")]
+        public Vector2f Acceleration => Fixed ? default : NetForce / Mass;
 
         // <summary>
-        /// Rate of change of the angular velocity. 
+        /// Rate of change of the angular velocity.
         /// </summary>
         /// <remarks>
-        /// Derivative of the angular velocity (<see cref="AngularVelocity"/>).
-        /// Antiderivative of the angular jerk.
+        ///     Derivative of the angular velocity (<see cref="AngularVelocity" />).
+        ///     Antiderivative of the angular jerk.
         /// </remarks>
-        [ObjProp("Angular acceleration", "rad/s²", "rad/s", "rad/s³", shortName:"α")]
-        public float AngularAcceleration => Fixed ? default : (NetTorque / MomentOfInertia + _angularAirFriction);
+        [ObjProp("Angular acceleration", "rad/s²", "rad/s", "rad/s³", "α")]
+        public float AngularAcceleration => Fixed ? default : NetTorque / MomentOfInertia + _angularAirFriction;
 
-        [ObjProp("Angular momentum", "J⋅s", shortName:"L")]
+        [ObjProp("Angular momentum", "J⋅s", shortName: "L")]
         public float AngularMomentum => MomentOfInertia * AngularVelocity;
 
         /// <summary>
-        /// Dimensionless ratio between the speed of light in vacuum and the speed of light in the object.
+        ///     Dimensionless ratio between the speed of light in vacuum and the speed of light in the object.
         /// </summary>
-        [ObjProp("Refractive index", shortName:"n")]
+        [ObjProp("Refractive index", shortName: "n")]
         public float RefractiveIndex { get; set; } = 1.5f;
 
-        public uint CollideSet { get; set; } = 1;
-        
         /// <summary>
-        /// If true, the object will not collide with others with identical collide set
+        ///     If true, the object will not collide with others with identical collide set
         /// </summary>
         [ObjProp("No self collision")]
         public bool HeteroCollide { get; set; } = false;
-        
-        public Shape Shape { get; }
 
         public override Vector2f Position
         {
@@ -236,16 +229,33 @@ namespace phytestcs.Objects
 
         [ObjProp("Air friction multiplier")]
         public float AirFrictionMultiplier { get; set; } = 1;
-        
+
         [ObjProp("Inertia multiplier")]
         public float InertiaMultiplier { get; set; } = 1;
+
+        [ObjProp("Lock the angle")]
+        public bool LockAngle { get; set; } = false;
+
+        public bool ColorFilter => !float.IsPositiveInfinity(ColorFilterWidth);
+
+        [ObjProp("Filter tolerance", "°")]
+        public float ColorFilterWidth { get; set; } = float.PositiveInfinity;
+
+        public EventWrapper<CollisionEventArgs> OnCollide { get; } = new EventWrapper<CollisionEventArgs>();
+
+        public EventWrapper<LaserCollisionEventArgs> OnHitByLaser { get; } =
+            new EventWrapper<LaserCollisionEventArgs>();
+
+        public uint CollideSet { get; set; } = 1;
+
+        public Shape Shape { get; }
 
         public override Vector2f Map(Vector2f local)
         {
             return Shape.Transform.TransformPoint(Shape.Origin + local);
         }
 
-        public override Vector2f MapInv(Vector2f @global)
+        public override Vector2f MapInv(Vector2f global)
         {
             return Shape.InverseTransform.TransformPoint(global) - Shape.Origin;
         }
@@ -316,9 +326,9 @@ namespace phytestcs.Objects
                             var size = Shape.GetGlobalBounds().Size();
                             var diam1 = Math.Abs(size.Dot(velRel.Ortho()));
 
-                            AirFriction.Value = (-diam1 * mult *
-                                                 (Simulation.AirFrictionQuadratic * vn + Simulation.AirFrictionLinear) *
-                                                 vn) * vu;
+                            AirFriction.Value = -diam1 * mult *
+                                                (Simulation.AirFrictionQuadratic * vn + Simulation.AirFrictionLinear) *
+                                                vn * vu;
                         }
 
                         _angularAirFriction = AngularVelocity
@@ -340,9 +350,7 @@ namespace phytestcs.Objects
                 if (!Fixed)
                 {
                     if (Hinge != null && float.IsPositiveInfinity(Hinge.MotorTorque))
-                    {
                         AngularVelocity = Hinge.MotorSpeed;
-                    }
 
                     if (!LockAngle)
                     {
@@ -367,17 +375,9 @@ namespace phytestcs.Objects
                     UpdatePosition();
                 }
             }
-            
+
             base.UpdatePhysics(dt);
         }
-
-        [ObjProp("Lock the angle")]
-        public bool LockAngle { get; set; } = false;
-
-        public bool ColorFilter => !float.IsPositiveInfinity(ColorFilterWidth);
-        
-        [ObjProp("Filter tolerance", "°")]
-        public float ColorFilterWidth { get; set; } = float.PositiveInfinity;
 
         private void UpdatePosition()
         {
@@ -438,9 +438,10 @@ namespace phytestcs.Objects
             lock (Forces.SyncRoot)
             {
                 for (var i = Forces.Count - 1; i >= 0; i--)
-                {
                     if ((Forces[i].TimeToLive -= dt) <= 0)
+                    {
                         Forces.RemoveAt(i);
+                    }
                     else
                     {
                         if (Forces[i].Source is Hinge h)
@@ -451,7 +452,6 @@ namespace phytestcs.Objects
                                 _collIgnore.Add(h.End1.Object);
                         }
                     }
-                }
             }
         }
 
@@ -464,7 +464,8 @@ namespace phytestcs.Objects
 
         public static PhysicalObject Cercle(float x, float y, float r, Color col)
         {
-            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r, Render._rotCirclePointCount)) { Color = col };
+            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r, Render._rotCirclePointCount))
+                { Color = col };
         }
 
         public override void Draw()
@@ -475,9 +476,7 @@ namespace phytestcs.Objects
             Render.Window.Draw(Shape);
 
             if (Appearance.DrawCircleCakes && Shape is CircleShape circle)
-            {
                 Render.Window.Draw(Tools.CircleCake(Position, circle.Radius, Shape.OutlineColor, Angle));
-            }
         }
 
         public override void DrawOverlay()
@@ -485,7 +484,6 @@ namespace phytestcs.Objects
             base.DrawOverlay();
 
             if (Render.ShowForces || Appearance.ShowForces)
-            {
                 foreach (var f in Forces.ToArrayLocked())
                 {
                     var origin = Map(f.Position);
@@ -517,7 +515,7 @@ namespace phytestcs.Objects
                         new Vertex(tip, color),
                         new Vertex(tip - Tools.FromPolar(arrow, angle + arrowAng), color),
                         new Vertex(tip, color),
-                        new Vertex(tip - Tools.FromPolar(arrow, angle - arrowAng), color),
+                        new Vertex(tip - Tools.FromPolar(arrow, angle - arrowAng), color)
                     }, PrimitiveType.Lines);
 
                     Render.Window.SetView(Camera.MainView);
@@ -535,7 +533,6 @@ namespace phytestcs.Objects
 
                     Render.Window.SetView(Camera.GameView);
                 }
-            }
         }
 
         private static (Vector2f[], bool, PhysicalObject, PhysicalObject, Vector2f, Vector2f) GetForcePoints(
@@ -549,7 +546,6 @@ namespace phytestcs.Objects
             var np = 0;
 
             for (var k = 0; k < ap.Length; k++)
-            {
                 if (bp.ContainsPoint(ap[k]))
                 {
                     inds[np] = k;
@@ -557,12 +553,9 @@ namespace phytestcs.Objects
                     if (np == 2)
                         break;
                 }
-            }
 
             if (np == 0 && !second)
-            {
                 return GetForcePoints(b, a, dpb, dpa, true);
-            }
 
             var inters = new Vector2f[2];
             var intersn = 0;
@@ -580,17 +573,13 @@ namespace phytestcs.Objects
                     var nex = bp[(k + 1) % bp.Length];
 
                     if (Tools.Intersects((cur, nex), (colls[0], pprev), out var inter1, out _))
-                    {
                         inters[intersn++] = inter1;
-                    }
-                    
+
                     if (intersn == 2)
                         break;
 
                     if (Tools.Intersects((cur, nex), (colls[0], pnext), out var inter2, out _))
-                    {
                         inters[intersn++] = inter2;
-                    }
 
                     if (intersn == 2)
                         break;
@@ -600,7 +589,6 @@ namespace phytestcs.Objects
             var p2out = false;
 
             if (intersn > 0)
-            {
                 for (var i1 = 0; i1 < intersn; i1++)
                 {
                     inters[i1] += dpa;
@@ -612,7 +600,6 @@ namespace phytestcs.Objects
                         break;
                     }
                 }
-            }
 
             Array.Resize(ref colls, np);
 
@@ -620,8 +607,8 @@ namespace phytestcs.Objects
         }
 
         /// <summary>
-        /// Returns the velocity of a particular local point relative to the center of gravity.
-        /// The speed is always normal to the vector from the center of gravity to the point.
+        ///     Returns the velocity of a particular local point relative to the center of gravity.
+        ///     The speed is always normal to the vector from the center of gravity to the point.
         /// </summary>
         public Vector2f SpeedAtPoint(Vector2f local)
         {
@@ -631,105 +618,102 @@ namespace phytestcs.Objects
         public static void ProcessPairs(float dt, PhysicalObject[] phy)
         {
             for (var i = 0; i < phy.Length - 1; i++)
+            for (var j = i + 1; j < phy.Length; j++)
             {
-                for (var j = i + 1; j < phy.Length; j++)
+                var a = phy[i];
+                var b = phy[j];
+
+                if (a.Fixed && b.Fixed)
+                    continue;
+
+                if ((a.CollideSet & b.CollideSet) == 0)
+                    continue;
+
+                if (a.HeteroCollide && b.HeteroCollide && a.CollideSet == b.CollideSet)
+                    continue;
+
+                if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
+                    continue;
+
+                if (OBB.testCollision(a.Shape, b.Shape, out var mtv))
                 {
-                    var a = phy[i];
-                    var b = phy[j];
+                    var unitMtv = mtv.Normalize();
+                    var v1p = -a.Velocity.Dot(unitMtv);
+                    var v2p = b.Velocity.Dot(unitMtv);
 
-                    if (a.Fixed && b.Fixed)
-                        continue;
+                    var dpa = new Vector2f();
+                    var dpb = new Vector2f();
 
-                    if ((a.CollideSet & b.CollideSet) == 0)
-                        continue;
-
-                    if (a.HeteroCollide && b.HeteroCollide && a.CollideSet == b.CollideSet)
-                        continue;
-
-                    if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
-                        continue;
-
-                    if (OBB.testCollision(a.Shape, b.Shape, out var mtv))
+                    // répartition des vitesses de séparation
+                    // si un des deux est fixe, l'autre prend tout
+                    if (a.Fixed)
                     {
-                        var unitMtv = mtv.Normalize();
-                        var v1p = -a.Velocity.Dot(unitMtv);
-                        var v2p = b.Velocity.Dot(unitMtv);
-
-                        var dpa = new Vector2f();
-                        var dpb = new Vector2f();
-
-                        // répartition des vitesses de séparation
-                        // si un des deux est fixe, l'autre prend tout
-                        if (a.Fixed)
+                        dpb = -mtv;
+                    }
+                    else if (b.Fixed)
+                    {
+                        dpa = mtv;
+                    }
+                    else
+                    {
+                        // sinon on répartit proportionnellement
+                        var vs = Math.Abs(v1p) + Math.Abs(v2p);
+                        if (vs == 0)
                         {
-                            dpb = -mtv;
-                        }
-                        else if (b.Fixed)
-                        {
-                            dpa = mtv;
+                            dpa = mtv / 2;
+                            dpb = -mtv / 2;
                         }
                         else
                         {
-                            // sinon on répartit proportionnellement
-                            var vs = Math.Abs(v1p) + Math.Abs(v2p);
-                            if (vs == 0)
-                            {
-                                dpa = mtv / 2;
-                                dpb = -mtv / 2;
-                            }
-                            else
-                            {
-                                dpa = mtv * v1p / vs;
-                                dpb = mtv * v2p / vs;
-                            }
+                            dpa = mtv * v1p / vs;
+                            dpb = mtv * v2p / vs;
                         }
+                    }
 
-                        var (colls, p2out, a_, b_, dpa_, dpb_) = GetForcePoints(a, b, dpa, dpb);
+                    var (colls, p2out, a_, b_, dpa_, dpb_) = GetForcePoints(a, b, dpa, dpb);
 
-                        var np = colls.Length;
+                    var np = colls.Length;
 
-                        a_._position += dpa_;
+                    a_._position += dpa_;
 
-                        for (var i1 = 0; i1 < np; i1++)
-                        {
-                            colls[i1] += dpa_;
-                        }
+                    for (var i1 = 0; i1 < np; i1++)
+                        colls[i1] += dpa_;
 
-                        b_._position += dpb_;
+                    b_._position += dpb_;
 
-                        var phi = mtv.Angle();
-                        var (v1c, v2c) = (
-                            ElasticCollision(a.Mass, b.Mass, a.Velocity, b.Velocity, a.Restitution, b.Restitution, phi),
-                            ElasticCollision(b.Mass, a.Mass, b.Velocity, a.Velocity, b.Restitution, a.Restitution, phi)
-                        );
+                    var phi = mtv.Angle();
+                    var (v1c, v2c) = (
+                        ElasticCollision(a.Mass, b.Mass, a.Velocity, b.Velocity, a.Restitution, b.Restitution, phi),
+                        ElasticCollision(b.Mass, a.Mass, b.Velocity, a.Velocity, b.Restitution, a.Restitution, phi)
+                    );
 
-                        var fA = 1f * ((v1c) - a.Velocity) * a.Mass / dt;
-                        var fB = 1f * ((v2c) - b.Velocity) * b.Mass / dt;
-                        var wA = new float[np];
-                        var wB = new float[np];
+                    var fA = 1f * (v1c - a.Velocity) * a.Mass / dt;
+                    var fB = 1f * (v2c - b.Velocity) * b.Mass / dt;
+                    var wA = new float[np];
+                    var wB = new float[np];
 
-                        if (np == 1)
-                        {
-                            wA[0] = 1f;
-                            wB[0] = 1f;
-                        }
-                        else if (np == 2)
-                        {
-                            var line = colls[1] - colls[0];
-                            var X = line.Norm();
-                            line /= X;
-                            
-                            var gA = (a.Position - colls[0]).Dot(line);
-                            var dA = X - gA;
-                            wA[0] = dA / X;
-                            wA[1] = gA / X;
-                            
-                            var gB = (b.Position - colls[0]).Dot(line);
-                            var dB = X - gB;
-                            wB[0] = dB / X;
-                            wB[1] = gB / X;
-                         
-                            /*if (p2out)
+                    if (np == 1)
+                    {
+                        wA[0] = 1f;
+                        wB[0] = 1f;
+                    }
+                    else if (np == 2)
+                    {
+                        var line = colls[1] - colls[0];
+                        var X = line.Norm();
+                        line /= X;
+
+                        var gA = (a.Position - colls[0]).Dot(line);
+                        var dA = X - gA;
+                        wA[0] = dA / X;
+                        wA[1] = gA / X;
+
+                        var gB = (b.Position - colls[0]).Dot(line);
+                        var dB = X - gB;
+                        wB[0] = dB / X;
+                        wB[1] = gB / X;
+
+                        /*if (p2out)
                             {
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
@@ -740,79 +724,75 @@ namespace phytestcs.Objects
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
                             }*/
-                        }
+                    }
+
+                    for (var i1 = 0; i1 < np; i1++)
+                    {
+                        a.Forces.Add(new Force(ForceType.Normal, fA * wA[i1], a.MapInv(colls[i1]), dt)
+                            { Source = b });
+                        b.Forces.Add(new Force(ForceType.Normal, fB * wB[i1], b.MapInv(colls[i1]), dt)
+                            { Source = a });
+                    }
+
+                    var friction = (float) Math.Sqrt(a.Friction * b.Friction);
+                    var unit = unitMtv.Ortho();
+                    var unitF = friction * unit;
+
+                    if (!a.Fixed)
+                    {
+                        var ff = -a.Velocity.Dot(unit) * unitF;
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
-                            a.Forces.Add(new Force(ForceType.Normal, fA * wA[i1], a.MapInv(colls[i1]), dt)
+                            var local = a.MapInv(colls[i1]);
+                            a.Forces.Add(new Force(ForceType.Friction,
+                                    ff * wA[i1] + -a.SpeedAtPoint(local).Dot(unit) * unitF, local, dt)
                                 { Source = b });
-                            b.Forces.Add(new Force(ForceType.Normal, fB * wB[i1], b.MapInv(colls[i1]), dt)
+                        }
+                    }
+
+                    if (!b.Fixed)
+                    {
+                        var ff = -b.Velocity.Dot(unit) * unitF;
+
+                        for (var i1 = 0; i1 < np; i1++)
+                        {
+                            var local = b.MapInv(colls[i1]);
+                            b.Forces.Add(new Force(ForceType.Friction,
+                                    ff * wB[i1] + -b.SpeedAtPoint(local).Dot(unit) * unitF, local, dt)
                                 { Source = a });
                         }
+                    }
 
-                        var friction = (float) Math.Sqrt(a.Friction * b.Friction);
-                        var unit = unitMtv.Ortho();
-                        var unitF = friction * unit;
-
-                        if (!a.Fixed)
-                        {
-                            var ff = -a.Velocity.Dot(unit) * unitF;
-
-                            for (var i1 = 0; i1 < np; i1++)
-                            {
-                                var local = a.MapInv(colls[i1]);
-                                a.Forces.Add(new Force(ForceType.Friction,
-                                        ff * wA[i1] + (-a.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
-                                    { Source = b });
-                            }
-                        }
-
-                        if (!b.Fixed)
-                        {
-                            var ff = -b.Velocity.Dot(unit) * unitF;
-
-                            for (var i1 = 0; i1 < np; i1++)
-                            {
-                                var local = b.MapInv(colls[i1]);
-                                b.Forces.Add(new Force(ForceType.Friction,
-                                        ff * wB[i1] + (-b.SpeedAtPoint(local).Dot(unit) * unitF), local, dt)
-                                    { Source = a });
-                            }
-                        }
-
-                        //if (!a.Fixed && obj._velocity.Y != 0 && obj.Shape.GetGlobalBounds().CollidesY(Shape.GetGlobalBounds()))
-                        //    obj.Forces.Add(new Force("Friction Y", new Vector2f(0, (float)(Math.Abs(obj.NetForce.X) * Math.Sqrt(Friction * obj.Friction) * -Math.Sign(obj._velocity.Y))), -1));
+                    //if (!a.Fixed && obj._velocity.Y != 0 && obj.Shape.GetGlobalBounds().CollidesY(Shape.GetGlobalBounds()))
+                    //    obj.Forces.Add(new Force("Friction Y", new Vector2f(0, (float)(Math.Abs(obj.NetForce.X) * Math.Sqrt(Friction * obj.Friction) * -Math.Sign(obj._velocity.Y))), -1));
 
 
-                        //Simulation.SetPause(true);
+                    //Simulation.SetPause(true);
 
-                        /*(a._velocity.X, b._velocity.X) = (
+                    /*(a._velocity.X, b._velocity.X) = (
                             ElasticCollision(a.Mass, b.Mass, a._velocity.X, b._velocity.X, a.Restitution, b.Restitution),
                             ElasticCollision(b.Mass, a.Mass, b._velocity.X, a._velocity.X, b.Restitution, a.Restitution));
 
                         (a._velocity.Y, b._velocity.Y) = (
                             ElasticCollision(a.Mass, b.Mass, a._velocity.Y, b._velocity.Y, a.Restitution, b.Restitution),
                             ElasticCollision(b.Mass, a.Mass, b._velocity.Y, a._velocity.Y, b.Restitution, a.Restitution));*/
-                    }
                 }
             }
         }
-        
-        public EventWrapper<CollisionEventArgs> OnCollide { get; } = new EventWrapper<CollisionEventArgs>();
-        public EventWrapper<LaserCollisionEventArgs> OnHitByLaser { get; } = new EventWrapper<LaserCollisionEventArgs>();
     }
-    
+
     public class CollisionEventArgs : BaseEventArgs
     {
-        public dynamic Other { get; }
-        public Vector2f Position { get; }
-        public Vector2f Normal { get; }
-
         public CollisionEventArgs(object @this, object other, Vector2f position, Vector2f normal) : base(@this)
         {
             Other = other;
             Position = position;
             Normal = normal;
         }
+
+        public dynamic Other { get; }
+        public Vector2f Position { get; }
+        public Vector2f Normal { get; }
     }
 }

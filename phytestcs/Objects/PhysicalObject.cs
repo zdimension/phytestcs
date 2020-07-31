@@ -794,7 +794,7 @@ namespace phytestcs.Objects
         }
         
         public EventWrapper<CollisionEventArgs> OnCollide { get; } = new EventWrapper<CollisionEventArgs>();
-        public EventWrapper<CollisionEventArgs> OnHitByLaser { get; } = new EventWrapper<CollisionEventArgs>();
+        public EventWrapper<LaserCollisionEventArgs> OnHitByLaser { get; } = new EventWrapper<LaserCollisionEventArgs>();
     }
     
     public class CollisionEventArgs : BaseEventArgs
@@ -803,7 +803,7 @@ namespace phytestcs.Objects
         public Vector2f Position { get; }
         public Vector2f Normal { get; }
 
-        public CollisionEventArgs(object @this, dynamic other, Vector2f position, Vector2f normal) : base(@this)
+        public CollisionEventArgs(object @this, object other, Vector2f position, Vector2f normal) : base(@this)
         {
             Other = other;
             Position = position;

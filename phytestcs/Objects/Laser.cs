@@ -41,8 +41,8 @@ namespace phytestcs.Objects
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
         public uint CollideSet { get; set; } = 1;
 
-        private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)> _hits =
-            new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal)>();
+        private readonly Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)> _hits =
+            new Dictionary<PhysicalObject, (Vector2f pos, Vector2f normal, LaserRay ray)>();
 
         public const float StrengthEpsilon = 0.9f / 255f;
 
@@ -110,7 +110,7 @@ namespace phytestcs.Objects
                         var normal = side.Ortho();
                         
                         if (!_hits.ContainsKey(minObj!))
-                            _hits.Add(minObj!, (minInter, normal));
+                            _hits.Add(minObj!, (minInter, normal, ray));
                         
                         var normalAngle = normal.Angle();
                         var insideObject = side.Cross(ray.Start - sideStart) > 0;
@@ -209,10 +209,10 @@ namespace phytestcs.Objects
                     Object?.RefractiveIndex ?? 1, this);
                 ShootRay(initial);
 
-                foreach (var (obj, (pos, normal)) in _hits)
+                foreach (var (obj, (pos, normal, ray)) in _hits)
                 {
-                    obj.OnHitByLaser.Invoke(new CollisionEventArgs(obj, this, pos, normal));
-                    OnLaserHit.Invoke(new CollisionEventArgs(this, obj, pos, normal));
+                    obj.OnHitByLaser.Invoke(new LaserCollisionEventArgs(obj, this, pos, normal, ray));
+                    OnLaserHit.Invoke(new LaserCollisionEventArgs(this, obj, pos, normal, ray));
                 }
             }
         }
@@ -260,7 +260,7 @@ namespace phytestcs.Objects
             Render.NumRays += cache.Length;
         }
         
-        public EventWrapper<CollisionEventArgs> OnLaserHit { get; } = new EventWrapper<CollisionEventArgs>();
+        public EventWrapper<LaserCollisionEventArgs> OnLaserHit { get; } = new EventWrapper<LaserCollisionEventArgs>();
     }
 
     public class LaserRay
@@ -308,6 +308,17 @@ namespace phytestcs.Objects
             if (float.IsPositiveInfinity(length))
                 length = Math.Max(Camera.GameView.Size.X, Camera.GameView.Size.Y);
             return Start + Tools.FromPolar(length, Angle);
+        }
+    }
+    
+    public class LaserCollisionEventArgs : CollisionEventArgs
+    {
+        public LaserRay Ray { get; }
+
+        public LaserCollisionEventArgs(object @this, object other, Vector2f position, Vector2f normal, LaserRay ray) :
+            base(@this, other, position, normal)
+        {
+            Ray = ray;
         }
     }
 }

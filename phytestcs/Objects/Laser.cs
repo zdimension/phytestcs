@@ -159,7 +159,18 @@ namespace phytestcs.Objects
                                    (float) Math.PI;
                         }
                         
-                        var refractionStrength = opacityRefracted * ray.EndStrength * (255 - minObj.Color.A) / 255d;
+                        var refractionStrength = opacityRefracted * ray.EndStrength;
+                        Func<double, double> colorStrength;
+                        var alphaD = (255 - minObj.Color.A) / 255d;
+                        if (minObj.ColorFilter)
+                        {
+                            var hue = minObj.ColorHsva.H;
+                            colorStrength = x => alphaD * Math.Exp(-Math.Pow(((float)(x - hue)).ClampWrap(360) / minObj.ColorFilterWidth, 2));
+                        }
+                        else
+                        {
+                            colorStrength = x => alphaD;
+                        }
                         var rainbowStrength = refractionStrength * (1 - ray.ColorHsva.S) * Simulation.RainbowSplitMult;
                         refractionStrength *= ray.ColorHsva.S;
                         
@@ -176,7 +187,7 @@ namespace phytestcs.Objects
 
                             var refractedRay = new LaserRay(minInter, refractionAngle, float.PositiveInfinity,
                                 ray.Color,
-                                (float) refractionStrength,
+                                (float) (refractionStrength * colorStrength(ray.ColorHsva.H)),
                                 refractionThickness(refractionAngle), ray.EndDistance, refIndex, this);
                             refractedRay.SourceAngle = normalAngle - refractionAngle;
                             refractedRay.DebugInfo = "ref ";
@@ -193,7 +204,7 @@ namespace phytestcs.Objects
                                 var rainbowIndex = GetIndex(color.H);
                                 var angle = GetAngle(rainbowIndex);
                                 var rainbowRay = new LaserRay(minInter, angle, float.PositiveInfinity, color,
-                                    (float) rainbowStrength,
+                                    (float) (rainbowStrength * colorStrength(color.H)),
                                     refractionThickness(angle), ray.EndDistance, rainbowIndex, this);
                                 rainbowRay.SourceAngle = normalAngle - angle;
                                 rainbowRay.DebugInfo = "rainbow";

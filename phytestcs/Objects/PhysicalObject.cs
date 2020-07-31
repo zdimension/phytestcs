@@ -374,6 +374,11 @@ namespace phytestcs.Objects
         [ObjProp("Lock the angle")]
         public bool LockAngle { get; set; } = false;
 
+        public bool ColorFilter => !float.IsPositiveInfinity(ColorFilterWidth);
+        
+        [ObjProp("Width of the color absorbance peak")]
+        public float ColorFilterWidth { get; set; } = float.PositiveInfinity;
+
         private void UpdatePosition()
         {
             Shape.Position = Position;

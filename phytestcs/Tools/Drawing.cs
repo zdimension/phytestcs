@@ -85,8 +85,15 @@ namespace phytestcs
             };
         }
 
+        public enum BlendType
+        {
+            Linear,
+            Exp,
+            ExpSymmetric
+        }
+
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
-            int? upto = null, Color? c2_ = null, byte endAlpha=0, bool blendLin=false, bool outsideInvert=false, float startAngle=0f, float endAngle=0f)
+            int? upto = null, Color? c2_ = null, byte endAlpha=0, BlendType blendMode=BlendType.ExpSymmetric, bool outsideInvert=false, float startAngle=0f, float endAngle=0f, bool squaryEnd=false)
         {
             if (points.Length <= 1 || (upto != null && upto <= 1))
                 return new VertexArray(PrimitiveType.TriangleStrip, 0);
@@ -95,6 +102,8 @@ namespace phytestcs
             var b = points[1];
             var dir = (b - a).Normalize();
             var edge = dir.Ortho();
+            if (outsideInvert)
+                edge = -edge;
             var end = points.Length;
             if (upto != null)
                 end = Math.Min(upto.Value, points.Length);
@@ -106,15 +115,28 @@ namespace phytestcs
             var col2 = c2;
 
             Func<int, byte> alpha;
-            if (blendLin)
+            switch (blendMode)
             {
-                var linFactor = ((float) col.A - endAlpha) / (end - 1);
-                alpha = x => (byte) (endAlpha + linFactor * x);
-            }
-            else
-            {
-                var blendFac = ((float) col.A - endAlpha) / col.A;
-                alpha = x => (byte) (c.A - blendFac * (Math.Pow(c.A + 1, 1f - x / (end - 1f)) - 1));
+                case BlendType.Linear:
+                {
+                    var linFactor = ((float) col.A - endAlpha) / (end - 1);
+                    alpha = x => (byte) (endAlpha + linFactor * x);
+                    break;
+                }
+                case BlendType.Exp:
+                {
+                    var blendFac = (float) (Math.Log((double) endAlpha / col.A) / (end - 1));
+                    alpha = x => (byte) (c.A * Math.Exp(blendFac * (end - 1 - x)));
+                    break;
+                }
+                case BlendType.ExpSymmetric:
+                {
+                    var blendFac = ((float) col.A - endAlpha) / col.A;
+                    alpha = x => (byte) (c.A - blendFac * (Math.Pow(c.A + 1, 1f - x / (end - 1f)) - 1));
+                    break;
+                }
+                default:
+                    throw new NotImplementedException();
             }
 
             if (blend)
@@ -126,8 +148,14 @@ namespace phytestcs
 
             var startDiff = dir * (float) (w * Math.Tan(startAngle) / 2);
 
-            res[pos++] = new Vertex(a - w * edge / 2 + startDiff, outsideInvert ? col : col2);
-            res[pos++] = new Vertex(a + w * edge / 2 - startDiff, outsideInvert ? col2 : col);
+            var addSign = squaryEnd ? -1 : 1;
+            void AddPair(Vector2f origin, Vector2f delta, Color color1, Color color2)
+            {
+                res[pos++] = new Vertex(origin + addSign * delta, color1);
+                res[pos++] = new Vertex(origin - addSign * delta, color2);
+            }
+
+            AddPair(a, w * edge / 2 - startDiff, col, col2);
 
             for (var i = 1; i < end - 1; i++)
             {
@@ -147,16 +175,12 @@ namespace phytestcs
                         col2.A = al;
                 }
 
-                res[pos++] = new Vertex(p1 - length * miter, outsideInvert ? col : col2);
-                res[pos++] = new Vertex(p1 + length * miter, outsideInvert ? col2 : col);
+                AddPair(p1, length * miter, col, col2);
             }
-
-            a = points[end - 1];
             
             var endDiff = dir * (float) (w * Math.Tan(endAngle) / 2);
-            
-            res[pos++] = new Vertex(a - w * edge / 2 - endDiff, outsideInvert ? c : c2);
-            res[pos++] = new Vertex(a + w * edge / 2 + endDiff, outsideInvert ? c2 : c);
+
+            AddPair( points[end - 1], w * edge / 2 + endDiff, c, c2);
 
             return res;
         }

@@ -8,9 +8,9 @@ namespace phytestcs
     {
         [ObjProp("Opaque borders")] public bool OpaqueBorders;
         [ObjProp("Draw circle cake")] public bool DrawCircleCakes;
-        [ObjProp("Ruler")] public bool Ruler;
+        [ObjProp("Show ruler")] public bool Ruler;
         [ObjProp("Show forces")] public bool ShowForces;
-        [ObjProp("Protractor")] public bool Protractor;
+        [ObjProp("Show protractor")] public bool Protractor;
         [ObjProp("Show momenta")] public bool ShowMomentums;
         [ObjProp("Show velocities")] public bool ShowVelocities;
         [ObjProp("Draw borders")] public bool Borders;

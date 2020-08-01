@@ -5,7 +5,6 @@ using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -20,7 +19,7 @@ namespace phytestcs
         public static float Jump = 40;
         public static float Walk = 15;
         public static bool Pause = true;
-        public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
+        public static readonly SynchronizedCollection<BaseObject> World = new SynchronizedCollection<BaseObject>();
         public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
         public static PhysicalObject Player;
         public static float Fps;
@@ -33,9 +32,9 @@ namespace phytestcs
         public static DateTime LastUpdate = DateTime.Now;
         public static volatile float Ups;
 
-        public static Object[] WorldCache;
+        public static BaseObject[] WorldCache;
         public static PhysicalObject[] WorldCachePhy;
-        public static Object[] WorldCacheNonLaser;
+        public static BaseObject[] WorldCacheNonLaser;
         private static float _laserFuzziness = 0.7f;
         private static int _numColorsInRainbow = 12;
 
@@ -134,7 +133,7 @@ namespace phytestcs
             lock (World.SyncRoot)
             {
                 int j;
-                Object temp;
+                BaseObject temp;
                 for (var i = 1; i <= World.Count - 1; i++)
                 {
                     temp = World[i];
@@ -158,7 +157,7 @@ namespace phytestcs
             GravityVector = GravityEnabled ? _gravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
         }
 
-        private static void AddInternal(Object obj)
+        private static void AddInternal(BaseObject obj)
         {
             World.Add(obj);
             obj.OnSpawn.Invoke(new BaseEventArgs(obj));
@@ -166,7 +165,7 @@ namespace phytestcs
         }
 
         public static T Add<T>(T obj)
-            where T : Object
+            where T : BaseObject
         {
             AddInternal(obj);
 
@@ -182,7 +181,7 @@ namespace phytestcs
             World.Clear();
         }
 
-        public static void Remove(Object obj)
+        public static void Remove(BaseObject obj)
         {
             World.Remove(obj);
         }

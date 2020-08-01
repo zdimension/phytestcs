@@ -87,7 +87,7 @@ namespace phytestcs.Interface
         }
     }
 
-    public class PropConverter<TOrig, TDisp>
+    public sealed class PropConverter<TOrig, TDisp>
     {
         public delegate TDisp Getter(TOrig o);
 

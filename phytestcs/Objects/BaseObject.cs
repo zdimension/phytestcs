@@ -10,23 +10,23 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Objects
 {
-    public abstract class Object : DispatchProxy, IDisposable
+    public abstract class BaseObject : DispatchProxy, IDisposable
     {
         private static ulong _idCounter;
 
         private readonly Dictionary<MethodInfo, (Binding binding, MethodInfo? setter)> _bindings =
             new Dictionary<MethodInfo, (Binding, MethodInfo?)>();
 
-        private readonly SynchronizedCollection<Object> _dependents = new SynchronizedCollection<Object>();
+        private readonly SynchronizedCollection<BaseObject> _dependents = new SynchronizedCollection<BaseObject>();
 
-        private readonly SynchronizedCollection<Object> _parents = new SynchronizedCollection<Object>();
+        private readonly SynchronizedCollection<BaseObject> _parents = new SynchronizedCollection<BaseObject>();
         private bool _selected;
 
         private bool _updating;
         private float _zDepth = 1;
         public ObjectAppearance Appearance = Program.CurrentPalette.Appearance;
 
-        protected Object()
+        protected BaseObject()
         {
             Id = _idCounter++;
         }
@@ -92,9 +92,9 @@ namespace phytestcs.Objects
             }
         }
 
-        public IReadOnlyList<Object> Parents => _parents.ToList().AsReadOnly();
+        public IReadOnlyList<BaseObject> Parents => _parents.ToList().AsReadOnly();
 
-        public IReadOnlyList<Object> Dependents => _dependents.ToList().AsReadOnly();
+        public IReadOnlyList<BaseObject> Dependents => _dependents.ToList().AsReadOnly();
 
         public EventWrapper<ClickedEventArgs> OnClick { get; } = new EventWrapper<ClickedEventArgs>();
         public EventWrapper<BaseEventArgs> OnDie { get; } = new EventWrapper<BaseEventArgs>();
@@ -123,7 +123,7 @@ namespace phytestcs.Objects
             OutlineColor = color;
         }
 
-        protected void DependsOn(Object other)
+        protected void DependsOn(BaseObject other)
         {
             if (other == null) throw new ArgumentNullException(nameof(other));
 
@@ -131,7 +131,7 @@ namespace phytestcs.Objects
             _parents.Add(other);
         }
 
-        protected void BothDepends(Object other)
+        protected void BothDepends(BaseObject other)
         {
             DependsOn(other);
             other.DependsOn(this);
@@ -139,7 +139,7 @@ namespace phytestcs.Objects
 
         public event Action Deleted = () => { };
 
-        public virtual void Delete(Object source = null)
+        public virtual void Delete(BaseObject source = null)
         {
             OnDie.Invoke(new BaseEventArgs(this));
 
@@ -280,7 +280,7 @@ namespace phytestcs.Objects
     }
 
     [AttributeUsageAttribute(AttributeTargets.All)]
-    public class ObjPropAttribute : DisplayNameAttribute
+    public sealed class ObjPropAttribute : DisplayNameAttribute
     {
         public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null,
             string shortName = null)
@@ -315,7 +315,7 @@ namespace phytestcs.Objects
         public event Action Removed = () => { };
     }
 
-    public class UserBinding : Binding
+    public sealed class UserBinding : Binding
     {
         public UserBinding(string code, object? target)
             : base(null)
@@ -344,7 +344,7 @@ namespace phytestcs.Objects
         public dynamic This { get; }
     }
 
-    public class ClickedEventArgs : BaseEventArgs
+    public sealed class ClickedEventArgs : BaseEventArgs
     {
         public ClickedEventArgs(object @this, Vector2f position) : base(@this)
         {
@@ -354,7 +354,7 @@ namespace phytestcs.Objects
         public Vector2f Position { get; }
     }
 
-    public class PostStepEventArgs : BaseEventArgs
+    public sealed class PostStepEventArgs : BaseEventArgs
     {
         public PostStepEventArgs(object @this, float deltaTime) : base(@this)
         {
@@ -364,7 +364,7 @@ namespace phytestcs.Objects
         public float DeltaTime { get; }
     }
 
-    public class Unit
+    public sealed class Unit
     {
         public static readonly Dictionary<string, Unit> Units = new Dictionary<string, Unit>();
 
@@ -400,7 +400,10 @@ namespace phytestcs.Objects
 
         public static string IncreasePower(string suffix)
         {
-            if (suffix.EndsWith("/s"))
+            if (suffix == null)
+                throw new ArgumentNullException(nameof(suffix));
+            
+            if (suffix.EndsWith("/s", StringComparison.InvariantCulture))
                 return suffix[..^2];
 
             foreach (var (bef, aft) in Powers)
@@ -412,6 +415,9 @@ namespace phytestcs.Objects
 
         public static string DecreasePower(string suffix)
         {
+            if (suffix == null)
+                throw new ArgumentNullException(nameof(suffix));
+            
             if (suffix.EndsWith("⋅s"))
                 return suffix[..^2];
 
@@ -424,12 +430,10 @@ namespace phytestcs.Objects
 
         public static Unit FromString(string name, Unit? deriv = null, Unit? integ = null)
         {
-            Unit res;
-
             var lDeriv = new Lazy<Unit>(() => deriv ?? FromString(DecreasePower(name)));
             var lInteg = new Lazy<Unit>(() => integ ?? FromString(IncreasePower(name)));
 
-            if (!Units.TryGetValue(name, out res!))
+            if (!Units.TryGetValue(name, out var res))
                 res = Units[name] = new Unit(name,
                     lDeriv,
                     lInteg);
@@ -468,7 +472,7 @@ namespace phytestcs.Objects
     }
 
     [AttributeUsage(AttributeTargets.All)]
-    public class HiddenAttribute : Attribute
+    public sealed class HiddenAttribute : Attribute
     {
         
     }

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Linq;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using static phytestcs.Tools;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndProperties : WndBase<Object>
+    public sealed class WndProperties : WndBase<BaseObject>
     {
-        public WndProperties(Object obj, Vector2f pos)
+        public WndProperties(BaseObject obj, Vector2f pos)
             : base(obj, 150, pos)
         {
             IsMain = true;

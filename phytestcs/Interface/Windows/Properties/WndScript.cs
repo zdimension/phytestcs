@@ -7,11 +7,10 @@ using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using static phytestcs.Tools;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndScript : WndBase<Object>
+    public sealed class WndScript : WndBase<BaseObject>
     {
         private static readonly Dictionary<Type, object> Converters = new Dictionary<Type, object>
         {
@@ -22,7 +21,7 @@ namespace phytestcs.Interface.Windows.Properties
             [typeof(bool)] = PropConverter.BoolString
         };
 
-        public WndScript(Object obj, Vector2f pos)
+        public WndScript(BaseObject obj, Vector2f pos)
             : base(obj, obj.Name, 440, pos)
         {
             var modes = new Dictionary<string, PropType>

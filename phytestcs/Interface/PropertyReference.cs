@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace phytestcs.Interface
 {
-    public class PropertyReference<T>
+    public sealed class PropertyReference<T>
     {
         public PropertyReference(PropertyInfo property, object? target)
         {

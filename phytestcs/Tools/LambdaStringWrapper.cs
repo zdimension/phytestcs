@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace phytestcs
 {
-    public class LambdaStringWrapper<T> : IRepr
+    public sealed class LambdaStringWrapper<T> : IRepr
         where T : Delegate
     {
         private string _code;
@@ -68,7 +68,7 @@ namespace phytestcs
         }
     }
 
-    public class EventWrapper<T> : IRepr
+    public sealed class EventWrapper<T> : IRepr
     {
         public EventWrapper(object? globals = null)
         {

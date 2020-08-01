@@ -7,9 +7,9 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndSelection : WndBase<Object>
+    public sealed class WndSelection : WndBase<BaseObject>
     {
-        private static readonly (string, string, System.Action<Object>)[] Actions =
+        private static readonly (string, string, System.Action<BaseObject>)[] Actions =
         {
             (L["Move to back"], "icons/small/move_back.png",
                 obj => { obj.ZDepth = Simulation.WorldCacheNonLaser.Min(o => o.ZDepth) - 1f; }),
@@ -17,7 +17,7 @@ namespace phytestcs.Interface.Windows.Properties
                 obj => { obj.ZDepth = Simulation.WorldCacheNonLaser.Max(o => o.ZDepth) + 1f; })
         };
 
-        public WndSelection(Object obj, Vector2f pos)
+        public WndSelection(BaseObject obj, Vector2f pos)
             : base(obj, 250, pos)
         {
             foreach (var (name, icon, action) in Actions)

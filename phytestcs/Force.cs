@@ -6,7 +6,7 @@ using static phytestcs.Tools;
 
 namespace phytestcs
 {
-    public class Force
+    public sealed class Force
     {
         public Force(ForceType type, Vector2f val, Vector2f pos, float ttl = float.PositiveInfinity)
         {
@@ -21,7 +21,7 @@ namespace phytestcs
         public Vector2f Value { get; set; }
         public Vector2f Position { get; set; }
         public float TimeToLive { get; set; }
-        public Object Source { get; set; }
+        public BaseObject Source { get; set; }
 
         public override string ToString()
         {
@@ -29,7 +29,7 @@ namespace phytestcs
         }
     }
 
-    public class ForceType
+    public sealed class ForceType
     {
         public static readonly ForceType Gravity = new ForceType(L["Gravity"], "P", Color.Black);
         public static readonly ForceType AirFriction = new ForceType(L["Air friction"], "f", Color.Red);

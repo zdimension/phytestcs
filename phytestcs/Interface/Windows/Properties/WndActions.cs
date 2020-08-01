@@ -7,7 +7,7 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndActions : WndBase<PhysicalObject>
+    public sealed  class WndActions : WndBase<PhysicalObject>
     {
         private static readonly (string, string, Action<PhysicalObject>)[] Actions =
         {

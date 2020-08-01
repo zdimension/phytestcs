@@ -4,13 +4,12 @@ using System.Linq;
 using phytestcs.Objects;
 using SFML.System;
 using SFML.Window;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
     public static partial class Tools
     {
-        public static IEnumerable<Object> ActualObjects => Render.WorldCache.Where(o =>
+        public static IEnumerable<BaseObject> ActualObjects => Render.WorldCache.Where(o =>
             o != Drawing.DragSpring &&
             o != Drawing.DragSpring?.End1 &&
             o != Drawing.DragSpring?.End2);
@@ -31,7 +30,7 @@ namespace phytestcs
             return x;
         }
 
-        public static Object ObjectAtPosition(Vector2i pos)
+        public static BaseObject ObjectAtPosition(Vector2i pos)
         {
             var loc = pos.ToWorld();
 
@@ -90,7 +89,7 @@ namespace phytestcs
         }
     }
 
-    public class Ref<T>
+    public sealed class Ref<T>
     {
         public T Value { get; set; }
     }

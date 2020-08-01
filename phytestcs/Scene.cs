@@ -12,7 +12,6 @@ using SFML.Graphics;
 using SFML.System;
 using TGUI;
 using static phytestcs.Tools;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -69,7 +68,7 @@ namespace phytestcs
             Simulation.SimDuration = 0;
             Ui.ClearPropertyWindows();
             Simulation.Clear();
-            Render.WorldCache = Array.Empty<Object>();
+            Render.WorldCache = Array.Empty<BaseObject>();
             Simulation.AttractorsCache = Array.Empty<PhysicalObject>();
             Simulation.Player = null;
             My = new ExpandoObject();

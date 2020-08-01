@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndHinge : WndBase<Hinge>
+    public sealed class WndHinge : WndBase<Hinge>
     {
         public WndHinge(Hinge obj, Vector2f pos)
             : base(obj, 250, pos)

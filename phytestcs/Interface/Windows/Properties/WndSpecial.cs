@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndSpecial : WndBase<PhysicalObject>
+    public sealed class WndSpecial : WndBase<PhysicalObject>
     {
         public WndSpecial(PhysicalObject obj, Vector2f pos)
             : base(obj, 250, pos)

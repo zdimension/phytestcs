@@ -4,7 +4,7 @@ using TGUI;
 
 namespace phytestcs.Interface
 {
-    public class CheckField : Panel
+    public sealed class CheckField : Panel
     {
         private readonly Func<bool>? _getter;
         private readonly Action<bool>? _setter;

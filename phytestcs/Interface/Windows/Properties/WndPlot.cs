@@ -20,7 +20,7 @@ using View = SFML.Graphics.View;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndPlot : WndBase<PhysicalObject>
+    public sealed class WndPlot : WndBase<PhysicalObject>
     {
         private const int LGauche = 200;
         private const int LGraphe = 400;

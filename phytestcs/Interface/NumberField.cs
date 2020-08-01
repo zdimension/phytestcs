@@ -5,7 +5,7 @@ using TGUI;
 
 namespace phytestcs.Interface
 {
-    public class NumberField<T> : Panel
+    public sealed class NumberField<T> : Panel
     {
         private readonly PropConverter<T, float>? _converter;
         private readonly Func<T>? _getter;

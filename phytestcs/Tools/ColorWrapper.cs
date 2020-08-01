@@ -6,7 +6,7 @@ using SFML.Graphics;
 
 namespace phytestcs
 {
-    public class ColorWrapper
+    public sealed class ColorWrapper
     {
         private readonly Func<Color> _getter;
         private readonly Action<Color> _setter;

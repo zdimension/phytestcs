@@ -21,7 +21,7 @@ namespace phytestcs
         public static float DefaultObjectSize => DefaultObjectSizeFactor / Camera.Zoom;
         public static float DefaultSpringSize => DefaultObjectSize * 0.4f;
 
-        public class LTest
+        public sealed class LTest
         {
             public string this[string name]
             {

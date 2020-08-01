@@ -130,7 +130,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public override void Delete(Object source = null)
+        public override void Delete(BaseObject source = null)
         {
             End1.Object.Forces.Remove(Force1);
 
@@ -209,7 +209,7 @@ namespace phytestcs.Objects
         }
     }
 
-    public class SpringEnd : PinnedShapedVirtualObject
+    public sealed class SpringEnd : PinnedShapedVirtualObject
     {
         private readonly CircleShape _shape = new CircleShape();
 

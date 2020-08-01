@@ -5,7 +5,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class Tracer : PinnedShapedVirtualObject
+    public sealed class Tracer : PinnedShapedVirtualObject
     {
         private readonly SynchronizedCollection<(float, Vector2f)> _points =
             new SynchronizedCollection<(float, Vector2f)>();

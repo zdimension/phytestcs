@@ -5,7 +5,7 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndCollision : WndBase<PhysicalObject>
+    public sealed class WndCollision : WndBase<PhysicalObject>
     {
         public WndCollision(PhysicalObject obj, Vector2f pos)
             : base(obj, 250, pos)

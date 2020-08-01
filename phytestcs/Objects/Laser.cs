@@ -6,7 +6,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class Laser : PinnedShapedVirtualObject, ICollides
+    public sealed class Laser : PinnedShapedVirtualObject, ICollides
     {
         public const float StrengthEpsilon = 0.9f / 255f;
 
@@ -283,7 +283,7 @@ namespace phytestcs.Objects
         }
     }
 
-    public class LaserRay
+    public sealed class LaserRay
     {
         public LaserRay(Vector2f start, float angle, float length, Color color, float strength, float thickness,
             float startDistance,
@@ -332,7 +332,7 @@ namespace phytestcs.Objects
         }
     }
 
-    public class LaserCollisionEventArgs : CollisionEventArgs
+    public sealed class LaserCollisionEventArgs : CollisionEventArgs
     {
         public LaserCollisionEventArgs(object @this, object other, Vector2f position, Vector2f normal, LaserRay ray) :
             base(@this, other, position, normal)

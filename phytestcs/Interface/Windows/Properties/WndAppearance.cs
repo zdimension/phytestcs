@@ -5,11 +5,10 @@ using SFML.System;
 using SFML.Window;
 using TGUI;
 using static phytestcs.Tools;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndAppearance : WndBase<Object>
+    public sealed class WndAppearance : WndBase<BaseObject>
     {
         private const int WndWidth = 250;
         private const int Margin = 4;
@@ -47,7 +46,7 @@ namespace phytestcs.Interface.Windows.Properties
             }
         }
 
-        public WndAppearance(Object obj, Vector2f pos)
+        public WndAppearance(BaseObject obj, Vector2f pos)
             : base(obj, WndWidth, pos)
         {
             var wrapper = new ColorWrapper(() => obj.Color);

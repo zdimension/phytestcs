@@ -4,7 +4,6 @@ using System.Reflection;
 using phytestcs.Objects;
 using SFML.System;
 using TGUI;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface
 {
@@ -21,7 +20,7 @@ namespace phytestcs.Interface
         public Label NameLabel { get; protected set; }
     }
 
-    public class TextField<T> : TextFieldBase
+    public sealed class TextField<T> : TextFieldBase
     {
         private readonly PropertyReference<T> _bindProp;
         private readonly Func<T> _getter;
@@ -60,7 +59,7 @@ namespace phytestcs.Interface
             Add(Field);
 
             if (_bindProp.Property is PropertyInfo pi &&
-                _bindProp.Target is Object o &&
+                _bindProp.Target is BaseObject o &&
                 o.IsBound(pi.GetGetMethod(), out var res) &&
                 res.Item1 is UserBinding ub)
             {
@@ -103,7 +102,7 @@ namespace phytestcs.Interface
             {
                 try
                 {
-                    var obj = _bindProp.Target as Object;
+                    var obj = _bindProp.Target as BaseObject;
                     var pi = _bindProp.Property as PropertyInfo;
 
                     if (pi != null && obj != null && value[0] == '{' && value[^1] == '}')

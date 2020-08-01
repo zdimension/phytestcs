@@ -2,7 +2,7 @@
 
 namespace phytestcs.Interface
 {
-    public class RadioField : Panel
+    public sealed class RadioField : Panel
     {
         private bool _uiLoading;
         private bool _value;

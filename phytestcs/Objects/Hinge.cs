@@ -5,7 +5,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class Hinge : Spring
+    public sealed class Hinge : Spring
     {
         private readonly CircleShape _shape = new CircleShape();
         private readonly Force _test;
@@ -66,7 +66,7 @@ namespace phytestcs.Objects
         //private Vector2f OppForce => -(Object1.NetForce - _force1.Value);
         public override float Force => 0;
 
-        public override void Delete(Object source = null)
+        public override void Delete(BaseObject source = null)
         {
             End1.Object.Forces.Remove(_torque1);
             End1.Object.Forces.Remove(_torque2);

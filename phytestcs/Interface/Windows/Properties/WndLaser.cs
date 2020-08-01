@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndLaser : WndBase<Laser>
+    public sealed class WndLaser : WndBase<Laser>
     {
         public WndLaser(Laser obj, Vector2f pos)
             : base(obj, 250, pos)

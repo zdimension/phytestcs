@@ -8,7 +8,6 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -39,7 +38,7 @@ namespace phytestcs
             select new Vector2f((float) Math.Cos(angle), (float) Math.Sin(angle))
         ).ToArray();
 
-        public static Object[] WorldCache = null;
+        public static BaseObject[] WorldCache = null;
 
         static Render()
         {

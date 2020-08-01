@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndSpring : WndBase<Spring>
+    public sealed class WndSpring : WndBase<Spring>
     {
         public WndSpring(Spring obj, Vector2f pos)
             : base(obj, 250, pos)

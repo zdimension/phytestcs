@@ -7,7 +7,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public abstract class PhysicalObject : Object, IHasShape, ICollides
+    public abstract class PhysicalObject : BaseObject, IHasShape, ICollides
     {
         private static readonly Text ForceName = new Text("", Ui.Font)
             { OutlineThickness = 2, OutlineColor = Color.Black };
@@ -775,7 +775,7 @@ namespace phytestcs.Objects
         public Vector2f Normal { get; }
     }
     
-    public class Polygon : PhysicalObject
+    public sealed class Polygon : PhysicalObject
     {
         private static ConvexShape GetShape(IEnumerable<Vector2f> points, Color col)
         {
@@ -806,7 +806,7 @@ namespace phytestcs.Objects
         public new ConvexShape Shape => (ConvexShape) base.Shape;
     }
 
-    public class Box : PhysicalObject
+    public sealed class Box : PhysicalObject
     {
         public Box(float x, float y, float w, float h, Color col, bool wall = false,
             string name = "", bool killer = false)
@@ -823,7 +823,7 @@ namespace phytestcs.Objects
         public new RectangleShape Shape => (RectangleShape) base.Shape;
     }
     
-    public class Circle : PhysicalObject
+    public sealed class Circle : PhysicalObject
     {
         public Circle(float x, float y, float r, Color col, bool wall = false,
             string name = "", bool killer = false)

@@ -5,9 +5,9 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public class WndInfos : WndBase<Object>
+    public sealed class WndInfos : WndBase<BaseObject>
     {
-        public WndInfos(Object obj, Vector2f pos)
+        public WndInfos(BaseObject obj, Vector2f pos)
             : base(obj, 440, pos)
         {
             var header = new Label();

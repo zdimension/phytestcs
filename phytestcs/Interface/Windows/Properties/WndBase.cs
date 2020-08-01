@@ -1,12 +1,12 @@
 ﻿using System;
+using phytestcs.Objects;
 using SFML.System;
 using static phytestcs.Interface.Ui;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs.Interface.Windows.Properties
 {
     public class WndBase<T> : ChildWindowEx
-        where T : Object
+        where T : BaseObject
     {
         protected WndBase(T obj, int larg, Vector2f p)
             : base("", larg)
@@ -28,14 +28,14 @@ namespace phytestcs.Interface.Windows.Properties
         protected T Object { get; }
     }
 
-    public class WndBase : WndBase<Object>
+    public sealed class WndBase : WndBase<BaseObject>
     {
-        public WndBase(Object obj, int larg, Vector2f p)
+        public WndBase(BaseObject obj, int larg, Vector2f p)
             : base(obj, larg, p)
         {
         }
 
-        public WndBase(Object obj, string name, int larg, Vector2f p)
+        public WndBase(BaseObject obj, string name, int larg, Vector2f p)
             : base(obj, name, larg, p)
         {
         }

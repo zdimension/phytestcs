@@ -11,7 +11,6 @@ using SFML.Window;
 using TGUI;
 using static phytestcs.Tools;
 using Button = TGUI.Button;
-using Object = phytestcs.Objects.Object;
 using Panel = TGUI.Panel;
 
 namespace phytestcs.Interface
@@ -51,8 +50,8 @@ namespace phytestcs.Interface
         public static DateTime MouseDownTime;
         public static Vector2i LastClick;
 
-        public static readonly Dictionary<Object, List<ChildWindowEx>> PropertyWindows =
-            new Dictionary<Object, List<ChildWindowEx>>();
+        public static readonly Dictionary<BaseObject, List<ChildWindowEx>> PropertyWindows =
+            new Dictionary<BaseObject, List<ChildWindowEx>>();
 
         public static void SetDrawMode(DrawingType mode)
         {
@@ -301,7 +300,7 @@ namespace phytestcs.Interface
             SetDrawMode(DrawingType.Off);
         }
 
-        public static void OpenProperties(Object obj, Vector2f pos)
+        public static void OpenProperties(BaseObject obj, Vector2f pos)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 

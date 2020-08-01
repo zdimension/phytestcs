@@ -9,7 +9,6 @@ using SFML.System;
 using SFML.Window;
 using static phytestcs.Tools;
 using static phytestcs.Interface.Ui;
-using Object = phytestcs.Objects.Object;
 
 namespace phytestcs
 {
@@ -378,7 +377,7 @@ namespace phytestcs
                 mouseW = mouseW.RoundTo(f);
             }
             var moved = mouse != ClickPosition;
-            Object? added = null;
+            BaseObject? added = null;
             switch (Drawing.DrawMode)
             {
                 case DrawingType.Rectangle when moved:

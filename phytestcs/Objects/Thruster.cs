@@ -4,7 +4,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class Thruster : PinnedShapedVirtualObject
+    public sealed class Thruster : PinnedShapedVirtualObject
     {
         private readonly Force _force = new Force(default, default, default);
         private readonly CircleShape _shape = new CircleShape();
@@ -45,7 +45,7 @@ namespace phytestcs.Objects
         public override Shape Shape => _shape;
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
 
-        public override void Delete(Object source = null)
+        public override void Delete(BaseObject source = null)
         {
             Object.Forces.Remove(_force);
 

@@ -4,7 +4,7 @@ using phytestcs.Interface;
 
 namespace phytestcs
 {
-    public class BitFieldWrapper
+    public sealed class BitFieldWrapper
     {
         private readonly Func<uint> _getter;
         private readonly Action<uint> _setter;

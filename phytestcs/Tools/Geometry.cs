@@ -47,6 +47,12 @@ namespace phytestcs
             shape.Origin = shape.GetLocalBounds().Size() / 2;
             return shape;
         }
+        
+        public static Text CenterOriginText(this Text shape)
+        {
+            shape.Origin = shape.GetLocalBounds().Size() / 2;
+            return shape;
+        }
 
         public static bool Intersects((Vector2f, Vector2f) a, (Vector2f, Vector2f) b,
             out Vector2f inter, out float distance)

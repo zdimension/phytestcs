@@ -16,16 +16,19 @@ namespace phytestcs.Interface.Windows.Properties
         private const int SqSize = 140;
         private const int Offset = HueWidth + 10;
         private const int TotalSize = Offset + SqSize;
-        private const int PreviewOffset = TotalSize + 20;
-        private const int PreviewWidth = HueWidthHoriz - PreviewOffset;
+        private const int PreviewMargin = 30;
+        private const int PreviewOffset = TotalSize + PreviewMargin;
+        private const int PreviewWidth = AbsorbWidth - PreviewOffset;
         private const float HueFac = 360f / SqSize;
         private const int AbsorbHeight = 80;
         private const float HueFacHoriz = 360f / HueWidthHoriz;
-        public const int HueWidthHoriz = WndWidth - 2 * Margin;
+        public const int AbsorbWidth = WndWidth - 2 * Margin;
+        public const int HueWidthHoriz = AbsorbWidth - AbsorbTextSize;
+        public const int HueHeightHoriz = AbsorbHeight - AbsorbTextSize;
         private static readonly Color BackColor = new Color(30, 30, 30);
         private static readonly Image HueImg = new Image(HueWidth, SqSize);
-        private static readonly Image HueImgHoriz = new Image(HueWidthHoriz, AbsorbHeight);
-
+        private static readonly Image HueImgHoriz = new Image(HueWidthHoriz, HueHeightHoriz);
+        public const int AbsorbTextSize = 16;
         public static readonly Color SelectorOutline = new Color(255, 255, 255, 192);
 
 
@@ -41,7 +44,7 @@ namespace phytestcs.Interface.Windows.Properties
             for (uint x = 0; x < HueWidthHoriz; x++)
             {
                 var col = new Hsva(x * HueFacHoriz, 1, 1, 1);
-                for (uint y = 0; y < AbsorbHeight; y++)
+                for (uint y = 0; y < HueHeightHoriz; y++)
                     HueImgHoriz.SetPixel(x, y, col);
             }
         }
@@ -211,22 +214,27 @@ namespace phytestcs.Interface.Windows.Properties
                 Add(new NumberField<float>(30, 2000, () => phy.ColorFilterWidth, log: true)
                     { RightValue = float.PositiveInfinity });
 
-                var absorbanceImg = new Image(250, AbsorbHeight + 2 * Margin, BackColor);
+                var absorbanceImg = new Image(WndWidth, AbsorbHeight + 2 * Margin, BackColor);
 
                 var absorbance = new Canvas();
                 absorbance.SizeLayout = new Layout2d(absorbanceImg.Size.X, absorbanceImg.Size.Y);
                 absorbance.Clear(BackColor);
+
+                var txtA = new Text("A", Ui.Font, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
+                var txtH = new Text("H", Ui.Font, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
 
                 Add(absorbance);
 
                 IntPtr oldPointerAbs = default;
 
                 var oldHue = -1d;
+                var oldAlpha = -1;
                 var oldWidth = -1f;
 
                 void DrawAbsorbance()
                 {
                     oldHue = wrapper.H;
+                    oldAlpha = wrapper.A;
                     oldWidth = phy.ColorFilterWidth;
 
                     var tex = absorbance.RenderTexture();
@@ -234,23 +242,41 @@ namespace phytestcs.Interface.Windows.Properties
 
                     absorbance.Clear(BackColor);
 
-                    absorbanceImg.Copy(HueImgHoriz, Margin, Margin);
+                    absorbanceImg.Copy(HueImgHoriz, Margin + AbsorbTextSize, Margin + AbsorbTextSize);
 
-                    var objHue = phy.ColorHsva.H;
+                    var hsva = phy.ColorHsva;
+                    var objHue = hsva.H;
+                    var alphaD = 1 - hsva.A;
                     for (uint x = 0; x < HueWidthHoriz; x++)
                     {
-                        var transmittance = (int) ((1 - Transmittance(x * HueFacHoriz, objHue, phy.ColorFilterWidth)) *
-                                                   AbsorbHeight) + 1;
+                        var transmittance = (int) ((1 - alphaD * Transmittance(x * HueFacHoriz, objHue, phy.ColorFilterWidth)) *
+                                                   HueHeightHoriz) + 1;
                         for (uint y = 0; y < transmittance; y++)
-                            absorbanceImg.SetPixel(Margin + x, Margin + y, BackColor);
+                            absorbanceImg.SetPixel(Margin + AbsorbTextSize + x, Margin + AbsorbTextSize + y, BackColor);
                     }
 
                     tex.Texture.Update(absorbanceImg);
+
+                    var hx = (float)(Margin + AbsorbTextSize + objHue / HueFacHoriz);
+                    var ay = (float)(Margin - 1 + alphaD * HueHeightHoriz);
+                    tex.Draw(new[]
+                    {
+                        new Vertex(new Vector2f(hx, Margin), Color.White),
+                        new Vertex(new Vector2f(hx, Margin + HueHeightHoriz + 2), Color.White),
+                        
+                        new Vertex(new Vector2f(Margin, ay), Color.White),
+                        new Vertex(new Vector2f(WndWidth - Margin, ay), Color.White),
+                    }, PrimitiveType.Lines);
+                    
+                    txtA.Position = new Vector2f(Margin + AbsorbTextSize / 2, ay + AbsorbTextSize);
+                    tex.Draw(txtA);
+                    txtH.Position = new Vector2f(hx, AbsorbHeight - Margin + AbsorbTextSize / 2);
+                    tex.Draw(txtH);
                 }
 
                 void UpdateAbsorbance()
                 {
-                    if (wrapper.H != oldHue || phy.ColorFilterWidth != oldWidth ||
+                    if (wrapper.H != oldHue || wrapper.A != oldAlpha || phy.ColorFilterWidth != oldWidth ||
                         absorbance.RenderTexture().CPointer != oldPointerAbs)
                         DrawAbsorbance();
                 }

@@ -117,6 +117,12 @@ namespace phytestcs
         {
             return new Vector2f(vec.X, -vec.Y);
         }
+        
+        public static Vector2f InvertX(this Vector2f vec)
+        {
+            return new Vector2f(-vec.X, vec.Y);
+        }
+
 
         public static Vector2f WithUpdate(this Vector2f v, PhysicalObject o)
         {

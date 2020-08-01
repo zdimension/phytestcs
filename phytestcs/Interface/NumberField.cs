@@ -48,19 +48,19 @@ namespace phytestcs.Interface
             if (conv?.NameFormat != null)
                 name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
 
-            SizeLayout = new Layout2d("100%", inline ? "30" : "60");
-            var lblName = new Label(name) { PositionLayout = new Layout2d("5", "7") };
+            SizeLayout = new Layout2d("100%", inline ? "24" : "60");
+            var lblName = new Label(name) { PositionLayout = new Layout2d(5, inline ? 4 : 10) };
             Add(lblName, "lblName");
 
             var lblUnit = new Label(unit);
             Add(lblUnit, "lblUnit");
-            lblUnit.PositionLayout = new Layout2d("&.w - w - 5", "7");
-            lblUnit.SizeLayout = new Layout2d(inline ? 20 : lblUnit.Size.X, 18);
+            lblUnit.PositionLayout = new Layout2d("&.w - w - 5", inline ? "4" : "10");
+            lblUnit.SizeLayout = new Layout2d(inline ? 20 : string.IsNullOrWhiteSpace(unit) ? 0 : lblUnit.Size.X, 18);
 
             const int size = 40;
             Field = new EditBox
             {
-                PositionLayout = new Layout2d(inline ? $"lblUnit.left - 5 - {size}" : "lblName.right + 5", "6"),
+                PositionLayout = new Layout2d(inline ? $"lblUnit.left - 5 - {size}" : "lblName.right + 5", inline ? "3" : "9"),
                 SizeLayout = new Layout2d(inline ? $"{size}" : "lblUnit.left - 5 - x", "18")
             };
             Add(Field, "txtValue");
@@ -113,7 +113,7 @@ namespace phytestcs.Interface
                 Slider.Step = 0;
             var arr = -(int) Math.Log10(step);
             Slider.SizeLayout = new Layout2d(inline ? "txtValue.left - lblName.right - 18" : "100% - 20", "10");
-            Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "10" : "40");
+            Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "7" : "37");
             if (bindProp == null)
                 Value = val;
             Add(Slider);

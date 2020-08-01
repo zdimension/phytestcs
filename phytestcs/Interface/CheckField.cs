@@ -13,12 +13,12 @@ namespace phytestcs.Interface
         private bool _uiLoading;
         private bool _value;
 
-        public CheckField(Expression<Func<bool>> bindProp, string? name = null)
-            : this(name, PropertyReference.FromExpression(bindProp))
+        public CheckField(Expression<Func<bool>> bindProp, string? name = null, Action? onChanged=null)
+            : this(name, PropertyReference.FromExpression(bindProp), onChanged)
         {
         }
 
-        public CheckField(string? name = null, PropertyReference<bool>? bindProp = null)
+        public CheckField(string? name = null, PropertyReference<bool>? bindProp = null, Action? onChanged=null)
         {
             if (bindProp != null)
             {
@@ -43,7 +43,11 @@ namespace phytestcs.Interface
             Add(Field);
 
             SizeLayout = new Layout2d("100%", "24");
+
+            OnChanged = onChanged;
         }
+
+        public Action? OnChanged { get; set; }
 
         public CheckBox Field { get; }
 
@@ -53,6 +57,8 @@ namespace phytestcs.Interface
             set
             {
                 _setter?.Invoke(value);
+                
+                OnChanged?.Invoke();
 
                 Simulation.UpdatePhysicsInternal(0);
 

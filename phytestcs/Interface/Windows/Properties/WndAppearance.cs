@@ -260,8 +260,8 @@ namespace phytestcs.Interface.Windows.Properties
 
                 Closed += delegate { Ui.Drawn -= UpdateAbsorbance; };
                 
-                Add(new CheckField(() => phy.Appearance.Borders));
-                Add(new CheckField(() => phy.Appearance.OpaqueBorders));
+                Add(new CheckField(() => phy.Appearance.Borders, onChanged: () => { phy.UpdateOutline();}));
+                Add(new CheckField(() => phy.Appearance.OpaqueBorders, onChanged: () => { phy.UpdateOutline();}));
 
                 if (phy is Circle circle)
                 {

@@ -1,4 +1,4 @@
-﻿CurrentPalette = Palette.Optics;
+﻿Program.CurrentPalette = Palette.Palettes[9].palette;
 var obj1 = Simulation.Add(new Box(2, -0.3f, 1, 1, Color.Green));
 obj1.Angle=(float)Math.PI / 5;
 obj1.Color = new Color(0, 255, 0, 10);

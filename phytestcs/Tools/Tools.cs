@@ -87,6 +87,12 @@ namespace phytestcs
         {
             return (1 - a) * (sat * (Math.Exp(-Math.Pow((hue - obj) / width, 2)) - 1) + 1);
         }
+
+        [ObjProp("Plank constant", "J⋅s")]
+        public const double PlanckConstant = 6.62607015e-34;
+        
+        [ObjProp("Speed of light", "m/s")]
+        public const int SpeedOfLight = 299792458;
     }
 
     public sealed class Ref<T>

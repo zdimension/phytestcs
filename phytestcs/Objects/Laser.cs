@@ -48,6 +48,23 @@ namespace phytestcs.Objects
         public EventWrapper<LaserCollisionEventArgs> OnLaserHit { get; } = new EventWrapper<LaserCollisionEventArgs>();
         public uint CollideSet { get; set; } = 1;
 
+        [ObjProp("Wavelength", "nm")]
+        public float Wavelength
+        {
+            get => (float) (650 - 167 * ColorHsva.H / 180);
+            set
+            {
+                var hsva = ColorHsva;
+                hsva.H = -(180 * (value - 650) / 167);
+                hsva.S = 1;
+                hsva.V = 1;
+                ColorHsva = hsva;
+            }
+        }
+
+        [ObjProp("Photon energy", "J")]
+        public float PhotonEnergy => (float) (Tools.PlanckConstant * Tools.SpeedOfLight / (Wavelength / 1e9));
+
         public override void UpdatePhysics(float dt)
         {
             base.UpdatePhysics(dt);

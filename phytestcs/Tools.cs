@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.Extensions.Localization;
@@ -23,6 +24,7 @@ namespace phytestcs
 
         public sealed class LTest
         {
+            private readonly Dictionary<string, string> _cache = new Dictionary<string,string>();
             public string this[string name]
             {
                 get
@@ -34,7 +36,9 @@ namespace phytestcs
                         Console.WriteLine($@"    <data name=""{name}"" xml:space=""preserve"">
         <value>{name}</value>
     </data>");
-                    return s ?? name;
+                    if (_cache.TryGetValue(name, out var val))
+                        return val;
+                    return _cache[name] = s ?? name;
                 }
             }
         }

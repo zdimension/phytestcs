@@ -32,13 +32,13 @@ namespace phytestcs.Interface
             {
                 Simulation.UpdatePhysicsInternal(0);
 
-                UpdateUI(value);
+                UpdateUi(value);
 
                 _value = value;
             }
         }
 
-        private void UpdateUI(bool val)
+        private void UpdateUi(bool val)
         {
             _uiLoading = true;
             Field.Checked = val;

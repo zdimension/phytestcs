@@ -193,7 +193,7 @@ namespace phytestcs.Interface.Windows.Properties
             };
         }
 
-        private (string, ObjPropAttribute?, Func<PhysicalObject, float>?) _currentLine
+        private (string, ObjPropAttribute?, Func<PhysicalObject, float>?) CurrentLine
         {
             get
             {
@@ -212,7 +212,7 @@ namespace phytestcs.Interface.Windows.Properties
 
         private void UpdatePlot()
         {
-            var getter = _currentLine.Item3;
+            var getter = CurrentLine.Item3;
             if (getter == null)
                 return;
             _points.Add(new Vector2f(Simulation.SimDuration - _plotStart,
@@ -292,7 +292,7 @@ namespace phytestcs.Interface.Windows.Properties
 
                     var lines = new List<Vertex>();
 
-                    (int, byte) thickness(float zoom, decimal factor, decimal coord)
+                    (int, byte) Thickness(float zoom, decimal factor, decimal coord)
                     {
                         var w = 3;
                         byte a = 40;
@@ -316,7 +316,7 @@ namespace phytestcs.Interface.Windows.Properties
                             if (x % fdX != 0)
                                 continue;
 
-                            var (w, a) = thickness(zoomX, fdX, x);
+                            var (w, a) = Thickness(zoomX, fdX, x);
                             lines.AddRange(VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
                                 new Color(255, 255, 255, a), w * fX / 100));
                         }
@@ -327,7 +327,7 @@ namespace phytestcs.Interface.Windows.Properties
                             if (y % fdY != 0)
                                 continue;
 
-                            var (h, a) = thickness(zoomY, fdY, y);
+                            var (h, a) = Thickness(zoomY, fdY, y);
                             lines.AddRange(VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
                                 new Color(255, 255, 255, a), h * fY / 100));
                         }
@@ -401,9 +401,9 @@ namespace phytestcs.Interface.Windows.Properties
                                 _canvas.Draw(lignes, PrimitiveType.Lines);
 
                                 _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
-  y   = {-cache[k].Y,6:F2} {_currentLine.Item2?.Unit ?? ""}
- ∫dx  = {-integ,6:F2} {_currentLine.Item2?.UnitInteg ?? ""}
-dy/dx = {-deriv,6:F2} {_currentLine.Item2?.UnitDeriv ?? ""}";
+  y   = {-cache[k].Y,6:F2} {CurrentLine.Item2?.Unit ?? ""}
+ ∫dx  = {-integ,6:F2} {CurrentLine.Item2?.UnitInteg ?? ""}
+dy/dx = {-deriv,6:F2} {CurrentLine.Item2?.UnitDeriv ?? ""}";
                                 _textInt.Position =
                                     (rpos - _canvasView.Center - _canvasView.Size / 2)
                                     .Prod(_canvas.DefaultView.Size)
@@ -445,7 +445,7 @@ dy/dx = {-deriv,6:F2} {_currentLine.Item2?.UnitDeriv ?? ""}";
             var sb = new StringBuilder();
 
             sb.AppendLine(
-                $"{L["Time"]} (s);{_currentLine.Item1}{(_currentLine.Item2 == null ? "" : $" ({_currentLine.Item2.Unit})")}");
+                $"{L["Time"]} (s);{CurrentLine.Item1}{(CurrentLine.Item2 == null ? "" : $" ({CurrentLine.Item2.Unit})")}");
 
             lock (_points.SyncRoot)
             {

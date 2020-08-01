@@ -8,9 +8,9 @@ namespace phytestcs.Interface
 {
     public class ChildWindowEx : ChildWindow, IEnumerable<Widget>
     {
-        protected readonly List<Widget> _children = new List<Widget>();
+        protected readonly List<Widget> Children = new List<Widget>();
 
-        protected float _height;
+        protected float Height;
 
         public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true) : base(name,
             TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
@@ -71,7 +71,7 @@ namespace phytestcs.Interface
             MaximumSize = Container.Size = MinimumSize = new Vector2f(Container.Size.X,
                 IsMinimized
                     ? 0
-                    : _height);
+                    : Height);
         }
 
         public T Add<T>(T w)
@@ -79,9 +79,9 @@ namespace phytestcs.Interface
         {
             if (w == null) throw new ArgumentNullException(nameof(w));
 
-            _height += w.Size.Y;
+            Height += w.Size.Y;
             Container.Add(w, w.Size.Y);
-            _children.Add(w);
+            Children.Add(w);
 
             UpdateSize();
 

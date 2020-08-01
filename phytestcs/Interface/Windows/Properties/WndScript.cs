@@ -85,8 +85,8 @@ namespace phytestcs.Interface.Windows.Properties
 
             drop.ItemSelected += (sender, item) =>
             {
-                _children.Clear();
-                _height = 0;
+                Children.Clear();
+                Height = 0;
                 Container.RemoveAllWidgets();
                 Add(drop);
                 var type = modes[item.Item];

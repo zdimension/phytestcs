@@ -32,7 +32,7 @@ namespace phytestcs.Interface.Windows.Properties
             var val = new Label
                 { SizeLayout = new Layout2d(280, header.Size.Y), PositionLayout = new Layout2d(130, 0) };
 
-            void updateInfos()
+            void UpdateInfos()
             {
                 var text = "";
                 var epes = 0f;
@@ -77,11 +77,11 @@ namespace phytestcs.Interface.Windows.Properties
                 val.Text = text;
             }
 
-            Ui.Drawn += updateInfos;
+            Ui.Drawn += UpdateInfos;
 
-            Closed += delegate { Ui.Drawn -= updateInfos; };
+            Closed += delegate { Ui.Drawn -= UpdateInfos; };
 
-            updateInfos();
+            UpdateInfos();
 
             var pnl = new Panel { SizeLayout = new Layout2d(Size.X, header.Size.Y) };
             pnl.Add(header);

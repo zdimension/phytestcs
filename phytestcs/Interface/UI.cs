@@ -24,7 +24,7 @@ namespace phytestcs.Interface
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
         public static Gui Gui;
 
-        private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> _actions =
+        private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> Actions =
             new List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)>
             {
                 (DrawingType.Off, "drag", new Ref<BitmapButton>(), new Ref<Texture>()),
@@ -57,7 +57,7 @@ namespace phytestcs.Interface
         public static void SetDrawMode(DrawingType mode)
         {
             Drawing.DrawMode = mode;
-            foreach (var (dess, _, bref, text) in _actions)
+            foreach (var (dess, _, bref, text) in Actions)
             {
                 bref.Value.SetRenderer(dess == mode ? BrToggle : BrDef);
                 if (dess == mode)
@@ -185,7 +185,7 @@ namespace phytestcs.Interface
             BtnPlay = new BitmapButton { Image = ImgPlay };
 
             BtnPlay.Clicked += (sender, f) => { Simulation.TogglePause(); };
-            foreach (var (dess, img, bref, text) in _actions)
+            foreach (var (dess, img, bref, text) in Actions)
             {
                 var btn = new BitmapButton { Image = text.Value = new Texture($"icons/big/{img}.png") };
                 btn.Clicked += delegate { SetDrawMode(dess); };

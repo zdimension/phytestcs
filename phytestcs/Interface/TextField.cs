@@ -26,7 +26,7 @@ namespace phytestcs.Interface
         private readonly PropertyReference<T> _bindProp;
         private readonly Func<T> _getter;
         private readonly Action<T>? _setter;
-        private readonly PropConverter<T, string> converter;
+        private readonly PropConverter<T, string> _converter;
 
         private UserBinding? _binding;
 
@@ -42,7 +42,7 @@ namespace phytestcs.Interface
             name ??= bindProp.DisplayName;
             if (conv?.NameFormat != null)
                 name = string.Format(CultureInfo.InvariantCulture, conv.NameFormat, name);
-            converter = conv ?? PropConverter.Default<T, string>();
+            _converter = conv ?? PropConverter.Default<T, string>();
 
             Ui.Drawn += Update;
 
@@ -114,12 +114,12 @@ namespace phytestcs.Interface
                     else
                     {
                         obj?.Unbind(pi?.GetGetMethod()!);
-                        _setter?.Invoke(converter.Set(value, _getter()));
+                        _setter?.Invoke(_converter.Set(value, _getter()));
                     }
 
                     Simulation.UpdatePhysicsInternal(0);
 
-                    UpdateUI(value);
+                    UpdateUi(value);
 
                     _value = value;
                 }
@@ -130,7 +130,7 @@ namespace phytestcs.Interface
             }
         }
 
-        private void UpdateUI(string val)
+        private void UpdateUi(string val)
         {
             Field.Text = _binding?.Code ?? val.ToString(CultureInfo.CurrentCulture);
         }
@@ -140,11 +140,11 @@ namespace phytestcs.Interface
             if (_binding != null)
                 return;
 
-            var val = converter.Get(_getter());
+            var val = _converter.Get(_getter());
 
             if (val != _oldLoadedVal)
             {
-                UpdateUI(val);
+                UpdateUi(val);
                 _oldLoadedVal = val;
             }
 

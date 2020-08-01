@@ -14,28 +14,28 @@ namespace phytestcs
 {
     public static class Render
     {
-        public const uint _rotCirclePointCount = 360;
+        public const uint RotCirclePointCount = 360;
         public static RectangleShape DrawRectangle = new RectangleShape();
-        public static CircleShape DrawCircle = new CircleShape(1, _rotCirclePointCount);
+        public static CircleShape DrawCircle = new CircleShape(1, RotCirclePointCount);
         public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
         public static int NumRays;
         public static Text Statistics;
         private static readonly Text PauseText = new Text("EN PAUSE", Ui.Font, 20) { FillColor = Color.Red };
 
-        private static readonly Text txtScale = new Text("", Ui.Font, 15)
+        private static readonly Text TxtScale = new Text("", Ui.Font, 15)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
-        private static readonly Text txtXAxis = new Text("x", Ui.Font, 15);
-        private static readonly Text txtYAxis = new Text("y", Ui.Font, 15);
+        private static readonly Text TxtXAxis = new Text("x", Ui.Font, 15);
+        private static readonly Text TxtYAxis = new Text("y", Ui.Font, 15);
 
         public static uint Width = 900;
         public static uint Height = 550;
         public static RenderWindow Window;
 
-        public static readonly Vector2f[] _rotCirclePoints = (
-            from i in Enumerable.Range(0, (int) _rotCirclePointCount)
-            let angle = i * 2 * Math.PI / _rotCirclePointCount
+        public static readonly Vector2f[] RotCirclePoints = (
+            from i in Enumerable.Range(0, (int) RotCirclePointCount)
+            let angle = i * 2 * Math.PI / RotCirclePointCount
             select new Vector2f((float) Math.Cos(angle), (float) Math.Sin(angle))
         ).ToArray();
 
@@ -79,7 +79,7 @@ namespace phytestcs
 
             var lines = new List<Vertex>();
 
-            (int, byte) thickness(decimal coord)
+            (int, byte) Thickness(decimal coord)
             {
                 var w = 3;
                 byte a = 40;
@@ -102,7 +102,7 @@ namespace phytestcs
                 if (x % fd != 0)
                     continue;
 
-                var (w, a) = thickness(x);
+                var (w, a) = Thickness(x);
                 lines.AddRange(VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
                     new Color(255, 255, 255, a), w * f / 100));
             }
@@ -112,7 +112,7 @@ namespace phytestcs
                 if (y % fd != 0)
                     continue;
 
-                var (h, a) = thickness(y);
+                var (h, a) = Thickness(y);
                 lines.AddRange(VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
                     new Color(255, 255, 255, a), h * f / 100));
             }
@@ -200,8 +200,8 @@ namespace phytestcs
             Statistics.FillColor = Program.CurrentPalette.SelectionColor;
             Statistics.DisplayedString =
                 $@"
-{Simulation.FPS,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.UPS.ToString("#")),4} Hz / {Simulation.TargetUPS,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{Simulation.Fps,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}
+{(Simulation.Pause ? "-" : Simulation.Ups.ToString("#")),4} Hz / {Simulation.TargetUps,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
 {WorldCache.Length,5} {L["objects"]}, {NumRays,5} / {Program.NumRays,5} {L["rays"]}
@@ -385,26 +385,26 @@ Rayons :
 
             DrawAxes(new Vector2f(margin, Height - margin));
 
-            txtScale.Position = new Vector2f(Width - margin - 3, Height - margin - 25);
-            txtScale.Origin = new Vector2f(txtScale.GetLocalBounds().Width, 0);
-            txtScale.DisplayedString = $"{f,5:F1} m";
+            TxtScale.Position = new Vector2f(Width - margin - 3, Height - margin - 25);
+            TxtScale.Origin = new Vector2f(TxtScale.GetLocalBounds().Width, 0);
+            TxtScale.DisplayedString = $"{f,5:F1} m";
 
-            Window.Draw(txtScale);
+            Window.Draw(TxtScale);
 
-            txtXAxis.Position = new Vector2f(margin + axis - 5, Height - margin + 5);
-            txtYAxis.Position = new Vector2f(margin - 5 - 7, Height - margin - axis);
+            TxtXAxis.Position = new Vector2f(margin + axis - 5, Height - margin + 5);
+            TxtYAxis.Position = new Vector2f(margin - 5 - 7, Height - margin - axis);
 
-            txtXAxis.FillColor = Color.Black;
-            Window.Draw(txtXAxis);
-            txtXAxis.Position -= new Vector2f(1, 1);
-            txtXAxis.FillColor = Color.White;
-            Window.Draw(txtXAxis);
+            TxtXAxis.FillColor = Color.Black;
+            Window.Draw(TxtXAxis);
+            TxtXAxis.Position -= new Vector2f(1, 1);
+            TxtXAxis.FillColor = Color.White;
+            Window.Draw(TxtXAxis);
 
-            txtYAxis.FillColor = Color.Black;
-            Window.Draw(txtYAxis);
-            txtYAxis.Position -= new Vector2f(1, 1);
-            txtYAxis.FillColor = Color.White;
-            Window.Draw(txtYAxis);
+            TxtYAxis.FillColor = Color.Black;
+            Window.Draw(TxtYAxis);
+            TxtYAxis.Position -= new Vector2f(1, 1);
+            TxtYAxis.FillColor = Color.White;
+            Window.Draw(TxtYAxis);
         }
 
         public static void ResizeTextures()
@@ -414,34 +414,34 @@ Rayons :
 
         public static void DrawRotation()
         {
-            if (Program._rotating)
+            if (Program.Rotating)
             {
-                Program._rotCircle.OutlineThickness = 4 / Camera.Zoom;
-                Window.Draw(Program._rotCircle);
+                Program.RotCircle.OutlineThickness = 4 / Camera.Zoom;
+                Window.Draw(Program.RotCircle);
 
                 var curAngle = Drawing.SelectedObject!.Angle;
                 var thick = 4 / Camera.Zoom;
 
                 Window.Draw(
                     CircleOutline(
-                        Program._rotCircle.Position,
-                        Program._rotCircle.Radius + Program._rotCircle.OutlineThickness,
+                        Program.RotCircle.Position,
+                        Program.RotCircle.Radius + Program.RotCircle.OutlineThickness,
                         thick,
                         new Color(255, 255, 255, 100),
                         curAngle));
 
                 Window.Draw(
                     CircleSector(
-                        Program._rotCircle.Position,
-                        (Mouse.GetPosition(Window).ToWorld() - Program._rotCircle.Position).Norm(),
+                        Program.RotCircle.Position,
+                        (Mouse.GetPosition(Window).ToWorld() - Program.RotCircle.Position).Norm(),
                         new Color(255, 0, 255, 100),
-                        Program._rotDeltaAngle,
-                        Program._rotStartAngle));
+                        Program.RotDeltaAngle,
+                        Program.RotStartAngle));
 
                 Window.SetView(Camera.MainView);
-                DrawAxes(Program._rotCircle.Position.ToScreen().F(), 20, angle: curAngle);
-                Program._rotText.DisplayedString = $"{curAngle.Degrees():0.#}°";
-                Window.Draw(Program._rotText);
+                DrawAxes(Program.RotCircle.Position.ToScreen().F(), 20, angle: curAngle);
+                Program.RotText.DisplayedString = $"{curAngle.Degrees():0.#}°";
+                Window.Draw(Program.RotText);
                 Window.SetView(Camera.GameView);
             }
         }

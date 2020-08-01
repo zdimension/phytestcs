@@ -56,11 +56,11 @@ namespace phytestcs.Interface
                 return new Color((byte) r, (byte) g, (byte) b, (byte) a);
             });
 
-        public static readonly PropConverter<HSVA, string> ColorHsvaString = new PropConverter<HSVA, string>(
+        public static readonly PropConverter<Hsva, string> ColorHsvaString = new PropConverter<Hsva, string>(
             o => o.Repr(), (value, old) =>
             {
                 var (h, s, v, a) = value.Eval<(double, double, double, double)>().Result;
-                return new HSVA(h, s, v, a);
+                return new Hsva(h, s, v, a);
             });
 
         public static PropConverter<EventWrapper<T>, string> EventWrapper<T>()

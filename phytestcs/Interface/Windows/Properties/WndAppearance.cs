@@ -34,14 +34,14 @@ namespace phytestcs.Interface.Windows.Properties
         {
             for (uint y = 0; y < SqSize; y++)
             {
-                var col = new HSVA(y * HueFac, 1, 1, 1);
+                var col = new Hsva(y * HueFac, 1, 1, 1);
                 for (uint x = 0; x < HueWidth; x++)
                     HueImg.SetPixel(x, y, col);
             }
 
             for (uint x = 0; x < HueWidthHoriz; x++)
             {
-                var col = new HSVA(x * HueFacHoriz, 1, 1, 1);
+                var col = new Hsva(x * HueFacHoriz, 1, 1, 1);
                 for (uint y = 0; y < AbsorbHeight; y++)
                     HueImgHoriz.SetPixel(x, y, col);
             }
@@ -117,7 +117,7 @@ namespace phytestcs.Interface.Windows.Properties
                     {
                         var s = x * fac;
 
-                        renderImg.SetPixel(Margin + Offset + x, Margin + y, new HSVA(hue, s, 1 - v, 1));
+                        renderImg.SetPixel(Margin + Offset + x, Margin + y, new Hsva(hue, s, 1 - v, 1));
                     }
                 }
 

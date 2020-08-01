@@ -10,8 +10,8 @@ namespace phytestcs.Objects
     [Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public class Spring : VirtualObject
     {
-        protected readonly Force _force1;
-        protected readonly Force _force2;
+        protected readonly Force Force1;
+        protected readonly Force Force2;
 
         private readonly Text _legende = new Text("", Ui.Font, 13) { FillColor = Color.Black };
 
@@ -23,17 +23,17 @@ namespace phytestcs.Objects
 
             type ??= ForceType.Spring;
 
-            _force1 = new Force(type, new Vector2f(0, 0), object1RelPos) { Source = this };
+            Force1 = new Force(type, new Vector2f(0, 0), object1RelPos) { Source = this };
             End1 = new SpringEnd(object1, object1RelPos, size, this);
-            End1.Object.Forces.Add(_force1);
+            End1.Object.Forces.Add(Force1);
             BothDepends(End1);
 
             End2 = new SpringEnd(object2, object2RelPos, size, this);
 
             if (object2 != null)
             {
-                _force2 = new Force(type, new Vector2f(0, 0), object2RelPos) { Source = this };
-                End2.Object.Forces.Add(_force2);
+                Force2 = new Force(type, new Vector2f(0, 0), object2RelPos) { Source = this };
+                End2.Object.Forces.Add(Force2);
             }
 
             BothDepends(End2);
@@ -69,7 +69,7 @@ namespace phytestcs.Objects
         public float DeltaLength => TargetLength - Delta.Norm();
 
         public float ElasticEnergy =>
-            (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDT / 2, 2) / 2);
+            (float) (Constant * Math.Pow(DeltaLength + Speed * Simulation.TargetDt / 2, 2) / 2);
 
         public virtual float Force
         {
@@ -120,21 +120,21 @@ namespace phytestcs.Objects
                 if (!End1.Object.Fixed && !End2.Object.Fixed)
                     force /= 2;
                 if (!End1.Object.Fixed)
-                    _force1.Value = unit * force;
+                    Force1.Value = unit * force;
                 if (!End2.Object.Fixed)
-                    _force2.Value = -unit * force;
+                    Force2.Value = -unit * force;
             }
             else
             {
-                _force1.Value = unit * force;
+                Force1.Value = unit * force;
             }
         }
 
         public override void Delete(Object source = null)
         {
-            End1.Object.Forces.Remove(_force1);
+            End1.Object.Forces.Remove(Force1);
 
-            End2.Object?.Forces.Remove(_force2);
+            End2.Object?.Forces.Remove(Force2);
 
             base.Delete(source);
         }

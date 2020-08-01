@@ -119,63 +119,63 @@ namespace phytestcs
             Simulation.TogglePause();
         }
 
-        public static void SoftbodyStaggered(int N = 6)
+        public static void SoftbodyStaggered(int n = 6)
         {
-            var square = new Box[N + 1][];
+            var square = new Box[n + 1][];
             var spring = 500;
             var dist = 1.5f;
             var distY = (float) (Math.Sqrt(3) / 2 * dist);
             var diago = (float) Math.Sqrt(2) * dist;
 
-            void r(int x1, int y1, int x2, int y2)
+            void R(int x1, int y1, int x2, int y2)
             {
                 Simulation.Add(new Spring(spring, dist, 0.1f, square[y1][x1], default, square[y2][x2])
                     { ShowInfos = false });
             }
 
-            for (var i = 0; i < N + 1; i++)
+            for (var i = 0; i < n + 1; i++)
             {
-                square[i] = new Box[N];
-                for (var j = 0; j < N - i % 2; j++)
+                square[i] = new Box[n];
+                for (var j = 0; j < n - i % 2; j++)
                 {
                     square[i][j] = new Box(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
                         name: "Softbody");
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
-                        r(j - 1, i, j, i);
+                        R(j - 1, i, j, i);
 
                     if (i > 0)
                     {
                         if (i % 2 == 1)
                         {
-                            if (j < N - 1)
-                                r(j, i, j, i - 1);
-                            r(j, i, j + 1, i - 1);
+                            if (j < n - 1)
+                                R(j, i, j, i - 1);
+                            R(j, i, j + 1, i - 1);
                         }
                         else
                         {
-                            if (j < N - 1)
-                                r(j, i, j, i - 1);
+                            if (j < n - 1)
+                                R(j, i, j, i - 1);
 
                             if (j > 0)
-                                r(j, i, j - 1, i - 1);
+                                R(j, i, j - 1, i - 1);
                         }
                     }
                 }
             }
         }
 
-        public static void SoftbodySquare(int N = 6)
+        public static void SoftbodySquare(int n = 6)
         {
-            var square = new Box[N][];
+            var square = new Box[n][];
             var spring = 500;
             var dist = 1.5f;
             var diago = (float) Math.Sqrt(2) * dist;
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
-                square[i] = new Box[N];
-                for (var j = 0; j < N; j++)
+                square[i] = new Box[n];
+                for (var j = 0; j < n; j++)
                 {
                     square[i][j] =
                         new Box(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");

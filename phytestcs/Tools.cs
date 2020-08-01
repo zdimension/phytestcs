@@ -10,7 +10,7 @@ namespace phytestcs
     public static partial class Tools
     {
         private const float DefaultObjectSizeFactor = 68.3366809f;
-        public static readonly Random RNG = new Random();
+        public static readonly Random Rng = new Random();
 
         public static readonly IStringLocalizer L2 = new ResourceManagerStringLocalizerFactory(
             new OptionsWrapper<LocalizationOptions>(new LocalizationOptions { ResourcesPath = "Resources" }),

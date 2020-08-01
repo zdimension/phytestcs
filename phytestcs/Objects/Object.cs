@@ -55,7 +55,7 @@ namespace phytestcs.Objects
             }
         }
 
-        public HSVA ColorHsva
+        public Hsva ColorHsva
         {
             get => Color;
             set => Color = value;
@@ -366,7 +366,7 @@ namespace phytestcs.Objects
 
     public class Unit
     {
-        public static readonly Dictionary<string, Unit> _units = new Dictionary<string, Unit>();
+        public static readonly Dictionary<string, Unit> Units = new Dictionary<string, Unit>();
 
         private static readonly (string, string)[] Powers =
         {
@@ -380,7 +380,7 @@ namespace phytestcs.Objects
         public static readonly Unit Velocity = Length.Derivative;
 
         private Lazy<Unit> _antiderivative;
-        public Lazy<Unit> _derivative;
+        private Lazy<Unit> _derivative;
 
         private Unit(string name, Lazy<Unit> deriv, Lazy<Unit> integ)
         {
@@ -429,8 +429,8 @@ namespace phytestcs.Objects
             var lDeriv = new Lazy<Unit>(() => deriv ?? FromString(DecreasePower(name)));
             var lInteg = new Lazy<Unit>(() => integ ?? FromString(IncreasePower(name)));
 
-            if (!_units.TryGetValue(name, out res!))
-                res = _units[name] = new Unit(name,
+            if (!Units.TryGetValue(name, out res!))
+                res = Units[name] = new Unit(name,
                     lDeriv,
                     lInteg);
 

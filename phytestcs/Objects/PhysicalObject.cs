@@ -9,7 +9,7 @@ namespace phytestcs.Objects
 {
     public abstract class PhysicalObject : Object, IHasShape, ICollides
     {
-        private static readonly Text forceName = new Text("", Ui.Font)
+        private static readonly Text ForceName = new Text("", Ui.Font)
             { OutlineThickness = 2, OutlineColor = Color.Black };
 
         private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();
@@ -499,15 +499,15 @@ namespace phytestcs.Objects
 
                     Render.Window.SetView(Camera.MainView);
 
-                    if ((forceName.CharacterSize = (uint) (30 * arrow)) < 300)
+                    if ((ForceName.CharacterSize = (uint) (30 * arrow)) < 300)
                     {
-                        forceName.FillColor = color;
-                        forceName.DisplayedString = f.Type.ShortName;
-                        forceName.OutlineThickness = forceName.CharacterSize / 20f;
+                        ForceName.FillColor = color;
+                        ForceName.DisplayedString = f.Type.ShortName;
+                        ForceName.OutlineThickness = ForceName.CharacterSize / 20f;
                         if (Render.ShowForcesValues)
-                            forceName.DisplayedString += $" = {f.Value.Norm():F2} N";
-                        forceName.Position = tip.ToScreen().F();
-                        Render.Window.Draw(forceName);
+                            ForceName.DisplayedString += $" = {f.Value.Norm():F2} N";
+                        ForceName.Position = tip.ToScreen().F();
+                        Render.Window.Draw(ForceName);
                     }
 
                     Render.Window.SetView(Camera.GameView);
@@ -614,7 +614,7 @@ namespace phytestcs.Objects
                 if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
                     continue;
 
-                if (OBB.testCollision(a.Shape, b.Shape, out var mtv))
+                if (Obb.TestCollision(a.Shape, b.Shape, out var mtv))
                 {
                     var unitMtv = mtv.Normalize();
                     var v1p = -a.Velocity.Dot(unitMtv);
@@ -845,7 +845,7 @@ namespace phytestcs.Objects
 
                 for (uint i = 0; i < numPoints1; i++)
                 {
-                    var point = Render._rotCirclePoints[i * 10];
+                    var point = Render.RotCirclePoints[i * 10];
                     float factor;
                     if (i % 9 == 0)
                         factor = 0.5f;
@@ -857,7 +857,7 @@ namespace phytestcs.Objects
 
                 for (uint i = 0; i < numPoints2; i++)
                 {
-                    var point = Render._rotCirclePoints[45 + i * 90];
+                    var point = Render.RotCirclePoints[45 + i * 90];
                     const float factor = 0.18f;
                     lines[2 * numPoints1 + 2 * i + 0] = new Vertex(Shape.Radius * point, Color.White);
                     lines[2 * numPoints1 + 2 * i + 1] =

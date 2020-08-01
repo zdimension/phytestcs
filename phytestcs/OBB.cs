@@ -4,22 +4,22 @@ using SFML.System;
 
 namespace phytestcs
 {
-    public static class OBB
+    public static class Obb
     {
-        private const float NORMAL_TOLERANCE = 0.0001f;
+        private const float NormalTolerance = 0.0001f;
 
         // Returns normalized vector
-        private static Vector2f getNormalized(Vector2f v)
+        private static Vector2f GetNormalized(Vector2f v)
         {
             var length = v.Norm();
-            if (length < NORMAL_TOLERANCE)
+            if (length < NormalTolerance)
                 return new Vector2f();
 
             return new Vector2f(v.X / length, v.Y / length);
         }
 
         // Returns right hand perpendicular vector
-        private static Vector2f getNormal(Vector2f v)
+        private static Vector2f GetNormal(Vector2f v)
         {
             return new Vector2f(-v.Y, v.X);
         }
@@ -43,28 +43,28 @@ namespace phytestcs
         }
 
         // a and b are ranges and it's assumed that a.x <= a.y and b.x <= b.y
-        private static bool areOverlapping(Vector2f a, Vector2f b)
+        private static bool AreOverlapping(Vector2f a, Vector2f b)
         {
             return a.X <= b.Y && a.Y >= b.X;
         }
 
         // a and b are ranges and it's assumed that a.x <= a.y and b.x <= b.y
-        private static float getOverlapLength(Vector2f a, Vector2f b)
+        private static float GetOverlapLength(Vector2f a, Vector2f b)
         {
-            if (!areOverlapping(a, b))
+            if (!AreOverlapping(a, b))
                 return 0f;
 
             return Math.Min(a.Y, b.Y) - Math.Max(a.X, b.X);
         }
 
-        private static Vector2f getCenter(Shape shape)
+        private static Vector2f GetCenter(Shape shape)
         {
             var transform = shape.Transform;
             var local = shape.GetLocalBounds();
             return transform.TransformPoint(local.Width / 2f, local.Height / 2f);
         }
 
-        private static Vector2f[] getVertices(Shape shape)
+        private static Vector2f[] GetVertices(Shape shape)
         {
             var vertices = new Vector2f[shape.GetPointCount()];
             var transform = shape.Transform;
@@ -74,32 +74,32 @@ namespace phytestcs
             return vertices;
         }
 
-        private static Vector2f getPerpendicularAxis(Vector2f[] vertices, int index)
+        private static Vector2f GetPerpendicularAxis(Vector2f[] vertices, int index)
         {
-            return getNormal(getNormalized(vertices[index + 1] - vertices[index]));
+            return GetNormal(GetNormalized(vertices[index + 1] - vertices[index]));
         }
 
         // axes for which we'll test stuff. Two for each box, because testing for parallel axes isn't needed
-        private static Vector2f[] getPerpendicularAxes(Vector2f[] vertices1, Vector2f[] vertices2)
+        private static Vector2f[] GetPerpendicularAxes(Vector2f[] vertices1, Vector2f[] vertices2)
         {
             return new[]
             {
-                getPerpendicularAxis(vertices1, 0),
-                getPerpendicularAxis(vertices1, 1),
-                getPerpendicularAxis(vertices2, 0),
-                getPerpendicularAxis(vertices2, 1)
+                GetPerpendicularAxis(vertices1, 0),
+                GetPerpendicularAxis(vertices1, 1),
+                GetPerpendicularAxis(vertices2, 0),
+                GetPerpendicularAxis(vertices2, 1)
             };
         }
 
         // Separating Axis Theorem (SAT) collision test
         // Minimum Translation Vector (MTV) is returned for the first Oriented Bounding Box (OBB)
-        public static bool testCollision(Shape obb1, Shape obb2, out Vector2f mtv)
+        public static bool TestCollision(Shape obb1, Shape obb2, out Vector2f mtv)
         {
             mtv = default;
 
-            var vertices1 = getVertices(obb1);
-            var vertices2 = getVertices(obb2);
-            var axes = getPerpendicularAxes(vertices1, vertices2);
+            var vertices1 = GetVertices(obb1);
+            var vertices2 = GetVertices(obb2);
+            var axes = GetPerpendicularAxes(vertices1, vertices2);
 
             // we need to find the minimal overlap and axis on which it happens
             var minOverlap = float.PositiveInfinity;
@@ -109,7 +109,7 @@ namespace phytestcs
                 var proj1 = projectOnAxis(vertices1, axis);
                 var proj2 = projectOnAxis(vertices2, axis);
 
-                var overlap = getOverlapLength(proj1, proj2);
+                var overlap = GetOverlapLength(proj1, proj2);
                 if (overlap == 0f)
                     // shapes are not overlapping
                     return false;
@@ -124,7 +124,7 @@ namespace phytestcs
             }
 
             // need to reverse MTV if center offset and overlap are not pointing in the same direction
-            var notPointingInTheSameDirection = (getCenter(obb1) - getCenter(obb2)).Dot(mtv) < 0;
+            var notPointingInTheSameDirection = (GetCenter(obb1) - GetCenter(obb2)).Dot(mtv) < 0;
             if (notPointingInTheSameDirection)
                 mtv = -mtv;
 

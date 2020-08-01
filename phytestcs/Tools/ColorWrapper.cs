@@ -8,8 +8,8 @@ namespace phytestcs
 {
     public class ColorWrapper
     {
-        private readonly Func<Color> getter;
-        private readonly Action<Color> setter;
+        private readonly Func<Color> _getter;
+        private readonly Action<Color> _setter;
 
         public ColorWrapper(Expression<Func<Color>> bindProp)
             : this(PropertyReference.FromExpression(bindProp))
@@ -18,47 +18,47 @@ namespace phytestcs
 
         public ColorWrapper(PropertyReference<Color> bindProp)
         {
-            (getter, setter) = bindProp.GetAccessors();
-            ValueChanged += setter;
+            (_getter, _setter) = bindProp.GetAccessors();
+            ValueChanged += _setter;
         }
 
         public byte R
         {
-            get => getter().R;
-            set => ValueChanged(new Color(getter()) { R = value });
+            get => _getter().R;
+            set => ValueChanged(new Color(_getter()) { R = value });
         }
 
         public byte G
         {
-            get => getter().G;
-            set => ValueChanged(new Color(getter()) { G = value });
+            get => _getter().G;
+            set => ValueChanged(new Color(_getter()) { G = value });
         }
 
         public byte B
         {
-            get => getter().B;
-            set => ValueChanged(new Color(getter()) { B = value });
+            get => _getter().B;
+            set => ValueChanged(new Color(_getter()) { B = value });
         }
 
         public byte A
         {
-            get => getter().A;
-            set => ValueChanged(new Color(getter()) { A = value });
+            get => _getter().A;
+            set => ValueChanged(new Color(_getter()) { A = value });
         }
 
         [ObjProp("A")]
         public double Ad
         {
-            get => getter().A / 255d;
-            set => ValueChanged(new Color(getter()) { A = (byte) (value * 255) });
+            get => _getter().A / 255d;
+            set => ValueChanged(new Color(_getter()) { A = (byte) (value * 255) });
         }
 
         public double H
         {
-            get => ValueHSV.H;
+            get => ValueHsv.H;
             set
             {
-                var hsv = ValueHSV;
+                var hsv = ValueHsv;
                 hsv.H = value;
                 ValueChanged(hsv.ToColor());
             }
@@ -66,10 +66,10 @@ namespace phytestcs
 
         public double S
         {
-            get => ValueHSV.S;
+            get => ValueHsv.S;
             set
             {
-                var hsv = ValueHSV;
+                var hsv = ValueHsv;
                 hsv.S = value;
                 ValueChanged(hsv.ToColor());
             }
@@ -77,10 +77,10 @@ namespace phytestcs
 
         public double V
         {
-            get => ValueHSV.V;
+            get => ValueHsv.V;
             set
             {
-                var hsv = ValueHSV;
+                var hsv = ValueHsv;
                 hsv.V = value;
                 ValueChanged(hsv.ToColor());
             }
@@ -88,20 +88,20 @@ namespace phytestcs
 
         public Color Value
         {
-            get => getter();
+            get => _getter();
             set => ValueChanged(value);
         }
 
-        public HSVA ValueHSV
+        public Hsva ValueHsv
         {
-            get => getter();
+            get => _getter();
             set => ValueChanged(value);
         }
 
         public event Action<Color> ValueChanged = delegate { };
     }
 
-    public struct HSVA : IRepr
+    public struct Hsva : IRepr
     {
         public void Deconstruct(out double h, out double s, out double v, out double a)
         {
@@ -116,7 +116,7 @@ namespace phytestcs
         public double V;
         public double A;
 
-        public HSVA(double h, double s, double v, double a)
+        public Hsva(double h, double s, double v, double a)
         {
             H = h;
             S = s;
@@ -124,7 +124,7 @@ namespace phytestcs
             A = a;
         }
 
-        private HSVA(Color color)
+        private Hsva(Color color)
         {
             var (r, g, b, a) = color;
             var (min, max) = new[] { r, g, b }.Extrema();
@@ -197,12 +197,12 @@ namespace phytestcs
             return new Color((byte) (r * 255), (byte) (g * 255), (byte) (b * 255), (byte) (A * 255));
         }
 
-        public static implicit operator HSVA(Color color)
+        public static implicit operator Hsva(Color color)
         {
-            return new HSVA(color);
+            return new Hsva(color);
         }
 
-        public static implicit operator Color(HSVA hsva)
+        public static implicit operator Color(Hsva hsva)
         {
             return hsva.ToColor();
         }

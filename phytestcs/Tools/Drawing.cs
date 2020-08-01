@@ -14,7 +14,7 @@ namespace phytestcs
             ExpSymmetric
         }
 
-        private static readonly VertexArray _cake = CircleSector(default, 1, Color.Black, Math.PI / 8,
+        private static readonly VertexArray Cake = CircleSector(default, 1, Color.Black, Math.PI / 8,
             (float) (-Math.PI / 16));
 
         public static Color ToColor(this (byte r, byte g, byte b) v)
@@ -204,11 +204,11 @@ namespace phytestcs
         public static VertexArray CircleOutline(Vector2f center, float radius, float width, Color c,
             float? angle = null)
         {
-            var pts = new Vector2f[Render._rotCirclePointCount];
+            var pts = new Vector2f[Render.RotCirclePointCount];
             var rad = radius + width / 2;
-            for (var i = 0; i < Render._rotCirclePointCount; i++)
+            for (var i = 0; i < Render.RotCirclePointCount; i++)
             {
-                var pt = Render._rotCirclePoints[i];
+                var pt = Render.RotCirclePoints[i];
                 if (angle < 0)
                     pt.Y = -pt.Y;
                 pts[i] = center + pt * rad;
@@ -220,7 +220,7 @@ namespace phytestcs
                 width,
                 upto: angle == null
                     ? (int?) null
-                    : (int) Math.Round(Math.Abs(angle.Value) * Render._rotCirclePointCount / Math.PI / 2));
+                    : (int) Math.Round(Math.Abs(angle.Value) * Render.RotCirclePointCount / Math.PI / 2));
         }
 
         /// <summary>
@@ -236,8 +236,8 @@ namespace phytestcs
             float startAngle = 0)
         {
             startAngle = startAngle.ClampWrapPositive((float) (2 * Math.PI));
-            var start = (uint) Math.Round(Render._rotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
-            var numP = (uint) Math.Round(Render._rotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
+            var start = (uint) Math.Round(Render.RotCirclePointCount * Math.Abs(startAngle) / (2 * Math.PI));
+            var numP = (uint) Math.Round(Render.RotCirclePointCount * Math.Abs(angle) / (2 * Math.PI));
             var res = new VertexArray(PrimitiveType.TriangleFan, numP + 1);
             res[0] = new Vertex(center, c);
 
@@ -248,10 +248,10 @@ namespace phytestcs
                     idx += (int) i;
                 else
                     idx -= (int) i;
-                idx %= (int) Render._rotCirclePointCount;
+                idx %= (int) Render.RotCirclePointCount;
                 if (idx < 0)
-                    idx += (int) Render._rotCirclePointCount;
-                res[i + 1] = new Vertex(center + Render._rotCirclePoints[idx] * radius, c);
+                    idx += (int) Render.RotCirclePointCount;
+                res[i + 1] = new Vertex(center + Render.RotCirclePoints[idx] * radius, c);
             }
 
             return res;
@@ -259,7 +259,7 @@ namespace phytestcs
 
         public static VertexArray CircleCake(Vector2f center, float radius, Color c, float angle)
         {
-            var res = new VertexArray(_cake);
+            var res = new VertexArray(Cake);
 
             for (uint i = 0; i < res.VertexCount; i++)
             {
@@ -289,7 +289,7 @@ namespace phytestcs
         /// <returns>Color</returns>
         public static Color RandomColorGlobal()
         {
-            return new Color((byte) RNG.Next(256), (byte) RNG.Next(256), (byte) RNG.Next(256));
+            return new Color((byte) Rng.Next(256), (byte) Rng.Next(256), (byte) Rng.Next(256));
         }
 
         public static Color WithAlpha(this Color c, byte a)

@@ -19,20 +19,20 @@ namespace phytestcs
 
         private static (DateTime, Vector2i) _lastMove;
 
-        public static bool _rotating;
-        public static bool _moving;
+        public static bool Rotating;
+        public static bool Moving;
         private static float _rotatingAngle;
 
-        public static CircleShape _rotCircle = new CircleShape(0, Render._rotCirclePointCount)
+        public static CircleShape RotCircle = new CircleShape(0, Render.RotCirclePointCount)
             { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
 
-        public static Text _rotText = new Text("", Ui.Font, 18)
+        public static Text RotText = new Text("", Ui.Font, 18)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
-        public static float _rotDeltaAngle;
-        public static float _rotStartAngle;
+        public static float RotDeltaAngle;
+        public static float RotStartAngle;
 
-        private static Vector2f CameraMoveVel;
+        private static Vector2f _cameraMoveVel;
 
         public static Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
 
@@ -77,7 +77,7 @@ namespace phytestcs
                     sw.Restart();
                     Simulation.UpdatePhysics();
 
-                    var delta = (Simulation.TargetDT - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
+                    var delta = (Simulation.TargetDt - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
                     if (delta > 0)
                         Thread.Sleep((int) delta);
                 }
@@ -146,15 +146,15 @@ namespace phytestcs
 
                 var dt = (float) (DateTime.Now - lastUpd).TotalSeconds;
 
-                if (CameraMoveVel != default)
+                if (_cameraMoveVel != default)
                 {
-                    Camera.GameView.Center += CameraMoveVel.InvertY() * dt / Camera.Zoom;
-                    CameraMoveVel *= (float) Math.Exp(-3 * dt);
-                    if (CameraMoveVel.Norm() < 0.001f)
-                        CameraMoveVel = default;
+                    Camera.GameView.Center += _cameraMoveVel.InvertY() * dt / Camera.Zoom;
+                    _cameraMoveVel *= (float) Math.Exp(-3 * dt);
+                    if (_cameraMoveVel.Norm() < 0.001f)
+                        _cameraMoveVel = default;
                 }
 
-                Simulation.FPS = 1 / dt;
+                Simulation.Fps = 1 / dt;
 
                 lastUpd = DateTime.Now;
             }
@@ -162,41 +162,41 @@ namespace phytestcs
 
         private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
         {
-            if (!_rotating && !_moving && Mouse.IsButtonPressed(Mouse.Button.Right) &&
+            if (!Rotating && !Moving && Mouse.IsButtonPressed(Mouse.Button.Right) &&
                 ObjectAtPosition(ClickPosition) is { } obj)
             {
                 Drawing.SelectObject(obj);
                 if (obj is PhysicalObject phy)
                     phy.UserFix = true;
-                _rotating = true;
+                Rotating = true;
                 _rotatingAngle = obj.Angle;
-                _rotCircle.Radius = 135 / Camera.Zoom;
-                _rotCircle.CenterOrigin();
-                _rotCircle.Position = obj.Position;
-                _rotText.Position = obj.Position.ToScreen().F();
-                _rotStartAngle = (ClickPosition.ToWorld() - obj.Position).Angle();
+                RotCircle.Radius = 135 / Camera.Zoom;
+                RotCircle.CenterOrigin();
+                RotCircle.Position = obj.Position;
+                RotText.Position = obj.Position.ToScreen().F();
+                RotStartAngle = (ClickPosition.ToWorld() - obj.Position).Angle();
             }
 
-            if (_rotating)
+            if (Rotating)
             {
                 var rotObj = Drawing.SelectedObject;
                 var rotCur = e.Position().ToWorld() - rotObj.Position;
-                _rotDeltaAngle = rotCur.Angle() - _rotStartAngle;
-                var newAng = _rotatingAngle + _rotDeltaAngle;
-                if (rotCur.Norm() < _rotCircle.Radius)
+                RotDeltaAngle = rotCur.Angle() - RotStartAngle;
+                var newAng = _rotatingAngle + RotDeltaAngle;
+                if (rotCur.Norm() < RotCircle.Radius)
                 {
                     newAng = ((float) (15 * Math.Round(newAng.Degrees() / 15))).Radians();
-                    _rotDeltaAngle = newAng - _rotatingAngle;
+                    RotDeltaAngle = newAng - _rotatingAngle;
                 }
 
                 rotObj.Angle = newAng;
                 Simulation.UpdatePhysicsInternal(0);
             }
 
-            if (!_rotating && Camera.CameraMoveOrigin != null &&
+            if (!Rotating && Camera.CameraMoveOrigin != null &&
                 (Mouse.IsButtonPressed(Mouse.Button.Right) || Mouse.IsButtonPressed(Mouse.Button.Middle)))
             {
-                _moving = true;
+                Moving = true;
                 Camera.GameView.Center = Camera.CameraMoveOrigin.Value +
                                          (ClickPosition - e.Position()).F().InvertY() / Camera.Zoom;
                 _lastMove = (DateTime.Now, e.Position());
@@ -249,7 +249,7 @@ namespace phytestcs
         {
             var moved = pos != ClickPosition;
 
-            if (!moved && !_rotating)
+            if (!moved && !Rotating)
                 Drawing.SelectObject(ObjectAtPosition(pos));
 
             if (btn == Mouse.Button.Left)
@@ -275,9 +275,9 @@ namespace phytestcs
 
             if (btn == Mouse.Button.Right)
             {
-                if (_rotating)
+                if (Rotating)
                 {
-                    _rotating = false;
+                    Rotating = false;
                     if (Drawing.SelectedObject is PhysicalObject phy)
                         phy.UserFix = false;
                 }
@@ -288,7 +288,7 @@ namespace phytestcs
                         var (time, mpos) = _lastMove;
                         var dt = DateTime.Now - time;
                         var dp = mpos - pos;
-                        CameraMoveVel = dp.F() / (float) dt.TotalSeconds;
+                        _cameraMoveVel = dp.F() / (float) dt.TotalSeconds;
                     }
                     else
                     {
@@ -357,10 +357,10 @@ namespace phytestcs
                 case Mouse.Button.Right:
                 case Mouse.Button.Middle:
                     Camera.CameraMoveOrigin = Camera.GameView.Center;
-                    CameraMoveVel = default;
+                    _cameraMoveVel = default;
                     _lastMove = (DateTime.Now, pos);
-                    _moving = false;
-                    _rotating = false;
+                    Moving = false;
+                    Rotating = false;
                     break;
             }
         }
@@ -446,11 +446,11 @@ namespace phytestcs
                         if (obj != null)
                         {
                             var obj2 = PhysObjectAtPosition(mouse, obj);
-                            var obj2pos = mouseW;
+                            var obj2Pos = mouseW;
                             if (obj2 != null)
-                                obj2pos = obj2.MapInv(obj2pos);
+                                obj2Pos = obj2.MapInv(obj2Pos);
                             added = Simulation.Add(
-                                new Hinge(DefaultSpringSize, obj, obj.MapInv(mouseW), obj2, obj2pos));
+                                new Hinge(DefaultSpringSize, obj, obj.MapInv(mouseW), obj2, obj2Pos));
                         }
                     }
 

@@ -6,8 +6,8 @@ namespace phytestcs
 {
     public class BitFieldWrapper
     {
-        private readonly Func<uint> getter;
-        private readonly Action<uint> setter;
+        private readonly Func<uint> _getter;
+        private readonly Action<uint> _setter;
 
         public BitFieldWrapper(Expression<Func<uint>> bindProp)
             : this(PropertyReference.FromExpression(bindProp))
@@ -16,17 +16,17 @@ namespace phytestcs
 
         public BitFieldWrapper(PropertyReference<uint> bindProp)
         {
-            (getter, setter) = bindProp.GetAccessors();
+            (_getter, _setter) = bindProp.GetAccessors();
         }
 
         public bool this[int bit]
         {
-            get => (getter() & (1 << bit)) != 0;
+            get => (_getter() & (1 << bit)) != 0;
             set
             {
-                var old = getter();
+                var old = _getter();
                 old ^= (uint) ((value ? -1 : 0) ^ old) & (uint) (1 << bit);
-                setter(old);
+                _setter(old);
             }
         }
     }

@@ -11,9 +11,9 @@ namespace phytestcs
 {
     public static class Simulation
     {
-        public const float TargetUPS = 100;
-        public const float TargetDT = 1 / TargetUPS;
-        private static Transform GravityTransform = Transform.Identity;
+        public const float TargetUps = 100;
+        public const float TargetDt = 1 / TargetUps;
+        private static Transform _gravityTransform = Transform.Identity;
 
         public static float ActualGravity;
         public static float EscapeVelocity = 55;
@@ -23,7 +23,7 @@ namespace phytestcs
         public static readonly SynchronizedCollection<Object> World = new SynchronizedCollection<Object>();
         public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
         public static PhysicalObject Player;
-        public static float FPS;
+        public static float Fps;
         public static DateTime PauseA;
         public static volatile float SimDuration;
 
@@ -31,7 +31,7 @@ namespace phytestcs
         private static float _gravity = 9.81f;
         private static bool _gravityEnabled = true;
         public static DateTime LastUpdate = DateTime.Now;
-        public static volatile float UPS;
+        public static volatile float Ups;
 
         public static Object[] WorldCache;
         public static PhysicalObject[] WorldCachePhy;
@@ -127,7 +127,7 @@ namespace phytestcs
         [ObjProp("Simulation speed", "x")]
         public static float TimeScale { get; set; } = 1;
 
-        public static float ActualDT => TargetDT * TimeScale;
+        public static float ActualDt => TargetDt * TimeScale;
 
         public static void SortZDepth()
         {
@@ -153,9 +153,9 @@ namespace phytestcs
 
         private static void UpdateGravity()
         {
-            GravityTransform = Transform.Identity;
-            GravityTransform.Rotate(_gravityAngle);
-            GravityVector = GravityEnabled ? GravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
+            _gravityTransform = Transform.Identity;
+            _gravityTransform.Rotate(_gravityAngle);
+            GravityVector = GravityEnabled ? _gravityTransform.TransformPoint(new Vector2f(_gravity, 0)) : default;
         }
 
         private static void AddInternal(Object obj)
@@ -212,9 +212,9 @@ namespace phytestcs
 
             LastUpdate = DateTime.Now;
 
-            UPS = 1 / dt;
+            Ups = 1 / dt;
 
-            UpdatePhysicsInternal(ActualDT);
+            UpdatePhysicsInternal(ActualDt);
 
             AfterUpdate?.Invoke();
         }

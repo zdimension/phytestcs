@@ -18,7 +18,7 @@ namespace phytestcs.Interface.Windows.Properties
             [typeof(float)] = PropConverter.FloatString,
             [typeof(Vector2f)] = PropConverter.Vector2FString,
             [typeof(Color)] = PropConverter.ColorString,
-            [typeof(HSVA)] = PropConverter.ColorHsvaString,
+            [typeof(Hsva)] = PropConverter.ColorHsvaString,
             [typeof(bool)] = PropConverter.BoolString
         };
 

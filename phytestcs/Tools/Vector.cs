@@ -120,7 +120,7 @@ namespace phytestcs
 
         public static Vector2f WithUpdate(this Vector2f v, PhysicalObject o)
         {
-            return v - Simulation.TargetDT * o.Velocity / 2;
+            return v - Simulation.TargetDt * o.Velocity / 2;
         }
 
         public static Vector2f Sum(this IEnumerable<Vector2f> arr)

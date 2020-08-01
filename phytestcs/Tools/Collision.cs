@@ -25,34 +25,34 @@ namespace phytestcs
         }
 
         // http://geomalgorithms.com/a03-_inclusion.html#wn_PnPoly()
-        public static bool ContainsPoint(this Vector2f[] V, Vector2f P)
+        public static bool ContainsPoint(this Vector2f[] v, Vector2f p)
         {
-            static double isLeft(Vector2f p0, Vector2f p1, Vector2f p2)
+            static double IsLeft(Vector2f p0, Vector2f p1, Vector2f p2)
             {
                 return (p1.X - p0.X) * (p2.Y - p0.Y)
                        - (p2.X - p0.X) * (p1.Y - p0.Y);
             }
 
             var wn = 0; // the  winding number counter
-            var j = V.Length - 1;
+            var j = v.Length - 1;
 
             // loop through all edges of the polygon
-            for (var i = 0; i < V.Length; j = i++)
+            for (var i = 0; i < v.Length; j = i++)
             {
-                if (P.IsOnLine(V[i], V[j]))
+                if (p.IsOnLine(v[i], v[j]))
                     return true;
-                if (V[i].Y <= P.Y)
+                if (v[i].Y <= p.Y)
                 {
                     // start y <= P.y
-                    if (V[j].Y > P.Y) // an upward crossing
-                        if (isLeft(V[i], V[j], P) > 0) // P left of  edge
+                    if (v[j].Y > p.Y) // an upward crossing
+                        if (IsLeft(v[i], v[j], p) > 0) // P left of  edge
                             ++wn; // have  a valid up intersect
                 }
                 else
                 {
                     // start y > P.y (no test needed)
-                    if (V[j].Y <= P.Y) // a downward crossing
-                        if (isLeft(V[i], V[j], P) < 0) // P right of  edge
+                    if (v[j].Y <= p.Y) // a downward crossing
+                        if (IsLeft(v[i], v[j], p) < 0) // P right of  edge
                             --wn; // have  a valid down intersect
                 }
             }

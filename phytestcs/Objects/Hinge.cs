@@ -83,7 +83,7 @@ namespace phytestcs.Objects
             float force;
             var diff = End1.Object.AngularVelocity - MotorSpeedRadians;
             if (Motor && diff != 0 && !float.IsPositiveInfinity(MotorTorque))
-                force = Math.Sign(diff) * Math.Min(Math.Abs(diff) * End1.Object.MomentOfInertia / Simulation.ActualDT,
+                force = Math.Sign(diff) * Math.Min(Math.Abs(diff) * End1.Object.MomentOfInertia / Simulation.ActualDt,
                     (float) (MotorTorque * (1 - 0.9999999999 * Math.Exp(-10000 * Math.Pow(diff, 2)))));
             else
                 force = 0;
@@ -95,11 +95,11 @@ namespace phytestcs.Objects
             _torque1.Value = new Vector2f(0, -force / 2).Rotate(End1.Object.Angle);
             _torque2.Value = new Vector2f(0, force / 2).Rotate(End1.Object.Angle);
 
-            var o1net = End1.Object.NetForce - _force1.Value - _torque1.Value - _torque2.Value;
-            var o2net = _force2 == null ? default : End2.Object.NetForce - _force2.Value;
-            _force1.Value = -o1net + o2net;
-            if (_force2 != null)
-                _force2.Value = -o2net + o1net;
+            var o1Net = End1.Object.NetForce - Force1.Value - _torque1.Value - _torque2.Value;
+            var o2Net = Force2 == null ? default : End2.Object.NetForce - Force2.Value;
+            Force1.Value = -o1Net + o2Net;
+            if (Force2 != null)
+                Force2.Value = -o2Net + o1Net;
             //_force1.Value = default;
         }
         /*public override float Force =>

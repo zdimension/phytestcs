@@ -164,8 +164,8 @@ namespace phytestcs.Objects
                         var alphaD = (255 - minObj.Color.A) / 255d;
                         if (minObj.ColorFilter)
                         {
-                            var hue = minObj.ColorHsva.H;
-                            colorStrength = x => alphaD * Tools.Transmittance(x, hue, minObj.ColorFilterWidth);
+                            var hsva = minObj.ColorHsva;
+                            colorStrength = x => alphaD * Tools.Transmittance(x, hsva.H, minObj.ColorFilterWidth, hsva.S);
                         }
                         else
                         {

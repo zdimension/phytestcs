@@ -226,15 +226,13 @@ namespace phytestcs.Interface.Windows.Properties
                 Add(absorbance);
 
                 IntPtr oldPointerAbs = default;
-
-                var oldHue = -1d;
-                var oldAlpha = -1;
+                
+                var oldCol = new Hsva(-1, -1, -1, -1);
                 var oldWidth = -1f;
 
                 void DrawAbsorbance()
                 {
-                    oldHue = wrapper.H;
-                    oldAlpha = wrapper.A;
+                    oldCol = wrapper.ValueHsv;
                     oldWidth = phy.ColorFilterWidth;
 
                     var tex = absorbance.RenderTexture();
@@ -246,10 +244,11 @@ namespace phytestcs.Interface.Windows.Properties
 
                     var hsva = phy.ColorHsva;
                     var objHue = hsva.H;
+                    var objSat = hsva.S;
                     var alphaD = 1 - hsva.A;
                     for (uint x = 0; x < HueWidthHoriz; x++)
                     {
-                        var transmittance = (int) ((1 - alphaD * Transmittance(x * HueFacHoriz, objHue, phy.ColorFilterWidth)) *
+                        var transmittance = (int) ((1 - alphaD * Transmittance(x * HueFacHoriz, objHue, phy.ColorFilterWidth, objSat)) *
                                                    HueHeightHoriz) + 1;
                         for (uint y = 0; y < transmittance; y++)
                             absorbanceImg.SetPixel(Margin + AbsorbTextSize + x, Margin + AbsorbTextSize + y, BackColor);
@@ -276,7 +275,7 @@ namespace phytestcs.Interface.Windows.Properties
 
                 void UpdateAbsorbance()
                 {
-                    if (wrapper.H != oldHue || wrapper.A != oldAlpha || phy.ColorFilterWidth != oldWidth ||
+                    if (wrapper.ValueHsv != oldCol || phy.ColorFilterWidth != oldWidth ||
                         absorbance.RenderTexture().CPointer != oldPointerAbs)
                         DrawAbsorbance();
                 }

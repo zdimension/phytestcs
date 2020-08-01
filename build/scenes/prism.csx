@@ -5,4 +5,4 @@ Simulation.Add(new Polygon(1f, 5.66666f, new[] {
     new Vector2f(0, 0),
     new Vector2f(2, 0),
     new Vector2f(1, 2)
-}, Color.Transparent));
+}, new Color(255, 255, 255, 0)));

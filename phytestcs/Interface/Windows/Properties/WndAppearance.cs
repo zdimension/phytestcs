@@ -11,36 +11,24 @@ namespace phytestcs.Interface.Windows.Properties
 {
     public class WndAppearance : WndBase<Object>
     {
+        private const int wndWidth = 250;
         private const int margin = 4;
         private const int hueWidth = 20;
         private const int sqSize = 140;
         private const int offset = hueWidth + 10;
         private const int totalSize = offset + sqSize;
+        private const int previewOffset = totalSize + 20;
+        private const int previewWidth = hueWidthHoriz - previewOffset;
         private const float hueFac = 360f / sqSize;
         private const int absorbHeight = 80;
         private const float hueFacHoriz = 360f / hueWidthHoriz;
-        public const int hueWidthHoriz = 250 - 2 * margin;
+        public const int hueWidthHoriz = wndWidth - 2 * margin;
         private static readonly Color BackColor = new Color(30, 30, 30);
         private static readonly Image HueImg = new Image(hueWidth, sqSize);
         private static readonly Image HueImgHoriz = new Image(hueWidthHoriz, absorbHeight);
 
         public static readonly Color SelectorOutline = new Color(255, 255, 255, 192);
 
-        private readonly Image _absorbanceImg;
-
-        private readonly RectangleShape _colorSelector = new RectangleShape(new Vector2f(8, 8))
-        {
-            OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent,
-            Origin = new Vector2f(4, 4)
-        };
-
-        private readonly RectangleShape _hueSelector = new RectangleShape(new Vector2f(hueWidth, 4))
-        {
-            OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent,
-            Origin = new Vector2f(hueWidth / 2, 2)
-        };
-
-        private readonly Image RenderImg = new Image(totalSize + 2 * margin + 10, sqSize + 2 * margin, BackColor);
 
         static WndAppearance()
         {
@@ -60,12 +48,14 @@ namespace phytestcs.Interface.Windows.Properties
         }
 
         public WndAppearance(Object obj, Vector2f pos)
-            : base(obj, 250, pos)
+            : base(obj, wndWidth, pos)
         {
             var wrapper = new ColorWrapper(() => obj.Color);
+            
+            var renderImg = new Image(wndWidth, sqSize + 2 * margin, BackColor);
 
             var selector = new Canvas();
-            selector.SizeLayout = new Layout2d(RenderImg.Size.X, RenderImg.Size.Y);
+            selector.SizeLayout = new Layout2d(renderImg.Size.X, renderImg.Size.Y);
             selector.Clear(BackColor);
 
             Add(selector);
@@ -74,9 +64,32 @@ namespace phytestcs.Interface.Windows.Properties
             IntPtr oldPointer = default;
 
             var userChanging = false;
+            
+            var previewRect = new VertexArray(PrimitiveType.Quads, 4);
+            var previewOutline = new VertexArray(PrimitiveType.LineStrip, 5);
 
+            Vector2f[] previewCorners =
+            {
+                new Vector2f(margin + previewOffset, margin),
+                new Vector2f(margin + previewOffset + previewWidth, margin),
+                new Vector2f(margin + previewOffset + previewWidth, margin + sqSize),
+                new Vector2f(margin + previewOffset, margin + sqSize),
+            };
+            
+            var hueSelector = new RectangleShape(new Vector2f(hueWidth, 4))
+            {
+                OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent,
+                Origin = new Vector2f(hueWidth / 2, 2)
+            };
+            
+            var colorSelector = new RectangleShape(new Vector2f(8, 8))
+            {
+                OutlineColor = SelectorOutline, OutlineThickness = 2f, FillColor = Color.Transparent,
+                Origin = new Vector2f(4, 4)
+            };
+            
             wrapper.ValueChanged += delegate { UpdateSelector(); };
-
+            
             void DrawSelector()
             {
                 oldColor = wrapper.Value;
@@ -88,11 +101,11 @@ namespace phytestcs.Interface.Windows.Properties
 
                 selector.Clear(BackColor);
 
-                for (uint y = 0; y < RenderImg.Size.Y; y++)
-                for (uint x = 0; x < RenderImg.Size.X; x++)
-                    RenderImg.SetPixel(x, y, BackColor);
+                for (uint y = 0; y < renderImg.Size.Y; y++)
+                for (uint x = 0; x < renderImg.Size.X; x++)
+                    renderImg.SetPixel(x, y, BackColor);
 
-                RenderImg.Copy(HueImg, margin, margin);
+                renderImg.Copy(HueImg, margin, margin);
 
                 var hue = wrapper.H;
 
@@ -104,21 +117,36 @@ namespace phytestcs.Interface.Windows.Properties
                     {
                         var s = x * fac;
 
-                        RenderImg.SetPixel(margin + offset + x, margin + y, new HSVA(hue, s, 1 - v, 1));
+                        renderImg.SetPixel(margin + offset + x, margin + y, new HSVA(hue, s, 1 - v, 1));
                     }
                 }
 
-                tex.Texture.Update(RenderImg);
+                tex.Texture.Update(renderImg);
 
-                _hueSelector.Position = new Vector2f(
+                hueSelector.Position = new Vector2f(
                     margin + hueWidth / 2,
                     margin + (float) ((360 - wrapper.H) / hueFac));
-                tex.Draw(_hueSelector);
+                tex.Draw(hueSelector);
 
-                _colorSelector.Position = new Vector2f(
+                colorSelector.Position = new Vector2f(
                     (float) (margin + offset + wrapper.S * sqSize),
                     (float) (margin + wrapper.V * sqSize));
-                tex.Draw(_colorSelector);
+                tex.Draw(colorSelector);
+                
+                var col = wrapper.Value;
+                previewRect[0] = new Vertex(previewCorners[0], col);
+                previewRect[1] = new Vertex(previewCorners[1], col);
+                previewRect[2] = new Vertex(previewCorners[2], col);
+                previewRect[3] = new Vertex(previewCorners[3], col);
+                tex.Draw(previewRect);
+                
+                col.A = 255;
+                previewOutline[0] = new Vertex(previewCorners[0], col);
+                previewOutline[1] = new Vertex(previewCorners[1], col);
+                previewOutline[2] = new Vertex(previewCorners[2], col);
+                previewOutline[3] = new Vertex(previewCorners[3], col);
+                previewOutline[4] = new Vertex(previewCorners[0], col);
+                tex.Draw(previewOutline);
             }
 
             void UpdateSelector()
@@ -142,7 +170,7 @@ namespace phytestcs.Interface.Windows.Properties
                             if (x <= hueWidth)
                                 wrapper.H = y * hueFac;
                             else if (x >= offset)
-                                wrapper.Value = new Color(RenderImg.GetPixel(margin + (uint) x, margin + (uint) y))
+                                wrapper.Value = new Color(renderImg.GetPixel(margin + (uint) x, margin + (uint) y))
                                     { A = wrapper.A };
                         }
                     }
@@ -153,8 +181,6 @@ namespace phytestcs.Interface.Windows.Properties
                 if (wrapper.Value != oldColor || selector.RenderTexture().CPointer != oldPointer)
                     DrawSelector();
             }
-
-            DrawSelector();
 
             Ui.Drawn += UpdateSelector;
 
@@ -186,7 +212,7 @@ namespace phytestcs.Interface.Windows.Properties
                 Add(new NumberField<float>(30, 2000, bindProp: () => phy.ColorFilterWidth, log: true)
                     { RightValue = float.PositiveInfinity });
 
-                _absorbanceImg = new Image(250, absorbHeight + 2 * margin, BackColor);
+                var _absorbanceImg = new Image(250, absorbHeight + 2 * margin, BackColor);
 
                 var absorbance = new Canvas();
                 absorbance.SizeLayout = new Layout2d(_absorbanceImg.Size.X, _absorbanceImg.Size.Y);
@@ -230,16 +256,22 @@ namespace phytestcs.Interface.Windows.Properties
                         DrawAbsorbance();
                 }
 
-                DrawAbsorbance();
-
                 Ui.Drawn += UpdateAbsorbance;
 
                 Closed += delegate { Ui.Drawn -= UpdateAbsorbance; };
+                
+                Add(new CheckField(() => phy.Appearance.Borders));
+                Add(new CheckField(() => phy.Appearance.OpaqueBorders));
 
                 if (phy is Circle circle)
                 {
                     Add(new CheckField(() => circle.Appearance.DrawCircleCakes));
-                    Add(new CheckField(() => circle.Protractor));
+                    Add(new CheckField(() => circle.Appearance.Protractor));
+                }
+
+                if (phy is Box box)
+                {
+                    Add(new CheckField(() => box.Appearance.Ruler));
                 }
             }
 

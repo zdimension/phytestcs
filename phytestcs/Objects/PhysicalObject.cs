@@ -38,6 +38,8 @@ namespace phytestcs.Objects
             Mass = wall ? float.PositiveInfinity : shape.Area();
 
             Forces = new SynchronizedCollection<Force> { Gravity, AirFriction, Buoyance };
+
+            UpdateOutline();
         }
 
         public bool AttractionIsLinear { get; set; } = false;
@@ -205,9 +207,6 @@ namespace phytestcs.Objects
         [ObjProp("No self collision")]
         public bool HeteroCollide { get; set; } = false;
 
-        [ObjProp("Show protractor")]
-        public bool Protractor { get; set; } = false;
-
         public override Vector2f Position
         {
             get => _position;
@@ -294,8 +293,6 @@ namespace phytestcs.Objects
                        ? (float) Math.Log(dist)
                        : -1 / dist);
         }
-
-        public event CollisionHandler ObjectCollided;
 
         public override void UpdatePhysics(float dt)
         {
@@ -457,65 +454,12 @@ namespace phytestcs.Objects
                     }
             }
         }
-
-        public static PhysicalObject Rectangle(float x, float y, float w, float h, Color col, bool wall = false,
-            string name = "", bool killer = false)
-        {
-            return new PhysicalObject(new Vector2f(x, y), new RectangleShape(new Vector2f(w, h)), wall, name)
-                { Killer = killer, Color = col };
-        }
-
-        public static PhysicalObject Circle(float x, float y, float r, Color col)
-        {
-            return new PhysicalObject(new Vector2f(x, y), new CircleShape(r, Render._rotCirclePointCount))
-                { Color = col };
-        }
-
         public override void Draw()
         {
             base.Draw();
 
             Shape.OutlineThickness = (Selected ? -7 : Appearance.Borders ? -2 : 0) / Camera.Zoom;
             Render.Window.Draw(Shape);
-
-            if (Shape is CircleShape circle)
-            {
-                if (Appearance.DrawCircleCakes)
-                    Render.Window.Draw(Tools.CircleCake(Position, circle.Radius, Shape.OutlineColor, Angle));
-                if (Protractor)
-                {
-                    const uint numPoints1 = 36;
-                    const uint numPoints2 = 4;
-                    const uint numPoints = numPoints1 + numPoints2;
-                    var lines = new VertexArray(PrimitiveType.Lines, numPoints * 2);
-                    var transform = Transform.Identity;
-                    transform.Translate(Position);
-                    transform.Rotate(Angle.Degrees());
-                    
-                    transform.Scale(new Vector2f(circle.Radius, circle.Radius));
-                    for (uint i = 0; i < numPoints1; i++)
-                    {
-                        var point = Render._rotCirclePoints[i * 10];
-                        float factor;
-                        if (i % 9 == 0)
-                            factor = 0.5f;
-                        else
-                            factor = 0.1f;
-                        lines[2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
-                        lines[2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
-                    }
-                    
-                    for (uint i = 0; i < numPoints2; i++)
-                    {
-                        var point = Render._rotCirclePoints[45 + i * 90];
-                        const float factor = 0.18f;
-                        lines[2 * numPoints1 + 2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
-                        lines[2 * numPoints1 + 2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
-                    }
-
-                    Render.Window.Draw(lines);
-                }
-            }
         }
 
         public override void DrawOverlay()
@@ -833,5 +777,91 @@ namespace phytestcs.Objects
         public dynamic Other { get; }
         public Vector2f Position { get; }
         public Vector2f Normal { get; }
+    }
+
+    public class Box : PhysicalObject
+    {
+        public Box(float x, float y, float w, float h, Color col, bool wall = false,
+            string name = "", bool killer = false)
+            : this(new Vector2f(x, y), new RectangleShape(new Vector2f(w, h)){FillColor = col}, wall, name, killer)
+        {
+        }
+
+        public Box(Vector2f pos, RectangleShape rect, bool wall = false, string name = "", bool killer = false)
+            : base(pos, rect, wall, name)
+        {
+            Killer = killer;
+        }
+
+        public new RectangleShape Shape => (RectangleShape) base.Shape;
+    }
+    
+    public class Circle : PhysicalObject
+    {
+        public Circle(float x, float y, float r, Color col, bool wall = false,
+            string name = "", bool killer = false)
+            : this(new Vector2f(x, y), new CircleShape(r){FillColor = col}, wall, name, killer)
+        {
+        }
+
+        public Circle(Vector2f pos, CircleShape circle, bool wall = false, string name = "", bool killer = false)
+            : base(pos, circle, wall, name)
+        {
+            Killer = killer;
+            
+            _protractorLines = new Lazy<VertexArray>(() =>
+            {
+                const uint numPoints1 = 36;
+                const uint numPoints2 = 4;
+                const uint numPoints = numPoints1 + numPoints2;
+                var lines = new VertexArray(PrimitiveType.Lines, numPoints * 2);
+                var transform = Transform.Identity;
+                transform.Translate(Position);
+                transform.Rotate(Angle.Degrees());
+
+                transform.Scale(new Vector2f(Shape.Radius, Shape.Radius));
+                for (uint i = 0; i < numPoints1; i++)
+                {
+                    var point = Render._rotCirclePoints[i * 10];
+                    float factor;
+                    if (i % 9 == 0)
+                        factor = 0.5f;
+                    else
+                        factor = 0.1f;
+                    lines[2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
+                    lines[2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                }
+
+                for (uint i = 0; i < numPoints2; i++)
+                {
+                    var point = Render._rotCirclePoints[45 + i * 90];
+                    const float factor = 0.18f;
+                    lines[2 * numPoints1 + 2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
+                    lines[2 * numPoints1 + 2 * i + 1] =
+                        new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                }
+
+                return lines;
+            });
+        }
+
+        public new CircleShape Shape => (CircleShape) base.Shape;
+        
+        private readonly Lazy<VertexArray> _protractorLines;
+        
+        [ObjProp("Show protractor")]
+        public bool Protractor { get; set; } = false;
+
+        public override void Draw()
+        {
+            base.Draw();
+
+            if (Appearance.DrawCircleCakes)
+                Render.Window.Draw(Tools.CircleCake(Position, Shape.Radius, Shape.OutlineColor, Angle));
+            if (Protractor)
+            {
+                Render.Window.Draw(_protractorLines.Value);
+            }
+        }
     }
 }

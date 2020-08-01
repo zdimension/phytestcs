@@ -76,10 +76,10 @@ namespace phytestcs
 
             Program.CurrentPalette = Palette.Default;
 
-            Simulation.Add(PhysicalObject.Rectangle(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
-            Simulation.Add(PhysicalObject.Rectangle(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));
-            Simulation.Add(PhysicalObject.Rectangle(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
-            Simulation.Add(PhysicalObject.Rectangle(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
+            Simulation.Add(new Box(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
+            Simulation.Add(new Box(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));
+            Simulation.Add(new Box(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
+            Simulation.Add(new Box(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
 
             if (scr != null)
             {
@@ -138,7 +138,7 @@ namespace phytestcs
                 square[i] = new PhysicalObject[N];
                 for (var j = 0; j < N - i % 2; j++)
                 {
-                    square[i][j] = PhysicalObject.Rectangle(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
+                    square[i][j] = new Box(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
                         name: "Softbody");
                     Simulation.Add(square[i][j]);
 
@@ -178,7 +178,7 @@ namespace phytestcs
                 for (var j = 0; j < N; j++)
                 {
                     square[i][j] =
-                        PhysicalObject.Rectangle(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
+                        new Box(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)

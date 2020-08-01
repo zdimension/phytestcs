@@ -107,7 +107,7 @@ namespace phytestcs.Objects
             //
         }
 
-        private void UpdateOutline()
+        protected void UpdateOutline()
         {
             Color color;
             if (Selected)

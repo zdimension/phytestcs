@@ -357,12 +357,12 @@ namespace phytestcs
             switch (Drawing.DrawMode)
             {
                 case DrawingType.Rectangle when moved:
-                    added = Drawing.SelectObject(Simulation.Add(new PhysicalObject(
+                    added = Drawing.SelectObject(Simulation.Add(new Box(
                         Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2,
                         new RectangleShape(Render.DrawRectangle))));
                     break;
                 case DrawingType.Circle when moved:
-                    added = Drawing.SelectObject(Simulation.Add(new PhysicalObject(
+                    added = Drawing.SelectObject(Simulation.Add(new Circle(
                         Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2,
                         new CircleShape(Render.DrawCircle))));
                     break;

@@ -7,7 +7,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public abstract class PhysicalObject : BaseObject, IHasShape, ICollides
+    public abstract class PhysicalObject : BaseObject
     {
         private static readonly Text ForceName = new Text("", Ui.Font)
             { OutlineThickness = 2, OutlineColor = Color.Black };

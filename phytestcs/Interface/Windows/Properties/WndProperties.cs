@@ -102,6 +102,9 @@ namespace phytestcs.Interface.Windows.Properties
 
             foreach (var w in Ui.PropertyWindows[Object].ToList())
             {
+                if (!Ui.PropertyWindows.ContainsKey(Object)) 
+                    return;
+                
                 if (exceptThis && w == this)
                     continue;
 

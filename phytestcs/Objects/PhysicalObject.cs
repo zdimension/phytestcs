@@ -205,6 +205,9 @@ namespace phytestcs.Objects
         [ObjProp("No self collision")]
         public bool HeteroCollide { get; set; } = false;
 
+        [ObjProp("Show protractor")]
+        public bool Protractor { get; set; } = false;
+
         public override Vector2f Position
         {
             get => _position;
@@ -475,8 +478,44 @@ namespace phytestcs.Objects
             Shape.OutlineThickness = (Selected ? -7 : Appearance.Borders ? -2 : 0) / Camera.Zoom;
             Render.Window.Draw(Shape);
 
-            if (Appearance.DrawCircleCakes && Shape is CircleShape circle)
-                Render.Window.Draw(Tools.CircleCake(Position, circle.Radius, Shape.OutlineColor, Angle));
+            if (Shape is CircleShape circle)
+            {
+                if (Appearance.DrawCircleCakes)
+                    Render.Window.Draw(Tools.CircleCake(Position, circle.Radius, Shape.OutlineColor, Angle));
+                if (Protractor)
+                {
+                    const uint numPoints1 = 36;
+                    const uint numPoints2 = 4;
+                    const uint numPoints = numPoints1 + numPoints2;
+                    var lines = new VertexArray(PrimitiveType.Lines, numPoints * 2);
+                    var transform = Transform.Identity;
+                    transform.Translate(Position);
+                    transform.Rotate(Angle.Degrees());
+                    
+                    transform.Scale(new Vector2f(circle.Radius, circle.Radius));
+                    for (uint i = 0; i < numPoints1; i++)
+                    {
+                        var point = Render._rotCirclePoints[i * 10];
+                        float factor;
+                        if (i % 9 == 0)
+                            factor = 0.5f;
+                        else
+                            factor = 0.1f;
+                        lines[2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
+                        lines[2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                    }
+                    
+                    for (uint i = 0; i < numPoints2; i++)
+                    {
+                        var point = Render._rotCirclePoints[45 + i * 90];
+                        const float factor = 0.18f;
+                        lines[2 * numPoints1 + 2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
+                        lines[2 * numPoints1 + 2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                    }
+
+                    Render.Window.Draw(lines);
+                }
+            }
         }
 
         public override void DrawOverlay()

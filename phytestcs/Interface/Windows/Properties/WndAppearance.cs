@@ -235,6 +235,11 @@ namespace phytestcs.Interface.Windows.Properties
                 Ui.Drawn += UpdateAbsorbance;
 
                 Closed += delegate { Ui.Drawn -= UpdateAbsorbance; };
+
+                if (phy.Shape is CircleShape circle)
+                {
+                    Add(new CheckField(() => phy.Protractor));
+                }
             }
 
             Show();

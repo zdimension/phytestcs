@@ -188,5 +188,15 @@ namespace phytestcs
         {
             return a.Dot(b) / (a.Norm() * b.Norm());
         }
+
+        public static Vector2f RoundTo(this Vector2f v, float n)
+        {
+            return new Vector2f(v.X.RoundTo(n), v.Y.RoundTo(n));
+        }
+
+        public static float Area(this Vector2f v)
+        {
+            return Math.Abs(v.X * v.Y);
+        }
     }
 }

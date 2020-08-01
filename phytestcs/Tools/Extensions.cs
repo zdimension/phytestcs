@@ -158,5 +158,10 @@ namespace phytestcs
             var root = Path.GetDirectoryName(typeof(object).GetAssemblyLoadPath());
             return Path.Combine(root, assemblyName);
         }
+
+        public static float RoundTo(this float f, float n)
+        {
+            return (float) (Math.Round(f / n) * n);
+        }
     }
 }

@@ -60,6 +60,10 @@ namespace phytestcs
 
         public static bool ShowGrid { get; set; } = true;
 
+        public static bool SnapToGrid { get; set; } = true;
+
+        public static bool GridSnappingActive => ShowGrid && SnapToGrid;
+
         [ObjProp("Show gravity field")]
         public static bool ShowGravityField { get; set; } = false;
 
@@ -125,15 +129,25 @@ namespace phytestcs
             DrawSprite.Position = mouse.F() + offset;
             Window.Draw(DrawSprite);
 
+            var clickPos = Ui.ClickPosition.ToWorld();
+            var mousePos = mouse.ToWorld();
+
+            if (GridSnappingActive)
+            {
+                var (f, r) = CalculateRuler(Camera.Zoom);
+                clickPos = clickPos.RoundTo(f);
+                mousePos = mousePos.RoundTo(f);
+            }
+
             if (press)
                 switch (Drawing.DrawMode)
                 {
                     case DrawingType.Rectangle:
                     {
-                        var corner1 = new Vector2i(Math.Min(Ui.ClickPosition.X, mouse.X),
-                            Math.Max(Ui.ClickPosition.Y, mouse.Y)).ToWorld();
-                        var corner2 = new Vector2i(Math.Max(Ui.ClickPosition.X, mouse.X),
-                            Math.Min(Ui.ClickPosition.Y, mouse.Y)).ToWorld();
+                        var corner1 = new Vector2f(Math.Min(clickPos.X, mousePos.X),
+                            Math.Max(clickPos.Y, mousePos.Y));
+                        var corner2 = new Vector2f(Math.Max(clickPos.X, mousePos.X),
+                            Math.Min(clickPos.Y, mousePos.Y));
                         DrawRectangle.FillColor = Drawing.DrawColor;
                         DrawRectangle.Position = corner1;
                         DrawRectangle.Size = corner2 - corner1;
@@ -145,10 +159,9 @@ namespace phytestcs
                     }
                     case DrawingType.Circle:
                     {
-                        var center = Ui.ClickPosition.ToWorld();
                         DrawCircle.FillColor = Drawing.DrawColor;
-                        DrawCircle.Radius = (mouse.ToWorld() - center).Norm();
-                        DrawCircle.Position = center - new Vector2f(DrawCircle.Radius, DrawCircle.Radius);
+                        DrawCircle.Radius = (mousePos - clickPos).Norm();
+                        DrawCircle.Position = clickPos - new Vector2f(DrawCircle.Radius, DrawCircle.Radius);
                         Window.SetView(Camera.GameView);
                         Window.Draw(DrawCircle);
                         Window.SetView(Camera.MainView);

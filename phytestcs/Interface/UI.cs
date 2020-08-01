@@ -217,6 +217,12 @@ namespace phytestcs.Interface
                 Render.ShowGrid = !Render.ShowGrid;
                 btnGrid.SetRenderer(Render.ShowGrid ? BrToggle : BrDef);
             };
+            var wndGrid = new ChildWindowEx(L["Grid"], 250, true, false)
+            {
+                new CheckField(() => Render.SnapToGrid)
+            };
+            Gui.Add(wndGrid);
+            ConnectButton(btnGrid, wndGrid, true);
             buttons.Add(btnGrid);
 
             var btnGrav = new BitmapButton { Image = new Texture("icons/big/gravity.png") };

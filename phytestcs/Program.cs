@@ -204,14 +204,22 @@ namespace phytestcs
 
             if (Drawing.DragObject != null && Mouse.IsButtonPressed(Mouse.Button.Left))
             {
+                var world = e.Position().ToWorld();
+                
+                if (Render.GridSnappingActive)
+                {
+                    var (f, r) = Render.CalculateRuler(Camera.Zoom);
+                    world = world.RoundTo(f);
+                }
+                
                 if (Drawing.DrawMode == DrawingType.Move)
                 {
-                    Drawing.DragObject.Position = e.Position().ToWorld() - Drawing.DragObjectRelPosDirect;
+                    Drawing.DragObject.Position = world - Drawing.DragObjectRelPosDirect;
                     Simulation.UpdatePhysicsInternal(0);
                 }
                 else if (Drawing.DragSpring != null)
                 {
-                    Drawing.DragSpring.End2.RelPos = e.Position().ToWorld();
+                    Drawing.DragSpring.End2.RelPos = world;
                     if (Drawing.DrawMode == DrawingType.Spring)
                         Drawing.DragSpring.TargetLength = Drawing.DragSpring.Delta.Norm();
                 }
@@ -320,8 +328,16 @@ namespace phytestcs
 
                         if (obj != null)
                         {
-                            Drawing.DragObjectRelPos = obj.MapInv(pos.ToWorld());
-                            Drawing.DragObjectRelPosDirect = pos.ToWorld() - obj.Position;
+                            var posW = pos.ToWorld();
+                            
+                            if (Drawing.DrawMode == DrawingType.Spring && Render.GridSnappingActive)
+                            {
+                                var (f, r) = Render.CalculateRuler(Camera.Zoom);
+                                posW = posW.RoundTo(f);
+                            }
+                            
+                            Drawing.DragObjectRelPos = obj.MapInv(posW);
+                            Drawing.DragObjectRelPosDirect = posW - obj.Position;
 
                             if (obj is PhysicalObject phy)
                             {
@@ -348,23 +364,34 @@ namespace phytestcs
                     break;
             }
         }
+        
+        private static float MinDrawingArea => 16 / (Camera.Zoom * Camera.Zoom);
+        private static float MinDrawingRadius => 4 / Camera.Zoom;
 
         private static void FinishDrawing()
         {
             var mouse = Mouse.GetPosition(Render.Window);
+            var mouseW = mouse.ToWorld();
+            if (Render.GridSnappingActive)
+            {
+                var (f, r) = Render.CalculateRuler(Camera.Zoom);
+                mouseW = mouseW.RoundTo(f);
+            }
             var moved = mouse != ClickPosition;
             Object? added = null;
             switch (Drawing.DrawMode)
             {
                 case DrawingType.Rectangle when moved:
-                    added = Drawing.SelectObject(Simulation.Add(new Box(
-                        Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2,
-                        new RectangleShape(Render.DrawRectangle))));
+                    if (Render.DrawRectangle.Size.Area() > MinDrawingArea)
+                        added = Drawing.SelectObject(Simulation.Add(new Box(
+                            Render.DrawRectangle.Position + Render.DrawRectangle.Size / 2,
+                            new RectangleShape(Render.DrawRectangle))));
                     break;
                 case DrawingType.Circle when moved:
-                    added = Drawing.SelectObject(Simulation.Add(new Circle(
-                        Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2,
-                        new CircleShape(Render.DrawCircle))));
+                    if (Render.DrawCircle.Radius > MinDrawingRadius)
+                        added = Drawing.SelectObject(Simulation.Add(new Circle(
+                            Render.DrawCircle.Position + Render.DrawCircle.GetLocalBounds().Size() / 2,
+                            new CircleShape(Render.DrawCircle))));
                     break;
                 case DrawingType.Spring:
                 {
@@ -379,12 +406,12 @@ namespace phytestcs
                             if (obj != null)
                             {
                                 obj2 = obj;
-                                obj2Pos = obj.MapInv(mouse.ToWorld());
+                                obj2Pos = obj.MapInv(mouseW);
                             }
                             else
                             {
                                 obj2 = null;
-                                obj2Pos = mouse.ToWorld();
+                                obj2Pos = mouseW;
                             }
 
                             added = Simulation.Add(new Spring(Drawing.DragSpring.Constant,
@@ -405,7 +432,7 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null && !obj.HasFixate)
-                            added = Simulation.Add(new Fixate(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
+                            added = Simulation.Add(new Fixate(obj, obj.MapInv(mouseW), DefaultObjectSize));
                     }
 
                     break;
@@ -419,11 +446,11 @@ namespace phytestcs
                         if (obj != null)
                         {
                             var obj2 = PhysObjectAtPosition(mouse, obj);
-                            var obj2pos = mouse.ToWorld();
+                            var obj2pos = mouseW;
                             if (obj2 != null)
                                 obj2pos = obj2.MapInv(obj2pos);
                             added = Simulation.Add(
-                                new Hinge(DefaultSpringSize, obj, obj.MapInv(mouse.ToWorld()), obj2, obj2pos));
+                                new Hinge(DefaultSpringSize, obj, obj.MapInv(mouseW), obj2, obj2pos));
                         }
                     }
 
@@ -448,7 +475,7 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null && !obj.HasFixate)
-                            added = Simulation.Add(new Tracer(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize,
+                            added = Simulation.Add(new Tracer(obj, obj.MapInv(mouseW), DefaultObjectSize,
                                 new Color(RandomColor()) { A = 255 }));
                     }
 
@@ -461,7 +488,7 @@ namespace phytestcs
                         var obj = PhysObjectAtPosition(mouse);
 
                         if (obj != null)
-                            added = Simulation.Add(new Thruster(obj, obj.MapInv(mouse.ToWorld()), DefaultObjectSize));
+                            added = Simulation.Add(new Thruster(obj, obj.MapInv(mouseW), DefaultObjectSize));
                     }
 
                     break;
@@ -471,7 +498,7 @@ namespace phytestcs
                     if (!moved)
                     {
                         var obj = PhysObjectAtPosition(mouse);
-                        var pos = mouse.ToWorld();
+                        var pos = mouseW;
 
                         if (obj != null)
                             pos = obj.MapInv(pos);

@@ -9,10 +9,6 @@ namespace phytestcs.Objects
 {
     public abstract class PhysicalObject : Object, IHasShape, ICollides
     {
-        public delegate void CollisionHandler(PhysicalObject source);
-
-        private const float CircleSize = 0.05f;
-
         private static readonly Text forceName = new Text("", Ui.Font)
             { OutlineThickness = 2, OutlineColor = Color.Black };
 

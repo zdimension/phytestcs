@@ -10,10 +10,12 @@ var testt = new Box(-1, 0.5f, 1, 1, Color.Blue);
 testt.Restitution = 1;
 testt.Friction = 0;
 testt.Velocity = new Vector2f(9, 0);
+testt.Name = "B";
 Simulation.Add(testt);
 
 
 var testt2 = new Box(5, 0.5f, 1, 1, Color.Red);
 testt2.Restitution = 1;
 testt2.Friction = 0;
+testt2.Name = "R";
 Simulation.Add(testt2);

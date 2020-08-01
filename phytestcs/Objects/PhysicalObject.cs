@@ -19,19 +19,24 @@ namespace phytestcs.Objects
         private float _angularAirFriction;
         private Vector2f[] _globalPointsCache = null!;
 
-        private readonly float _globalPointsCacheTime = -1;
+        private float _globalPointsCacheTime = -1;
         private Vector2f _position;
+
+        [ObjProp("Default density", "kg/m²")]
+        public static float DefaultDensity { get; set; } = 2;
 
         protected PhysicalObject(Vector2f pos, Shape shape, bool wall = false, string name = "")
         {
             Name = name;
-
+            
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
             Shape.Origin = Shape.CenterOfGravity();
             _position = Shape.Position = pos;
+            
+            Area = Shape.Area();
 
             Wall = wall;
-            Mass = wall ? float.PositiveInfinity : shape.Area();
+            Density = wall ? float.PositiveInfinity : DefaultDensity;
 
             Forces = new SynchronizedCollection<Force> { Gravity, AirFriction, Buoyance };
 
@@ -56,9 +61,11 @@ namespace phytestcs.Objects
         [ObjProp("Density", "kg/m²", shortName: "ρ")]
         public float Density
         {
-            get => Mass / Shape.Area();
-            set => Mass = Shape.Area() * value;
+            get => Mass / Area;
+            set => Mass = Area * value;
         }
+
+        public float Area { get; }
 
         [ObjProp("Linear kinetic energy", "J", unitDeriv: "W", shortName: "Kt")]
         public float LinearKineticEnergy => Fixed ? 0 : Mass * (float) Math.Pow(Velocity.Norm(), 2) / 2;
@@ -162,7 +169,10 @@ namespace phytestcs.Objects
             get
             {
                 if (_globalPointsCache == null || Simulation.SimDuration != _globalPointsCacheTime)
+                {
                     _globalPointsCache = Shape.PointsGlobal();
+                    _globalPointsCacheTime = Simulation.SimDuration;
+                }
 
                 return _globalPointsCache;
             }
@@ -338,7 +348,7 @@ namespace phytestcs.Objects
                         _angularAirFriction = 0;
                     }
 
-                    Buoyance.Value = -Simulation.GravityVector * Shape.Area() * Simulation.AirDensity;
+                    Buoyance.Value = -Simulation.GravityVector * Area * Simulation.AirDensity;
                 }
 
                 ApplyForces(dt);

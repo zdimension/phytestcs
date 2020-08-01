@@ -92,7 +92,7 @@ namespace phytestcs
         }
 
         public static VertexArray VertexLineTri(Vector2f[] points, Color c, float w = 1, bool blend = false,
-            int? upto = null, Color? c2_ = null, byte endAlpha = 0, BlendType blendMode = BlendType.ExpSymmetric,
+            int? upto = null, Color? cOut = null, byte endAlpha = 0, BlendType blendMode = BlendType.ExpSymmetric,
             bool outsideInvert = false, float startAngle = 0f, float endAngle = 0f, bool squaryEnd = false)
         {
             if (points.Length <= 1 || upto != null && upto <= 1)
@@ -117,38 +117,41 @@ namespace phytestcs
             var res = new VertexArray(PrimitiveType.TriangleStrip, count);
             var pos = 0u;
             var col = c;
-            var c2 = c2_ ?? c;
+            var c2 = cOut ?? c;
             var col2 = c2;
 
-            Func<int, byte> alpha;
-            switch (blendMode)
-            {
-                case BlendType.Linear:
-                {
-                    var linFactor = ((float) col.A - endAlpha) / (end - 1);
-                    alpha = x => (byte) (endAlpha + linFactor * x);
-                    break;
-                }
-                case BlendType.Exp:
-                {
-                    var blendFac = (float) (Math.Log((double) endAlpha / col.A) / (end - 1));
-                    alpha = x => (byte) (c.A * Math.Exp(blendFac * (end - 1 - x)));
-                    break;
-                }
-                case BlendType.ExpSymmetric:
-                {
-                    var blendFac = ((float) col.A - endAlpha) / col.A;
-                    alpha = x => (byte) (c.A - blendFac * (Math.Pow(c.A + 1, 1f - x / (end - 1f)) - 1));
-                    break;
-                }
-                default:
-                    throw new NotImplementedException();
-            }
-
+            Func<int, byte> alpha = null!;
             if (blend)
             {
+                if (end > 2)
+                {
+                    switch (blendMode)
+                    {
+                        case BlendType.Linear:
+                        {
+                            var linFactor = ((float) col.A - endAlpha) / (end - 1);
+                            alpha = x => (byte) (endAlpha + linFactor * x);
+                            break;
+                        }
+                        case BlendType.Exp:
+                        {
+                            var blendFac = (float) (Math.Log((double) endAlpha / col.A) / (end - 1));
+                            alpha = x => (byte) (c.A * Math.Exp(blendFac * (end - 1 - x)));
+                            break;
+                        }
+                        case BlendType.ExpSymmetric:
+                        {
+                            var blendFac = ((float) col.A - endAlpha) / col.A;
+                            alpha = x => (byte) (c.A - blendFac * (Math.Pow(c.A + 1, 1f - x / (end - 1f)) - 1));
+                            break;
+                        }
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+
                 col.A = endAlpha;
-                if (c2_ == null)
+                if (cOut == null)
                     col2.A = endAlpha;
             }
 
@@ -178,7 +181,7 @@ namespace phytestcs
                 {
                     var al = alpha(i);
                     col.A = al;
-                    if (c2_ == null)
+                    if (cOut == null)
                         col2.A = al;
                 }
 

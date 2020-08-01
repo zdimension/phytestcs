@@ -258,7 +258,7 @@ namespace phytestcs.Objects
                     {
                         end + norm - endDiff,
                         start + norm + startDiff
-                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, c2_: outside,
+                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, cOut: outside,
                     startAngle: laserRay.IncidenceAngle, endAngle: laserRay.SourceAngle,
                     squaryEnd: !Simulation.PointyLasers), new RenderStates(BlendMode.Add));
 
@@ -274,7 +274,7 @@ namespace phytestcs.Objects
                     {
                         end - norm + endDiff,
                         start - norm - startDiff
-                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, c2_: outside,
+                    }, inside, outerThick, true, endAlpha: endAlpha, blendMode: Tools.BlendType.Exp, cOut: outside,
                     outsideInvert: true, startAngle: laserRay.IncidenceAngle, endAngle: laserRay.SourceAngle,
                     squaryEnd: !Simulation.PointyLasers), new RenderStates(BlendMode.Add));
             }

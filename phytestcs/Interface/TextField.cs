@@ -9,7 +9,7 @@ namespace phytestcs.Interface
 {
     public class TextFieldBase : Panel
     {
-        public EditBox Field { get; protected set; }
+        public EditBox Field { get; protected set; } = null!;
 
         public float NameWidth
         {
@@ -17,7 +17,7 @@ namespace phytestcs.Interface
             set => NameLabel.Size = new Vector2f(value, NameLabel.Size.Y);
         }
 
-        public Label NameLabel { get; protected set; }
+        public Label NameLabel { get; protected set; } = null!;
     }
 
     public sealed class TextField<T> : TextFieldBase
@@ -30,13 +30,11 @@ namespace phytestcs.Interface
         private UserBinding? _binding;
 
         private string? _oldLoadedVal;
-        private string _value;
+        private string _value = null!;
 
-        public TextField(PropertyReference<T> bindProp, string? name, PropConverter<T, string> conv = null)
+        public TextField(PropertyReference<T> bindProp, string? name, PropConverter<T, string>? conv = null)
         {
-            if (bindProp == null) throw new ArgumentNullException(nameof(bindProp));
-
-            _bindProp = bindProp;
+            _bindProp = bindProp ?? throw new ArgumentNullException(nameof(bindProp));
             (_getter, _setter) = bindProp.GetAccessors();
             name ??= bindProp.DisplayName;
             if (conv?.NameFormat != null)
@@ -60,7 +58,7 @@ namespace phytestcs.Interface
 
             if (_bindProp.Property is PropertyInfo pi &&
                 _bindProp.Target is BaseObject o &&
-                o.IsBound(pi.GetGetMethod(), out var res) &&
+                o.IsBound(pi.GetGetMethod()!, out var res) &&
                 res.Item1 is UserBinding ub)
             {
                 _binding = ub;

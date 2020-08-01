@@ -11,13 +11,16 @@ namespace phytestcs.Objects
     public class Spring : VirtualObject
     {
         protected readonly Force Force1;
-        protected readonly Force Force2;
+        protected readonly Force? Force2;
 
         private readonly Text _legende = new Text("", Ui.Font, 13) { FillColor = Color.Black };
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
+            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType? type = null)
         {
+            if (object1 == null)
+                throw new ArgumentNullException(nameof(object1));
+            
             Constant = constant;
             TargetLength = targetLength;
 
@@ -122,7 +125,7 @@ namespace phytestcs.Objects
                 if (!End1.Object.Fixed)
                     Force1.Value = unit * force;
                 if (!End2.Object.Fixed)
-                    Force2.Value = -unit * force;
+                    Force2!.Value = -unit * force;
             }
             else
             {
@@ -130,11 +133,11 @@ namespace phytestcs.Objects
             }
         }
 
-        public override void Delete(BaseObject source = null)
+        public override void Delete(BaseObject? source = null)
         {
             End1.Object.Forces.Remove(Force1);
 
-            End2.Object?.Forces.Remove(Force2);
+            End2.Object?.Forces.Remove(Force2!);
 
             base.Delete(source);
         }
@@ -213,7 +216,7 @@ namespace phytestcs.Objects
     {
         private readonly CircleShape _shape = new CircleShape();
 
-        public SpringEnd(PhysicalObject @object, Vector2f relPos, float size, Spring parent)
+        public SpringEnd(PhysicalObject? @object, Vector2f relPos, float size, Spring parent)
             : base(@object, relPos)
         {
             Size = size;

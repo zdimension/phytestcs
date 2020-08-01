@@ -18,7 +18,7 @@ namespace phytestcs
 
         public static T Transition<T>(T a, T b, DateTime start, float duration)
         {
-            return a + ((dynamic) b - (dynamic) a) *
+            return a + ((dynamic) b! - (dynamic) a!) *
                 Math.Min((float) (DateTime.Now - start).TotalSeconds / duration, 1);
         }
 
@@ -37,7 +37,7 @@ namespace phytestcs
             return ActualObjects.LastOrDefault(o => o.Contains(loc));
         }
 
-        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject excl = null)
+        public static PhysicalObject PhysObjectAtPosition(Vector2i pos, PhysicalObject? excl = null)
         {
             var loc = pos.ToWorld();
 
@@ -46,7 +46,7 @@ namespace phytestcs
 
         public static T Average<T>(T a, T b)
         {
-            return a + ((dynamic) b - a) / 2;
+            return a + ((dynamic) b! - a) / 2;
         }
 
         public static Vector2f Average(this ICollection<Vector2f> arr)
@@ -90,7 +90,8 @@ namespace phytestcs
     }
 
     public sealed class Ref<T>
+        where T : class
     {
-        public T Value { get; set; }
+        public T? Value { get; set; }
     }
 }

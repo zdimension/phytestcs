@@ -23,8 +23,8 @@ namespace phytestcs
         public static float DragConstant = 1e3f;
         public static DrawingType DrawMode;
         public static Color DrawColor;
-        public static BaseObject DragObject;
-        public static Spring DragSpring;
+        public static BaseObject? DragObject;
+        public static Spring? DragSpring;
         public static Vector2f DragObjectRelPos;
 
         public static BaseObject? SelectedObject { get; private set; }

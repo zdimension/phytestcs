@@ -35,6 +35,26 @@ namespace phytestcs
                 Rng.NextDouble(Start.A, End.A)
             );
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ColorRange range && Equals(range);
+        }
+
+        public bool Equals(ColorRange other)
+        {
+            return Start == other.Start && End == other.End;
+        }
+
+        public static bool operator ==(ColorRange left, ColorRange right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ColorRange left, ColorRange right)
+        {
+            return !(left == right);
+        }
     }
 
     public struct Palette

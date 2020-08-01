@@ -19,7 +19,7 @@ namespace phytestcs
     {
         public static volatile bool Loaded;
         public static Script<object>? Script;
-        public static ExpandoObject My;
+        public static ExpandoObject My = null!;
 
         public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default
             .AddReferences(
@@ -75,16 +75,17 @@ namespace phytestcs
 
             Program.CurrentPalette = Palette.Default;
 
-            Simulation.Add(new Box(-5000, -5100, 10000, 100, Color.Black, true, "murBas", true));
-            Simulation.Add(new Box(-5000, 5000, 10000, 100, Color.Black, true, "murHaut", true));
-            Simulation.Add(new Box(-5100, -5000, 100, 10000, Color.Black, true, "murGauche", true));
-            Simulation.Add(new Box(5000, -5000, 100, 10000, Color.Black, true, "murDroite", true));
+            Simulation.Add(new Box(-5000, -5100, 10000, 100, Color.Black, true, "bottom", true));
+            Simulation.Add(new Box(-5000, 5000, 10000, 100, Color.Black, true, "top", true));
+            Simulation.Add(new Box(-5100, -5000, 100, 10000, Color.Black, true, "left", true));
+            Simulation.Add(new Box(5000, -5000, 100, 10000, Color.Black, true, "right", true));
 
             if (scr != null)
             {
-                Console.WriteLine("Début compilation");
+                Console.WriteLine(L["Build start"]);
                 Script = scr;
-                Console.WriteLine("Fin compilation et début exécution");
+                Console.WriteLine(L["Build finished"]);
+                Console.WriteLine(L["Script started"]);
                 try
                 {
                     await Script.RunAsync().ConfigureAwait(true);

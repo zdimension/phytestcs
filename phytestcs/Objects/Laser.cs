@@ -17,7 +17,7 @@ namespace phytestcs.Objects
 
         public readonly SynchronizedCollection<LaserRay> Rays = new SynchronizedCollection<LaserRay>();
 
-        public Laser(PhysicalObject @object, Vector2f relPos, float size)
+        public Laser(PhysicalObject? @object, Vector2f relPos, float size)
             : base(@object, relPos)
         {
             Size = size;

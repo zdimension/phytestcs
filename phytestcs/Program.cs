@@ -54,8 +54,6 @@ namespace phytestcs
             Simulation.Pause = false;
             Simulation.TogglePause();
 
-            Camera.GameView = new View();
-            Camera.MainView = new View();
             Camera.Center();
             Camera.CalculateWindow();
 
@@ -159,7 +157,7 @@ namespace phytestcs
             }
         }
 
-        private static void Window_MouseMoved(object sender, MouseMoveEventArgs e)
+        private static void Window_MouseMoved(object? sender, MouseMoveEventArgs e)
         {
             if (!Rotating && !Moving && Mouse.IsButtonPressed(Mouse.Button.Right) &&
                 ObjectAtPosition(ClickPosition) is { } obj)
@@ -179,17 +177,21 @@ namespace phytestcs
             if (Rotating)
             {
                 var rotObj = Drawing.SelectedObject;
-                var rotCur = e.Position().ToWorld() - rotObj.Position;
-                RotDeltaAngle = rotCur.Angle() - RotStartAngle;
-                var newAng = _rotatingAngle + RotDeltaAngle;
-                if (rotCur.Norm() < RotCircle.Radius)
+                if (rotObj != null)
                 {
-                    newAng = ((float) (15 * Math.Round(newAng.Degrees() / 15))).Radians();
-                    RotDeltaAngle = newAng - _rotatingAngle;
-                }
+                    var rotCur = e.Position().ToWorld() - rotObj.Position;
+                    RotDeltaAngle = rotCur.Angle() - RotStartAngle;
+                    var newAng = _rotatingAngle + RotDeltaAngle;
+                    if (rotCur.Norm() < RotCircle.Radius)
+                    {
+                        newAng = ((float) (15 * Math.Round(newAng.Degrees() / 15))).Radians();
+                        RotDeltaAngle = newAng - _rotatingAngle;
+                    }
 
-                rotObj.Angle = newAng;
-                Simulation.UpdatePhysicsInternal(0);
+                    rotObj.Angle = newAng;
+                    
+                    Simulation.UpdatePhysicsInternal(0);
+                }
             }
 
             if (!Rotating && Camera.CameraMoveOrigin != null &&
@@ -227,7 +229,7 @@ namespace phytestcs
             Drawing.DragSpring?.UpdatePhysics(0);
         }
 
-        private static void Window_MouseWheelScrolled(object sender, MouseWheelScrollEventArgs e)
+        private static void Window_MouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
         {
             var factor = 1 + Camera.ZoomDelta;
             if (e.Delta < 0)
@@ -400,7 +402,7 @@ namespace phytestcs
 
                         if (obj != Drawing.DragObject)
                         {
-                            PhysicalObject obj2;
+                            PhysicalObject? obj2;
                             Vector2f obj2Pos;
                             if (obj != null)
                             {
@@ -512,7 +514,7 @@ namespace phytestcs
             added?.UpdatePhysics(0);
         }
 
-        private static void Window_KeyReleased(object sender, KeyEventArgs e)
+        private static void Window_KeyReleased(object? sender, KeyEventArgs e)
         {
             switch (e.Code)
             {
@@ -526,7 +528,7 @@ namespace phytestcs
             }
         }
 
-        private static void Window_KeyPressed(object sender, KeyEventArgs e)
+        private static void Window_KeyPressed(object? sender, KeyEventArgs e)
         {
             switch (e.Code)
             {
@@ -612,7 +614,7 @@ namespace phytestcs
                 }
         }
 
-        private static void Window_Resized(object sender, SizeEventArgs e)
+        private static void Window_Resized(object? sender, SizeEventArgs e)
         {
             //SetZoom(CameraZoom * e.Width / Width);
             Render.Width = e.Width;
@@ -621,7 +623,7 @@ namespace phytestcs
             Render.ResizeTextures();
         }
 
-        private static void Window_Closed(object sender, EventArgs e)
+        private static void Window_Closed(object? sender, EventArgs e)
         {
             Environment.Exit(0);
         }

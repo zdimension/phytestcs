@@ -38,7 +38,7 @@ namespace phytestcs.Objects
         public override Shape Shape => _rect1;
 
 
-        public override void Delete(BaseObject source = null)
+        public override void Delete(BaseObject? source = null)
         {
             Object.HasFixate = false;
 

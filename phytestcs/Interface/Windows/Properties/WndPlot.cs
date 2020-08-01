@@ -96,7 +96,7 @@ namespace phytestcs.Interface.Windows.Properties
         }
 
         public WndPlot(PhysicalObject obj, Vector2f pos)
-            : base(obj, obj.Name, LGauche + LGraphe, pos)
+            : base(obj, LGauche + LGraphe, pos)
         {
             var hl = new Panel { SizeLayout = new Layout2d(Size.X, Hauteur) };
 
@@ -428,7 +428,7 @@ dy/dx = {-deriv,6:F2} {CurrentLine.Item2?.UnitDeriv ?? ""}";
             _canvas.Display();
         }
 
-        private void btnCSV_Clicked(object sender, SignalArgsVector2f e)
+        private void btnCSV_Clicked(object? sender, SignalArgsVector2f e)
         {
             var sfd = new SaveFileDialog
             {

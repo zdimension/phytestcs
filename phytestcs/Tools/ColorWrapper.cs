@@ -9,7 +9,7 @@ namespace phytestcs
     public sealed class ColorWrapper
     {
         private readonly Func<Color> _getter;
-        private readonly Action<Color> _setter;
+        private readonly Action<Color>? _setter;
 
         public ColorWrapper(Expression<Func<Color>> bindProp)
             : this(PropertyReference.FromExpression(bindProp))
@@ -18,8 +18,13 @@ namespace phytestcs
 
         public ColorWrapper(PropertyReference<Color> bindProp)
         {
+            if (bindProp == null)
+                throw new ArgumentNullException(nameof(bindProp));
+            
             (_getter, _setter) = bindProp.GetAccessors();
-            ValueChanged += _setter;
+
+            if (_setter != null)
+                ValueChanged += _setter;
         }
 
         public byte R
@@ -199,6 +204,11 @@ namespace phytestcs
 
         public static implicit operator Hsva(Color color)
         {
+            return FromColor(color);
+        }
+
+        public static Hsva FromColor(Color color)
+        {
             return new Hsva(color);
         }
 
@@ -210,6 +220,26 @@ namespace phytestcs
         public string Repr()
         {
             return (H, S, V, A).Repr();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Hsva hsva && Equals(hsva);
+        }
+
+        public bool Equals(Hsva other)
+        {
+            return ToColor() == other.ToColor();
+        }
+
+        public static bool operator ==(Hsva left, Hsva right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Hsva left, Hsva right)
+        {
+            return !(left == right);
         }
     }
 }

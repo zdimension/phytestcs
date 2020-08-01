@@ -139,7 +139,7 @@ namespace phytestcs.Objects
 
         public event Action Deleted = () => { };
 
-        public virtual void Delete(BaseObject source = null)
+        public virtual void Delete(BaseObject? source = null)
         {
             OnDie.Invoke(new BaseEventArgs(this));
 
@@ -268,7 +268,7 @@ namespace phytestcs.Objects
             _bindings.Remove(getMethod);
         }
 
-        public bool IsBound(MethodInfo getMethod, out (Binding?, MethodInfo?) res)
+        public bool IsBound(MethodInfo getMethod, out (Binding, MethodInfo?) res)
         {
             return _bindings.TryGetValue(getMethod, out res);
         }
@@ -282,8 +282,8 @@ namespace phytestcs.Objects
     [AttributeUsageAttribute(AttributeTargets.All)]
     public sealed class ObjPropAttribute : DisplayNameAttribute
     {
-        public ObjPropAttribute(string displayName, string unit = "", string unitInteg = null, string unitDeriv = null,
-            string shortName = null)
+        public ObjPropAttribute(string displayName, string unit = "", string? unitInteg = null, string? unitDeriv = null,
+            string? shortName = null)
             : base(L[displayName])
         {
             Unit = unit;
@@ -318,7 +318,7 @@ namespace phytestcs.Objects
     public sealed class UserBinding : Binding
     {
         public UserBinding(string code, object? target)
-            : base(null)
+            : base(null!)
         {
             Wrapper = new LambdaStringWrapper<Func<object?>>(code, target);
         }
@@ -418,7 +418,7 @@ namespace phytestcs.Objects
             if (suffix == null)
                 throw new ArgumentNullException(nameof(suffix));
             
-            if (suffix.EndsWith("⋅s"))
+            if (suffix.EndsWith("⋅s", StringComparison.InvariantCulture))
                 return suffix[..^2];
 
             foreach (var (bef, aft) in Powers)

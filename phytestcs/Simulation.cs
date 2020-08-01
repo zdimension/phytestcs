@@ -21,7 +21,7 @@ namespace phytestcs
         public static bool Pause = true;
         public static readonly SynchronizedCollection<BaseObject> World = new SynchronizedCollection<BaseObject>();
         public static PhysicalObject[] AttractorsCache = Array.Empty<PhysicalObject>();
-        public static PhysicalObject Player;
+        public static PhysicalObject? Player;
         public static float Fps;
         public static DateTime PauseA;
         public static volatile float SimDuration;
@@ -32,9 +32,9 @@ namespace phytestcs
         public static DateTime LastUpdate = DateTime.Now;
         public static volatile float Ups;
 
-        public static BaseObject[] WorldCache;
-        public static PhysicalObject[] WorldCachePhy;
-        public static BaseObject[] WorldCacheNonLaser;
+        public static BaseObject[] WorldCache = null!;
+        public static PhysicalObject[] WorldCachePhy = null!;
+        public static BaseObject[] WorldCacheNonLaser = null!;
         private static float _laserFuzziness = 0.7f;
         private static int _numColorsInRainbow = 12;
 
@@ -201,7 +201,7 @@ namespace phytestcs
             Ui.BtnPlay.SetRenderer(!Pause ? Ui.BrRed : Ui.BrGreen);
         }
 
-        public static event Action AfterUpdate;
+        public static event Action AfterUpdate = null!;
 
         public static void UpdatePhysics(bool force = false)
         {
@@ -240,17 +240,17 @@ namespace phytestcs
             }
         }
 
-        public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject excl = null)
+        public static float AttractionEnergy(Vector2f pos, float mass = 1f, PhysicalObject? excl = null)
         {
             return AttractorsCache.Where(o => o != excl).Sum(o => o.AttractionEnergyCaused(pos, mass));
         }
 
-        public static Vector2f AttractionField(Vector2f pos, float mass = 1f, PhysicalObject excl = null)
+        public static Vector2f AttractionField(Vector2f pos, float mass = 1f, PhysicalObject? excl = null)
         {
             return AttractorsCache.Where(o => o != excl).Sum(o => o.AttractionField(pos, mass));
         }
 
-        public static Vector2f GravityField(Vector2f pos, float mass = 1f, PhysicalObject excl = null)
+        public static Vector2f GravityField(Vector2f pos, float mass = 1f, PhysicalObject? excl = null)
         {
             return GravityVector * mass + AttractionField(pos, mass, excl);
         }

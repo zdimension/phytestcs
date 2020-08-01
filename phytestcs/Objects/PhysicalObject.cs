@@ -17,7 +17,7 @@ namespace phytestcs.Objects
         private float _angle;
 
         private float _angularAirFriction;
-        private Vector2f[] _globalPointsCache;
+        private Vector2f[] _globalPointsCache = null!;
 
         private readonly float _globalPointsCacheTime = -1;
         private Vector2f _position;

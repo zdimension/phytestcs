@@ -6,7 +6,7 @@ namespace phytestcs
     public sealed class LambdaStringWrapper<T> : IRepr
         where T : Delegate
     {
-        private string _code;
+        private string _code = null!;
         private readonly object? _globals;
 
         public LambdaStringWrapper(string initial = "delegate { }", object? globals = null)
@@ -27,8 +27,8 @@ namespace phytestcs
             get => _code;
             set
             {
-                _code = value.Trim();
-
+                _code = value?.Trim() ?? throw new ArgumentNullException(nameof(value));
+                
                 var ok = false;
 
                 if (value[0] == '{' && value[^1] == '}')
@@ -59,7 +59,7 @@ namespace phytestcs
             }
         }
 
-        public T Value { get; private set; }
+        public T Value { get; private set; } = null!;
         public Func<ScriptOptions, ScriptOptions> ScriptOptions { get; set; } = so => so;
 
         public string Repr()

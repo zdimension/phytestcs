@@ -2,6 +2,7 @@
 using phytestcs.Objects;
 using SFML.System;
 using static phytestcs.Interface.Ui;
+using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
@@ -12,7 +13,7 @@ namespace phytestcs.Interface.Windows.Properties
             : base("", larg)
         {
             Object = obj ?? throw new ArgumentNullException(nameof(obj));
-            Title = obj.Name;
+            Title = obj.Name ?? L[obj.GetType().Name] ?? "";
             PropertyWindows[obj].Add(this);
             Gui.Add(this);
             StartPosition = Position = p;

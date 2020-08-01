@@ -22,7 +22,7 @@ namespace phytestcs.Interface.Windows.Properties
         };
 
         public WndScript(BaseObject obj, Vector2f pos)
-            : base(obj, obj.Name, 440, pos)
+            : base(obj, 440, pos)
         {
             var modes = new Dictionary<string, PropType>
             {

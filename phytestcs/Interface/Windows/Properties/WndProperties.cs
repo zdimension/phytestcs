@@ -86,7 +86,7 @@ namespace phytestcs.Interface.Windows.Properties
             };
         }
 
-        private void ClickClose(object sender, SignalArgsVector2f signalArgsVector2F)
+        private void ClickClose(object? sender, SignalArgsVector2f signalArgsVector2F)
         {
             CloseAll(true);
         }

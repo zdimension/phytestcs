@@ -15,19 +15,21 @@ namespace phytestcs.Interface
         private bool _uiLoading;
         private float _value;
 
-        public NumberField(float min, float max, string name = null, float val = 0, string unit = null,
+        public NumberField(float min, float max,
+            Expression<Func<T>> bindProp, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
-            Expression<Func<T>> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor = 1, bool inline = false, int? round = null)
-            : this(min, max, name, val, unit, deci, PropertyReference.FromExpression(bindProp), log, step, conv, factor,
-                inline, round)
+            bool log = false, float step = 0.01f,
+            PropConverter<T, float>? conv = null, float factor = 1, bool inline = false, int? round = null)
+            : this(min, max, PropertyReference.FromExpression(bindProp), name, val, unit, deci,
+                log, step, conv, factor, inline, round)
         {
         }
 
-        public NumberField(float min, float max, string? name = null, float val = 0, string? unit = null,
+        public NumberField(float min, float max,
+            PropertyReference<T> bindProp, string? name = null, float val = 0, string? unit = null,
             bool deci = true,
-            PropertyReference<T> bindProp = null, bool log = false, float step = 0.01f,
-            PropConverter<T, float> conv = null, float factor = 1, bool inline = false, int? round = 2)
+            bool log = false, float step = 0.01f,
+            PropConverter<T, float>? conv = null, float factor = 1, bool inline = false, int? round = 2)
         {
             Log = log;
             Factor = factor;
@@ -68,7 +70,7 @@ namespace phytestcs.Interface
             if (_setter == null)
                 Field.ReadOnly = true;
 
-            void OnValidated(object sender, SignalArgsString s)
+            void OnValidated(object? sender, SignalArgsString s)
             {
                 if (deci)
                 {

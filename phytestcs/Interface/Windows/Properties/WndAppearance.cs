@@ -185,18 +185,18 @@ namespace phytestcs.Interface.Windows.Properties
 
             Closed += delegate { Ui.Drawn -= UpdateSelector; };
 
-            Add(new NumberField<double>(0, 360, unit: "°", bindProp: () => wrapper.H, inline: true, round: 0));
-            Add(new NumberField<double>(0, 100, factor: 100, unit: "%", bindProp: () => wrapper.S, inline: true,
-                round: 0));
-            Add(new NumberField<double>(0, 100, factor: 100, unit: "%", bindProp: () => wrapper.V, inline: true,
-                round: 0));
+            Add(new NumberField<double>(0, 360, () => wrapper.H, unit: "°", inline: true, round: 0));
+            Add(new NumberField<double>(0, 100, () => wrapper.S, unit: "%",
+                factor: 100, inline: true, round: 0));
+            Add(new NumberField<double>(0, 100, () => wrapper.V, unit: "%",
+                factor: 100, inline: true, round: 0));
 
-            Add(new NumberField<double>(0, 100, factor: 100, unit: "%", bindProp: () => wrapper.Ad, inline: true,
-                round: 0));
+            Add(new NumberField<double>(0, 100, () => wrapper.Ad, unit: "%",
+                factor: 100, inline: true, round: 0));
 
-            Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.R, inline: true));
-            Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.G, inline: true));
-            Add(new NumberField<byte>(0, 255, deci: false, bindProp: () => wrapper.B, inline: true));
+            Add(new NumberField<byte>(0, 255, () => wrapper.R, deci: false, inline: true));
+            Add(new NumberField<byte>(0, 255, () => wrapper.G, deci: false, inline: true));
+            Add(new NumberField<byte>(0, 255, () => wrapper.B, deci: false, inline: true));
 
             var btnRandom = new BitmapButton(L["Random color"]) { Image = new Texture("icons/small/random.png") };
             btnRandom.Clicked += delegate
@@ -208,7 +208,7 @@ namespace phytestcs.Interface.Windows.Properties
 
             if (obj is PhysicalObject phy)
             {
-                Add(new NumberField<float>(30, 2000, bindProp: () => phy.ColorFilterWidth, log: true)
+                Add(new NumberField<float>(30, 2000, () => phy.ColorFilterWidth, log: true)
                     { RightValue = float.PositiveInfinity });
 
                 var absorbanceImg = new Image(250, AbsorbHeight + 2 * Margin, BackColor);

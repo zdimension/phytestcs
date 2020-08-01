@@ -51,7 +51,7 @@ namespace phytestcs
                             {
                                 r += Repr(prop, maxDepth, currentDepth + 1).IndentBlock();
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 r += L["<error>"];
                             }
@@ -139,7 +139,7 @@ namespace phytestcs
                             {
                                 r += Repr(prop.GetValue(o), maxDepth, currentDepth + 1).IndentBlock();
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 r += L["<error>"];
                             }

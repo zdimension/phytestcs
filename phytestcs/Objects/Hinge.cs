@@ -7,15 +7,15 @@ namespace phytestcs.Objects
 {
     public sealed class Hinge : Spring
     {
-        private readonly CircleShape _shape = new CircleShape();
-        private readonly Force _test;
+        //private readonly CircleShape _shape = new CircleShape();
+        //private readonly Force _test = null!;
         private readonly Force _torque1;
-        private readonly Force _torque1Sup;
+        //private readonly Force _torque1Sup = null!;
         private readonly Force _torque2;
-        private readonly Force _torque2Sup;
+        //private readonly Force _torque2Sup = null!;
 
         public Hinge(float size, PhysicalObject object1, Vector2f object1RelPos,
-            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType type = null)
+            PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType? type = null)
             : base(1e8f, 0, size, object1, object1RelPos, object2, object2RelPos, type ?? ForceType.Hinge)
         {
             ShowInfos = false;
@@ -23,7 +23,7 @@ namespace phytestcs.Objects
             type ??= ForceType.Hinge!;
             _torque1 = new Force(type, new Vector2f(0, 0), new Vector2f(1, 0)) { Source = this };
             _torque2 = new Force(type, new Vector2f(0, 0), new Vector2f(-1, 0)) { Source = this };
-            object1.Forces.Add(_torque1);
+            object1!.Forces.Add(_torque1);
             object1.Forces.Add(_torque2);
             object1.Hinge = this;
 
@@ -32,7 +32,7 @@ namespace phytestcs.Objects
 
         public Vector2f OriginalPosition => End2.Position;
 
-        public float Size
+        /*public float Size
         {
             get => _shape.Radius * 2;
             set
@@ -40,7 +40,7 @@ namespace phytestcs.Objects
                 _shape.Radius = value / 2;
                 _shape.CenterOrigin();
             }
-        }
+        }*/
 
 
         [ObjProp("Motor")]
@@ -61,12 +61,12 @@ namespace phytestcs.Objects
         [ObjProp("Motor torque", "Nm")]
         public float MotorTorque { get; set; } = 100;
 
-        protected override IEnumerable<Shape> Shapes => new[] { _shape };
+        //protected override IEnumerable<Shape> Shapes => new[] { _shape };
 
         //private Vector2f OppForce => -(Object1.NetForce - _force1.Value);
         public override float Force => 0;
 
-        public override void Delete(BaseObject source = null)
+        public override void Delete(BaseObject? source = null)
         {
             End1.Object.Forces.Remove(_torque1);
             End1.Object.Forces.Remove(_torque2);

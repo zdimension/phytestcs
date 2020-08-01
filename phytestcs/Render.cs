@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using phytestcs.Interface;
 using phytestcs.Objects;
@@ -19,7 +20,7 @@ namespace phytestcs
         public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
         public static int NumRays;
-        public static Text Statistics;
+        public static Text Statistics = null!;
         private static readonly Text PauseText = new Text("EN PAUSE", Ui.Font, 20) { FillColor = Color.Red };
 
         private static readonly Text TxtScale = new Text("", Ui.Font, 15)
@@ -30,7 +31,7 @@ namespace phytestcs
 
         public static uint Width = 900;
         public static uint Height = 550;
-        public static RenderWindow Window;
+        public static RenderWindow Window = null!;
 
         public static readonly Vector2f[] RotCirclePoints = (
             from i in Enumerable.Range(0, (int) RotCirclePointCount)
@@ -38,7 +39,7 @@ namespace phytestcs
             select new Vector2f((float) Math.Cos(angle), (float) Math.Sin(angle))
         ).ToArray();
 
-        public static BaseObject[] WorldCache = null;
+        public static BaseObject[] WorldCache = null!;
 
         static Render()
         {
@@ -70,7 +71,7 @@ namespace phytestcs
 
         private static void DrawGrid()
         {
-            var (f, r) = CalculateRuler(Camera.Zoom, 10);
+            var (f, _) = CalculateRuler(Camera.Zoom, 10);
             var fd = (decimal) f;
 
             var start = new Vector2i(0, 0).ToWorld();
@@ -200,7 +201,7 @@ namespace phytestcs
             Statistics.DisplayedString =
                 $@"
 {Simulation.Fps,4:#} fps  (x{Simulation.TimeScale:F4}) {L["Zoom"]} {Camera.Zoom,5:F1}
-{(Simulation.Pause ? "-" : Simulation.Ups.ToString("#")),4} Hz / {Simulation.TargetUps,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
+{(Simulation.Pause ? "-" : Simulation.Ups.ToString("#", CultureInfo.CurrentCulture)),4} Hz / {Simulation.TargetUps,4:#} Hz ({L["physics"]}) - {L["Simulation"]} : {(Simulation.PauseA == default ? "-" : TimeSpan.FromSeconds(Simulation.SimDuration).ToString())}
 Caméra = ({Camera.GameView.Center.X,6:F2} ; {Camera.GameView.Center.Y,6:F2})
 Souris = ({mpos.X,6:F2} ; {mpos.Y,6:F2})
 {WorldCache.Length,5} {L["objects"]}, {NumRays,5} / {Program.NumRays,5} {L["rays"]}
@@ -322,7 +323,7 @@ Rayons :
             }
         }
 
-        public static void DrawAxes(Vector2f pos, float axis = 30, float tri = 4, float angle = 0)
+        private static void DrawAxes(Vector2f pos, float axis = 30, float tri = 4, float angle = 0)
         {
             var d = 1;
             var tr = Transform.Identity;
@@ -364,7 +365,6 @@ Rayons :
             var margin = 30;
             var (f, r) = CalculateRuler(Camera.Zoom);
             var axis = 30;
-            var tri = 4;
 
             var d = 1;
             foreach (var col in new[] { Color.Black, Color.White })
@@ -408,7 +408,7 @@ Rayons :
 
         public static void ResizeTextures()
         {
-            //TracersTexture = new RenderTexture(Width, Height, Window.Settings);
+            //
         }
 
         public static void DrawRotation()

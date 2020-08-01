@@ -17,11 +17,11 @@ namespace phytestcs.Interface
 {
     public static class Ui
     {
-        public static BitmapButton BtnPlay;
+        public static BitmapButton BtnPlay = null!;
         public static readonly Texture ImgPlay = new Texture("icons/big/play.png");
         public static readonly Texture ImgPause = new Texture("icons/big/pause.png");
         public static readonly Font Font = new Font(@"C:\Windows\Fonts\consola.ttf");
-        public static Gui Gui;
+        public static Gui Gui = null!;
 
         private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> Actions =
             new List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)>
@@ -43,7 +43,7 @@ namespace phytestcs.Interface
         public static readonly RendererData BrGreen = GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
         public static readonly RendererData BrRed = GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
-        public static Panel BackPanel;
+        public static Panel BackPanel = null!;
 
 
         public static Vector2i ClickPosition;
@@ -58,7 +58,7 @@ namespace phytestcs.Interface
             Drawing.DrawMode = mode;
             foreach (var (dess, _, bref, text) in Actions)
             {
-                bref.Value.SetRenderer(dess == mode ? BrToggle : BrDef);
+                bref.Value!.SetRenderer(dess == mode ? BrToggle : BrDef);
                 if (dess == mode)
                     Render.DrawSprite.Texture = text.Value;
             }
@@ -166,7 +166,7 @@ namespace phytestcs.Interface
             {
                 w.Visible = false;
 
-                void Dlg(object sender, SignalArgsVector2f f)
+                void Dlg(object? sender, SignalArgsVector2f f)
                 {
                     // ReSharper disable once AssignmentInConditionalExpression
                     if (w.Visible = !w.Visible)
@@ -194,7 +194,7 @@ namespace phytestcs.Interface
 
             var wndSim = new ChildWindowEx(L["Simulation"], 250, true, false)
             {
-                new NumberField<float>(0.1f, 10.0f, log: true, bindProp: () => Simulation.TimeScale)
+                new NumberField<float>(0.1f, 10.0f, () => Simulation.TimeScale, log: true)
             };
             Gui.Add(wndSim);
             ConnectButton(BtnPlay, wndSim, true, true);
@@ -233,8 +233,8 @@ namespace phytestcs.Interface
             };
             var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
-                new NumberField<float>(0.1f, 30.0f, bindProp: () => Simulation.Gravity),
-                new NumberField<float>(-180, 180, unit: "°", bindProp: () => Simulation.GravityAngle),
+                new NumberField<float>(0.1f, 30.0f, () => Simulation.Gravity),
+                new NumberField<float>(-180, 180, () => Simulation.GravityAngle, unit: "°"),
                 new CheckField(() => Render.ShowGravityField)
             };
             Gui.Add(wndGrav);
@@ -251,17 +251,17 @@ namespace phytestcs.Interface
             var wndAirFr = new ChildWindowEx(L["Air friction"], 250, true, false)
             {
                 new NumberField<float>(0.01f, 100,
-                    bindProp: () => Simulation.AirDensity, log: true),
+                    () => Simulation.AirDensity, log: true),
                 new NumberField<float>(0.01f, 100,
-                    bindProp: () => Simulation.AirFrictionMultiplier, log: true) { LeftValue = 0 },
+                    () => Simulation.AirFrictionMultiplier, log: true) { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 10,
-                    bindProp: () => Simulation.AirFrictionLinear, log: true) { LeftValue = 0 },
+                    () => Simulation.AirFrictionLinear, log: true) { LeftValue = 0 },
                 new NumberField<float>(0.0001f, 1,
-                    bindProp: () => Simulation.AirFrictionQuadratic, log: true) { LeftValue = 0 },
+                    () => Simulation.AirFrictionQuadratic, log: true) { LeftValue = 0 },
                 new NumberField<float>(0, 50,
-                    bindProp: () => Simulation.WindSpeed),
-                new NumberField<float>(-180, 180, unit: "°",
-                    bindProp: () => Simulation.WindAngle, conv: PropConverter.AngleDegrees)
+                    () => Simulation.WindSpeed),
+                new NumberField<float>(-180, 180,
+                    () => Simulation.WindAngle, unit: "°", conv: PropConverter.AngleDegrees)
             };
 
             Gui.Add(wndAirFr);
@@ -275,7 +275,7 @@ namespace phytestcs.Interface
                 new CheckField(() => Render.ShowForces),
                 new CheckField(() => Render.ShowForcesValues),
                 new CheckField(() => Render.ShowForcesComponents),
-                new NumberField<float>(0.0001f, 500, bindProp: () => Render.ForcesScale, log: true)
+                new NumberField<float>(0.0001f, 500, () => Render.ForcesScale, log: true)
             };
             Gui.Add(wndSettings);
             ConnectButton(btnSettings, wndSettings);

@@ -21,7 +21,7 @@ namespace phytestcs
         public Vector2f Value { get; set; }
         public Vector2f Position { get; set; }
         public float TimeToLive { get; set; }
-        public BaseObject Source { get; set; }
+        public BaseObject? Source { get; set; }
 
         public override string ToString()
         {

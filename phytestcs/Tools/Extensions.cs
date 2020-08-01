@@ -107,8 +107,8 @@ namespace phytestcs
             return prop?.GetCustomAttribute<ObjPropAttribute>();
         }
 
-        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions> opt = null,
-            object? globals = null, Type globalsType = null)
+        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions>? opt = null,
+            object? globals = null, Type? globalsType = null)
         {
             var bopt = Scene.DefaultScriptOptions;
             if (opt != null)
@@ -150,12 +150,15 @@ namespace phytestcs
 
         public static string GetAssemblyLoadPath(this Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            
             return type.Assembly.Location;
         }
 
         public static string GetSystemAssemblyPathByName(string assemblyName)
         {
-            var root = Path.GetDirectoryName(typeof(object).GetAssemblyLoadPath());
+            var root = Path.GetDirectoryName(typeof(object).GetAssemblyLoadPath())!;
             return Path.Combine(root, assemblyName);
         }
 

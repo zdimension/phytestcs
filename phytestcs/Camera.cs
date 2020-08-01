@@ -18,8 +18,8 @@ namespace phytestcs
         public static float ZoomDelta = 0.3f;
 
         public static Vector2f? CameraMoveOrigin = null;
-        public static View GameView;
-        public static View MainView;
+        public static readonly View GameView = new View();
+        public static readonly View MainView = new View();
 
         /// <summary>
         ///     Pixels par mètre

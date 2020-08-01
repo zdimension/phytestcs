@@ -465,7 +465,7 @@ namespace phytestcs.Objects
                 { Killer = killer, Color = col };
         }
 
-        public static PhysicalObject Cercle(float x, float y, float r, Color col)
+        public static PhysicalObject Circle(float x, float y, float r, Color col)
         {
             return new PhysicalObject(new Vector2f(x, y), new CircleShape(r, Render._rotCirclePointCount))
                 { Color = col };

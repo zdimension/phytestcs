@@ -61,6 +61,7 @@ namespace phytestcs.Objects
             set => Color = value;
         }
         
+        [Hidden]
         public bool Selected
         {
             get => _selected;
@@ -464,5 +465,11 @@ namespace phytestcs.Objects
                 unit = unit.Antiderivative;
             return unit;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class HiddenAttribute : Attribute
+    {
+        
     }
 }

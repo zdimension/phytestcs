@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using TGUI;
@@ -46,6 +47,8 @@ namespace phytestcs.Interface.Windows.Properties
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .OrderBy(p => p.Name))
             {
+                if (prop.GetCustomAttribute<HiddenAttribute>() != null)
+                    continue;
                 var ptype = PropType.Default;
                 object? converter;
                 var type = prop.PropertyType;

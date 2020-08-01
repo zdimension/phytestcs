@@ -7,7 +7,7 @@ using SFML.System;
 
 namespace phytestcs.Objects
 {
-    public class PhysicalObject : Object, IHasShape, ICollides
+    public abstract class PhysicalObject : Object, IHasShape, ICollides
     {
         public delegate void CollisionHandler(PhysicalObject source);
 
@@ -26,7 +26,7 @@ namespace phytestcs.Objects
         private readonly float _globalPointsCacheTime = -1;
         private Vector2f _position;
 
-        public PhysicalObject(Vector2f pos, Shape shape, bool wall = false, string name = "")
+        protected PhysicalObject(Vector2f pos, Shape shape, bool wall = false, string name = "")
         {
             Name = name;
 

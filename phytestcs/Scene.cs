@@ -121,7 +121,7 @@ namespace phytestcs
 
         public static void SoftbodyStaggered(int N = 6)
         {
-            var square = new PhysicalObject[N + 1][];
+            var square = new Box[N + 1][];
             var spring = 500;
             var dist = 1.5f;
             var distY = (float) (Math.Sqrt(3) / 2 * dist);
@@ -135,7 +135,7 @@ namespace phytestcs
 
             for (var i = 0; i < N + 1; i++)
             {
-                square[i] = new PhysicalObject[N];
+                square[i] = new Box[N];
                 for (var j = 0; j < N - i % 2; j++)
                 {
                     square[i][j] = new Box(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
@@ -168,13 +168,13 @@ namespace phytestcs
 
         public static void SoftbodySquare(int N = 6)
         {
-            var square = new PhysicalObject[N][];
+            var square = new Box[N][];
             var spring = 500;
             var dist = 1.5f;
             var diago = (float) Math.Sqrt(2) * dist;
             for (var i = 0; i < N; i++)
             {
-                square[i] = new PhysicalObject[N];
+                square[i] = new Box[N];
                 for (var j = 0; j < N; j++)
                 {
                     square[i][j] =

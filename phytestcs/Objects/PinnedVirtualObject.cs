@@ -27,7 +27,7 @@ namespace phytestcs.Objects
         }
     }
 
-    public abstract class PinnedShapedVirtualObject : PinnedVirtualObject
+    public abstract class PinnedShapedVirtualObject : PinnedVirtualObject, IHasShape
     {
         protected PinnedShapedVirtualObject(PhysicalObject @object, Vector2f relPos)
             : base(@object, relPos)

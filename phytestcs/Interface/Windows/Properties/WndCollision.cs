@@ -5,9 +5,9 @@ using static phytestcs.Tools;
 
 namespace phytestcs.Interface.Windows.Properties
 {
-    public sealed class WndCollision : WndBase<PhysicalObject>
+    public sealed class WndCollision : WndBase<ICollides>
     {
-        public WndCollision(PhysicalObject obj, Vector2f pos)
+        public WndCollision(ICollides obj, Vector2f pos)
             : base(obj, 250, pos)
         {
             var wrapper = new BitFieldWrapper(() => obj.CollideSet);
@@ -19,7 +19,8 @@ namespace phytestcs.Interface.Windows.Properties
                     new PropertyReference<bool>(() => wrapper[bit], val => wrapper[bit] = val)));
             }
 
-            Add(new CheckField(() => obj.HeteroCollide));
+            if (obj is PhysicalObject phy)
+                Add(new CheckField(() => phy.HeteroCollide));
 
             Show();
         }

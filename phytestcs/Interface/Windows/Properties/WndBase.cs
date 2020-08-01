@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using phytestcs.Objects;
 using SFML.System;
 using static phytestcs.Interface.Ui;
@@ -7,12 +8,14 @@ using static phytestcs.Tools;
 namespace phytestcs.Interface.Windows.Properties
 {
     public class WndBase<T> : ChildWindowEx
-        where T : BaseObject
     {
-        protected WndBase(T obj, int larg, Vector2f p)
+        protected WndBase(T obj1, int larg, Vector2f p)
             : base("", larg)
         {
-            Object = obj ?? throw new ArgumentNullException(nameof(obj));
+            if (!(obj1 is BaseObject obj))
+                throw new InvalidConstraintException(nameof(obj1));
+            
+            Object = obj1;
             Title = obj.Name ?? L[obj.GetType().Name] ?? "";
             PropertyWindows[obj].Add(this);
             Gui.Add(this);

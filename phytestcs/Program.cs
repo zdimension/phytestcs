@@ -207,7 +207,7 @@ namespace phytestcs
             {
                 var world = e.Position().ToWorld();
                 
-                if (Render.GridSnappingActive)
+                if (Render.GridSnappingActive && Drawing.DrawMode != DrawingType.Off)
                 {
                     var (f, r) = Render.CalculateRuler(Camera.Zoom);
                     world = world.RoundTo(f);

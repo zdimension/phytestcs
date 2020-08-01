@@ -655,7 +655,7 @@ namespace phytestcs.Objects
                         else
                         {
                             dpa = mtv * v1p / vs;
-                            dpb = mtv * v2p / vs;
+                            dpb = -mtv * v2p / vs;
                         }
                     }
 
@@ -690,6 +690,12 @@ namespace phytestcs.Objects
                     {
                         var line = colls[1] - colls[0];
                         var X = line.Norm();
+
+                        if (X == 0)
+                        {
+                            X = 1e-5f;
+                        }
+
                         line /= X;
 
                         var gA = (a.Position - colls[0]).Dot(line);

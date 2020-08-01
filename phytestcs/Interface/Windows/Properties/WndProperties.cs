@@ -57,7 +57,11 @@ namespace phytestcs.Interface.Windows.Properties
                     continue;
 
                 var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
-                btn.Clicked += delegate { Activator.CreateInstance(type, obj, PosEnfant()); };
+                btn.Clicked += delegate
+                {
+                    CloseAll(true, true);
+                    Activator.CreateInstance(type, obj, PosEnfant());
+                };
                 Add(btn);
             }
 
@@ -92,14 +96,14 @@ namespace phytestcs.Interface.Windows.Properties
             if (Drawing.SelectedObject == null) CloseAll(true);
         }
 
-        private void CloseAll(bool exceptMoved = false)
+        private void CloseAll(bool exceptMoved = false, bool exceptThis=false)
         {
             if (!Ui.PropertyWindows.ContainsKey(Object)) return;
 
             foreach (var w in Ui.PropertyWindows[Object].ToList())
             {
-                if (!Ui.PropertyWindows.ContainsKey(Object))
-                    return;
+                if (exceptThis && w == this)
+                    continue;
 
                 if (w.CPointer == IntPtr.Zero)
                 {

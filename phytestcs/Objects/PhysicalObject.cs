@@ -778,6 +778,37 @@ namespace phytestcs.Objects
         public Vector2f Position { get; }
         public Vector2f Normal { get; }
     }
+    
+    public class Polygon : PhysicalObject
+    {
+        private static ConvexShape GetShape(IEnumerable<Vector2f> points, Color col)
+        {
+            var pointsArr = points.ToArray();
+            var shape = new ConvexShape((uint) pointsArr.Length) { FillColor = col };
+            
+            for (var i = 0; i < pointsArr.Length; i++)
+            {
+                shape.SetPoint((uint)i, pointsArr[i]);
+            }
+
+            return shape;
+        }
+        
+        public Polygon(float x, float y, ICollection<Vector2f> points, Color col, bool wall = false,
+            string name = "", bool killer = false)
+            : this(new Vector2f(x, y), GetShape(points, col), wall, name, killer)
+        {
+            
+        }
+
+        public Polygon(Vector2f pos, ConvexShape rect, bool wall = false, string name = "", bool killer = false)
+            : base(pos, rect, wall, name)
+        {
+            Killer = killer;
+        }
+
+        public new ConvexShape Shape => (ConvexShape) base.Shape;
+    }
 
     public class Box : PhysicalObject
     {
@@ -815,11 +846,7 @@ namespace phytestcs.Objects
                 const uint numPoints2 = 4;
                 const uint numPoints = numPoints1 + numPoints2;
                 var lines = new VertexArray(PrimitiveType.Lines, numPoints * 2);
-                var transform = Transform.Identity;
-                transform.Translate(Position);
-                transform.Rotate(Angle.Degrees());
 
-                transform.Scale(new Vector2f(Shape.Radius, Shape.Radius));
                 for (uint i = 0; i < numPoints1; i++)
                 {
                     var point = Render._rotCirclePoints[i * 10];
@@ -828,17 +855,17 @@ namespace phytestcs.Objects
                         factor = 0.5f;
                     else
                         factor = 0.1f;
-                    lines[2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
-                    lines[2 * i + 1] = new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                    lines[2 * i + 0] = new Vertex(Shape.Radius * point, Color.White);
+                    lines[2 * i + 1] = new Vertex(Shape.Radius * point * (1 - factor), Color.White);
                 }
 
                 for (uint i = 0; i < numPoints2; i++)
                 {
                     var point = Render._rotCirclePoints[45 + i * 90];
                     const float factor = 0.18f;
-                    lines[2 * numPoints1 + 2 * i + 0] = new Vertex(transform.TransformPoint(point), Color.White);
+                    lines[2 * numPoints1 + 2 * i + 0] = new Vertex(Shape.Radius * point, Color.White);
                     lines[2 * numPoints1 + 2 * i + 1] =
-                        new Vertex(transform.TransformPoint(point * (1 - factor)), Color.White);
+                        new Vertex(Shape.Radius * point * (1 - factor), Color.White);
                 }
 
                 return lines;
@@ -848,9 +875,6 @@ namespace phytestcs.Objects
         public new CircleShape Shape => (CircleShape) base.Shape;
         
         private readonly Lazy<VertexArray> _protractorLines;
-        
-        [ObjProp("Show protractor")]
-        public bool Protractor { get; set; } = false;
 
         public override void Draw()
         {
@@ -858,9 +882,12 @@ namespace phytestcs.Objects
 
             if (Appearance.DrawCircleCakes)
                 Render.Window.Draw(Tools.CircleCake(Position, Shape.Radius, Shape.OutlineColor, Angle));
-            if (Protractor)
+            if (Appearance.Protractor)
             {
-                Render.Window.Draw(_protractorLines.Value);
+                var transform = Transform.Identity;
+                transform.Translate(Position);
+                transform.Rotate(Angle.Degrees());
+                Render.Window.Draw(_protractorLines.Value, new RenderStates(RenderStates.Default){Transform = transform});
             }
         }
     }

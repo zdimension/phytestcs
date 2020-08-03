@@ -101,7 +101,7 @@ namespace phytestcs.Objects
         [ObjProp("Restitution", shortName: "e")]
         public float Restitution { get; set; } = 0.5f;
 
-        [ObjProp("Friction", shortName: "µ")]
+        [ObjProp("Friction", "N/(m/s)", shortName: "µ")]
         public float Friction { get; set; } = 0.5f;
 
         public bool Killer { get; set; }
@@ -114,7 +114,7 @@ namespace phytestcs.Objects
         [ObjProp("Momentum", "N⋅s", "N⋅s²", "N", "p")]
         public Vector2f Momentum => Mass * Velocity;
 
-        [ObjProp("Moment of inertia", "kg⋅m²", shortName: "I")] // m^4 ? -> cf second moment
+        [ObjProp("Moment of inertia", "kg⋅m²", shortName: "I")]
         public float MomentOfInertia
         {
             get

@@ -4,6 +4,6 @@ namespace phytestcs.Objects
 {
     public interface ICollides
     {
-        public uint CollideSet { get; }
+        public uint CollideSet { get; set; }
     }
 }

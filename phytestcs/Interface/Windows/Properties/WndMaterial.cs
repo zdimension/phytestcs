@@ -15,7 +15,11 @@ namespace phytestcs.Interface.Windows.Properties
         {
             (L["Default"], o =>
             {
-                //
+                o.Friction = 0.5f;
+                o.Restitution = 0.5f;
+                o.Density = 2f;
+                o.RefractiveIndex = 1.5f;
+                o.Color = RandomColor();
             }),
             (L["Glass"], o =>
             {

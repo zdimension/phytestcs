@@ -79,7 +79,7 @@ namespace phytestcs.Interface.Windows.Properties
                     ptype |= PropType.Writable;
 
                 fields.Add(((TextFieldBase) Activator.CreateInstance(typeof(TextField<>).MakeGenericType(type),
-                    propRef, prop.Name, converter)!, ptype));
+                    propRef, prop.Name, converter, true)!, ptype));
             }
 
             drop.ItemSelected += (sender, item) =>

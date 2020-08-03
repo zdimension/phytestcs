@@ -33,6 +33,8 @@ namespace phytestcs.Interface.Windows
             Add(cb, "cb");
             var w = new Group();
             Field = new EditBox();
+            Field.Renderer.Font = Ui.FontMono;
+            cb.Renderer.Font = Ui.FontMono;
             var btn = new BitmapButton() { Image = new Texture("icons/small/accept.png") };
             w.Add(Field, "txt");
             w.Add(btn, "btn");
@@ -145,23 +147,39 @@ namespace phytestcs.Interface.Windows
                         {
                             var results = await completionService.GetCompletionsAsync(scriptDocument, position)
                                 .ConfigureAwait(false);
-                            var lines = results
-                                .Items
-                                .DistinctBy(i => i.DisplayText)
-                                .Where(n => n.DisplayText.StartsWith(
-                                    Field.Text[new Range(n.Span.Start, n.Span.End)],
-                                    StringComparison.InvariantCultureIgnoreCase))
-                                .Select(n => n.DisplayText)
-                                .ToArray();
-                            numAutocompleteLines = lines.Length;
-                            foreach (var line in lines)
+                            if (results != null)
                             {
-                                cb.AddLine(line, new Color(128, 0, 0), Text.Styles.Italic);
+                                var lines = results
+                                    .Items
+                                    .DistinctBy(i => i.DisplayText)
+                                    .Where(n => n.DisplayText.StartsWith(
+                                        Field.Text[new Range(n.Span.Start, n.Span.End)],
+                                        StringComparison.InvariantCultureIgnoreCase))
+                                    .ToArray();
+                                //var linesCut = 
+                                var minStr = lines.MinBy(l => l.DisplayText.Length).First();
+                                var common = new string(
+                                    minStr.DisplayText
+                                        .TakeWhile((c, i) => lines.All(s => s.DisplayText[i] == c)).ToArray());
+                                var newText = Field.Text[0..minStr.Span.Start];
+                                newText += common;
+                                newText += Field.Text[position..];
+                                var newPos = newText.Length;
+                                Field.Text = newText;
+                                Field.CaretPosition = (uint)newPos;
+                                
+                                numAutocompleteLines = lines.Length + 1;
+                                cb.AddLine("> " + Field.Text, Color.Black, Text.Styles.Italic);
+                                foreach (var line in lines)
+                                {
+                                    cb.AddLine(line.DisplayText, new Color(128, 0, 0), Text.Styles.Italic);
+                                }
                             }
                         }
                         catch (Exception e)
                         {
-                            cb.AddLine(e.Message, Color.Red);
+                            cb.AddLine("* autocompletion error", Color.Red, Text.Styles.Italic);
+                            cb.AddLine(e.Message, Color.Red, Text.Styles.Italic);
                         }
 
                         Workspace.CloseDocument(scriptDocument.Id);

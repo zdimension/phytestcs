@@ -32,7 +32,7 @@ namespace phytestcs.Interface
         private string? _oldLoadedVal;
         private string _value = null!;
 
-        public TextField(PropertyReference<T> bindProp, string? name, PropConverter<T, string>? conv = null)
+        public TextField(PropertyReference<T> bindProp, string? name, PropConverter<T, string>? conv = null, bool mono = true)
         {
             _bindProp = bindProp ?? throw new ArgumentNullException(nameof(bindProp));
             (_getter, _setter) = bindProp.GetAccessors();
@@ -55,6 +55,10 @@ namespace phytestcs.Interface
                 SizeLayout = new Layout2d("100% - 10 - lblName.width", "18")
             };
             Add(Field);
+            if (mono)
+            {
+                Field.Renderer.Font = Ui.FontMono;
+            }
 
             if (_bindProp.Property is PropertyInfo pi &&
                 _bindProp.Target is BaseObject o &&

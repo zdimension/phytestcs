@@ -77,7 +77,7 @@ namespace phytestcs.Interface
         {
             if (UseLayout)
             {
-                SizeLayout = new Layout2d($"{Size.X}", _yLayout);
+                SizeLayout = new Layout2d($"{Size.X}", IsMinimized ? "0" : _yLayout);
             }
             else
             {

@@ -61,7 +61,7 @@ namespace phytestcs.Interface.Windows.Properties
         private readonly ComboBox _drop;
         private readonly SynchronizedCollection<Vector2f> _points = new SynchronizedCollection<Vector2f>();
 
-        private readonly Text _textInt = new Text("", Ui.Font, 14)
+        private readonly Text _textInt = new Text("", Ui.FontMono, 14)
         {
             FillColor = Color.White
         };

@@ -22,7 +22,7 @@ namespace phytestcs.Interface
         public static BitmapButton BtnPlay = null!;
         public static readonly Texture ImgPlay = new Texture("icons/big/play.png");
         public static readonly Texture ImgPause = new Texture("icons/big/pause.png");
-        public static readonly Font Font = new Font("fonts/mono.ttf");
+        public static readonly Font FontMono = new Font("fonts/mono.ttf");
         public static Gui Gui = null!;
 
         private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> Actions =

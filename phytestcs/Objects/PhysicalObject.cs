@@ -9,7 +9,7 @@ namespace phytestcs.Objects
 {
     public abstract class PhysicalObject : BaseObject, ICollides
     {
-        private static readonly Text ForceName = new Text("", Ui.Font)
+        private static readonly Text ForceName = new Text("", Ui.FontMono)
             { OutlineThickness = 2, OutlineColor = Color.Black };
 
         private readonly List<PhysicalObject> _collIgnore = new List<PhysicalObject>();

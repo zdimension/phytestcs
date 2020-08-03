@@ -21,13 +21,13 @@ namespace phytestcs
 
         public static int NumRays;
         public static Text Statistics = null!;
-        private static readonly Text PauseText = new Text("EN PAUSE", Ui.Font, 20) { FillColor = Color.Red };
+        private static readonly Text PauseText = new Text("EN PAUSE", Ui.FontMono, 20) { FillColor = Color.Red };
 
-        private static readonly Text TxtScale = new Text("", Ui.Font, 15)
+        private static readonly Text TxtScale = new Text("", Ui.FontMono, 15)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
-        private static readonly Text TxtXAxis = new Text("x", Ui.Font, 15);
-        private static readonly Text TxtYAxis = new Text("y", Ui.Font, 15);
+        private static readonly Text TxtXAxis = new Text("x", Ui.FontMono, 15);
+        private static readonly Text TxtYAxis = new Text("y", Ui.FontMono, 15);
 
         public static uint Width = 900;
         public static uint Height = 550;

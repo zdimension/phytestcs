@@ -220,8 +220,8 @@ namespace phytestcs.Interface.Windows.Properties
                 absorbance.SizeLayout = new Layout2d(absorbanceImg.Size.X, absorbanceImg.Size.Y);
                 absorbance.Clear(BackColor);
 
-                var txtA = new Text("A", Ui.Font, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
-                var txtH = new Text("H", Ui.Font, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
+                var txtA = new Text("A", Ui.FontMono, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
+                var txtH = new Text("H", Ui.FontMono, AbsorbTextSize) { FillColor = Color.White, Scale = new Vector2f(1, -1) }.CenterOriginText();
 
                 Add(absorbance);
 

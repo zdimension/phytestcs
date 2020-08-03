@@ -27,7 +27,7 @@ namespace phytestcs
         public static CircleShape RotCircle = new CircleShape(0, Render.RotCirclePointCount)
             { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
 
-        public static Text RotText = new Text("", Ui.Font, 18)
+        public static Text RotText = new Text("", Ui.FontMono, 18)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
         public static float RotDeltaAngle;
@@ -59,7 +59,7 @@ namespace phytestcs
             Camera.Center();
             Camera.CalculateWindow();
 
-            Render.Statistics = new Text("", Ui.Font, 14);
+            Render.Statistics = new Text("", Ui.FontMono, 14);
 
             Render.Window.Closed += Window_Closed;
             Render.Window.Resized += Window_Resized;
@@ -94,7 +94,7 @@ namespace phytestcs
                     thrPhy.Start();
             });
 
-            var txl = new Text(L["Loading..."], Ui.Font, 32) { FillColor = Color.White };
+            var txl = new Text(L["Loading..."], Ui.FontMono, 32) { FillColor = Color.White };
             txl.Origin = txl.GetLocalBounds().Size() / 2;
 
             while (Render.Window.IsOpen)

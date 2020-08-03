@@ -13,7 +13,7 @@ namespace phytestcs.Objects
         protected readonly Force Force1;
         protected readonly Force? Force2;
 
-        private readonly Text _legende = new Text("", Ui.Font, 13) { FillColor = Color.Black };
+        private readonly Text _legende = new Text("", Ui.FontMono, 13) { FillColor = Color.Black };
 
         public Spring(float constant, float targetLength, float size, PhysicalObject object1, Vector2f object1RelPos,
             PhysicalObject? object2 = null, Vector2f object2RelPos = default, ForceType? type = null)

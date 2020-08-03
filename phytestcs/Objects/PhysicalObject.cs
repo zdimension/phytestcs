@@ -138,7 +138,7 @@ namespace phytestcs.Objects
             {
                 lock (Forces.SyncRoot)
                 {
-                    return Forces.Select(f => f.Value).Aggregate((a, b) => a + b);
+                    return Forces.Where(f => !f.OnlyTorque).Select(f => f.Value).Aggregate((a, b) => a + b);
                 }
             }
         }
@@ -676,8 +676,16 @@ namespace phytestcs.Objects
                         ElasticCollision(b.Mass, a.Mass, b.Velocity, a.Velocity, b.Restitution, a.Restitution, phi)
                     );
 
+                    a.Velocity = v1c;
+                    b.Velocity = v2c;
+
+
                     var fA = 1f * (v1c - a.Velocity) * a.Mass / dt;
                     var fB = 1f * (v2c - b.Velocity) * b.Mass / dt;
+                    var tA = a.NetForce.Dot(unitMtv);
+                    var tB = b.NetForce.Dot(unitMtv);
+                    fA = -tA * unitMtv;
+                    fB = -tB * unitMtv;
                     var wA = new float[np];
                     var wB = new float[np];
 
@@ -724,9 +732,9 @@ namespace phytestcs.Objects
                     for (var i1 = 0; i1 < np; i1++)
                     {
                         a.Forces.Add(new Force(ForceType.Normal, fA * wA[i1], a.MapInv(colls[i1]), dt)
-                            { Source = b });
+                            { Source = b, OnlyTorque = true});
                         b.Forces.Add(new Force(ForceType.Normal, fB * wB[i1], b.MapInv(colls[i1]), dt)
-                            { Source = a });
+                            { Source = a, OnlyTorque = true });
                     }
 
                     var friction = (float) Math.Sqrt(a.Friction * b.Friction);
@@ -735,26 +743,28 @@ namespace phytestcs.Objects
 
                     if (!a.Fixed)
                     {
-                        var ff = -a.Velocity.Dot(unit) * unitF;
+                        var unitFA = unitF * tA;
+                        var ff = -a.Velocity.Dot(unit) * unitFA;
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
                             var local = a.MapInv(colls[i1]);
                             a.Forces.Add(new Force(ForceType.Friction,
-                                    ff * wA[i1] + -a.SpeedAtPoint(local).Dot(unit) * unitF, local, dt)
+                                    ff * wA[i1] + -a.SpeedAtPoint(local).Dot(unit) * unitFA, local, dt)
                                 { Source = b });
                         }
                     }
 
                     if (!b.Fixed)
                     {
-                        var ff = -b.Velocity.Dot(unit) * unitF;
+                        var unitFB = unitF * tB;
+                        var ff = -b.Velocity.Dot(unit) * unitFB;
 
                         for (var i1 = 0; i1 < np; i1++)
                         {
                             var local = b.MapInv(colls[i1]);
                             b.Forces.Add(new Force(ForceType.Friction,
-                                    ff * wB[i1] + -b.SpeedAtPoint(local).Dot(unit) * unitF, local, dt)
+                                    ff * wB[i1] + -b.SpeedAtPoint(local).Dot(unit) * unitFB, local, dt)
                                 { Source = a });
                         }
                     }

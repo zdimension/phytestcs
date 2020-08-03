@@ -399,11 +399,11 @@ namespace phytestcs.Interface.Windows.Properties
                                 };
 
                                 _canvas.Draw(lignes, PrimitiveType.Lines);
-
-                                _textInt.DisplayedString = $@"  x   = {rpos.X,6:F2} s
-  y   = {-cache[k].Y,6:F2} {CurrentLine.Item2?.Unit ?? ""}
- ∫dx  = {-integ,6:F2} {CurrentLine.Item2?.UnitInteg ?? ""}
-dy/dx = {-deriv,6:F2} {CurrentLine.Item2?.UnitDeriv ?? ""}";
+                                var name = CurrentLine.Item2?.ShortName ?? "y";
+                                _textInt.DisplayedString = $@"  t   = {rpos.X,6:F2} s
+  {name}   = {-cache[k].Y,6:F2} {CurrentLine.Item2?.Unit ?? ""}
+ ∫dt  = {-integ,6:F2} {CurrentLine.Item2?.UnitInteg ?? ""}
+d{name}/dt = {-deriv,6:F2} {CurrentLine.Item2?.UnitDeriv ?? ""}";
                                 _textInt.Position =
                                     (rpos - _canvasView.Center - _canvasView.Size / 2)
                                     .Prod(_canvas.DefaultView.Size)

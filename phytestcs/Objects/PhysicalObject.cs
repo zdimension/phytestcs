@@ -48,7 +48,7 @@ namespace phytestcs.Objects
         [ObjProp("Angular velocity", "rad/s", "rad", shortName: "ω")]
         public float AngularVelocity { get; set; }
 
-        [ObjProp("Velocity", "m/s", "m")]
+        [ObjProp("Velocity", "m/s", "m", shortName:"v")]
         public Vector2f Velocity { get; set; }
 
         public SynchronizedCollection<Force> Forces { get; }

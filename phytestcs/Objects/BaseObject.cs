@@ -289,13 +289,13 @@ namespace phytestcs.Objects
             Unit = unit;
             UnitInteg = unitInteg ?? Objects.Unit.IncreasePower(unit);
             UnitDeriv = unitDeriv ?? Objects.Unit.DecreasePower(unit);
-            ShortName = shortName ?? displayName;
+            ShortName = shortName;
         }
 
         public string Unit { get; set; }
         public string UnitInteg { get; set; }
         public string UnitDeriv { get; set; }
-        public string ShortName { get; set; }
+        public string? ShortName { get; set; }
     }
 
     public class Binding

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using phytestcs.Interface.Windows;
 using phytestcs.Interface.Windows.Properties;
 using phytestcs.Objects;
 using SFML.Graphics;
@@ -280,6 +281,16 @@ namespace phytestcs.Interface
             Gui.Add(wndSettings);
             ConnectButton(btnSettings, wndSettings);
             buttons.Add(btnSettings);
+            
+            var btnConsole = new BitmapButton { Image = new Texture("icons/big/console.png") };
+            btnConsole.SetRenderer(BrDef);
+            btnConsole.MouseReleased += delegate
+            {
+                var w = new WndConsole();
+                w.PositionLayout = new Layout2d("parent.w / 2 - &.w / 2", "parent.h / 2 - &.h / 2");
+                Gui.Add(w);
+            };
+            buttons.Add(btnConsole);
 
             Gui.Add(buttons);
 

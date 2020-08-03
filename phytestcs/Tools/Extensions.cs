@@ -125,13 +125,19 @@ namespace phytestcs
             return prop?.GetCustomAttribute<ObjPropAttribute>();
         }
 
-        public static Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions>? opt = null,
+        public static async Task<T> Eval<T>(this string s, Func<ScriptOptions, ScriptOptions>? opt = null,
+            object? globals = null, Type? globalsType = null)
+        {
+            return (await s.Exec<T>(opt, globals, globalsType).ConfigureAwait(true)).ReturnValue;
+        }
+        
+        public static async Task<ScriptState<T>> Exec<T>(this string s, Func<ScriptOptions, ScriptOptions>? opt = null,
             object? globals = null, Type? globalsType = null)
         {
             var bopt = Scene.DefaultScriptOptions;
             if (opt != null)
                 bopt = opt(bopt);
-            return CSharpScript.EvaluateAsync<T>(s, bopt, globals, globalsType);
+            return await CSharpScript.RunAsync<T>(s, bopt, globals, globalsType).ConfigureAwait(true);
         }
 
         public static string Repr<T1, T2>(this (T1, T2) tuple)

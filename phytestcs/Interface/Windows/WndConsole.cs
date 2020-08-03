@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Text;
 using MoreLinq;
 using SFML.Graphics;
@@ -49,35 +51,45 @@ namespace phytestcs.Interface.Windows
             var historyPos = 0;
 
             var numAutocompleteLines = 0;
+
+            ScriptState<object?> state = null!;
             
             void ProcessCommand()
             {
-                RemoveAutocompleteLines();
-                
-                cb.AddLine("> " + Field.Text);
-                try
+                Task.Run(async () =>
                 {
-                    var res = Field.Text.Eval<object?>().Result;
-                    if (res != null)
-                    {
-                        cb.AddLine(res.Repr(), Color.Blue);
-                    }
-                }
-                catch (Exception e)
-                {
-                    cb.AddLine(e.Message, Color.Red);
-                }
+                    RemoveAutocompleteLines();
 
-                if (historyPos != commandHistory.Count)
-                {
-                    commandHistory.RemoveRange(historyPos, commandHistory.Count - historyPos);
-                }
+                    var code = Field.Text;
+                    Field.Text = "";
                 
-                commandHistory.Add(Field.Text);
-                historyPos++;
+                    cb.AddLine("> " + code);
+                    try
+                    {
+                        state = await (state == null
+                                ? code.Exec<object?>()
+                                : state.ContinueWithAsync<object?>(code)
+                            ).ConfigureAwait(true);
+                        if (state.ReturnValue != null)
+                        {
+                            cb.AddLine(state.ReturnValue.Repr(), Color.Blue);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        cb.AddLine(e.Message, Color.Red);
+                    }
+
+                    if (historyPos != commandHistory.Count)
+                    {
+                        commandHistory.RemoveRange(historyPos, commandHistory.Count - historyPos);
+                    }
                 
-                Field.Text = "";
-                Field.Focus = true;
+                    commandHistory.Add(code);
+                    historyPos++;
+                
+                    Field.Focus = true;
+                });
             }
 
             void RemoveAutocompleteLines()

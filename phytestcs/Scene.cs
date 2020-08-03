@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Reflection;
@@ -21,25 +22,31 @@ namespace phytestcs
         public static Script<object>? Script;
         public static ExpandoObject My = null!;
 
+        public static readonly IReadOnlyCollection<MetadataReference> DefaultReferences = new List<MetadataReference>
+        {
+            MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
+            MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Runtime.dll")),
+            MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Private.CoreLib.dll")),
+
+            MetadataReference.CreateFromFile(typeof(Scene).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Color).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Vector2f).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Console).GetTypeInfo().Assembly.Location),
+        }.AsReadOnly();
+
+        public static readonly IReadOnlyCollection<string> DefaultUsings = new List<string>
+        {
+            "phytestcs",
+            "phytestcs.Objects",
+            "phytestcs.Tools",
+            "SFML.Graphics",
+            "SFML.System",
+            "System"
+        }.AsReadOnly();
+        
         public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default
-            .AddReferences(
-                typeof(Scene).Assembly,
-                typeof(Color).Assembly,
-                typeof(Vector2f).Assembly,
-                typeof(Console).GetTypeInfo().Assembly
-            )
-            .AddReferences(
-                MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
-                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Private.CoreLib.dll"))
-            )
-            .AddImports(
-                "phytestcs",
-                "phytestcs.Objects",
-                "phytestcs.Tools",
-                "SFML.Graphics",
-                "SFML.System",
-                "System");
+            .AddReferences(DefaultReferences)
+            .AddImports(DefaultUsings);
 
         public static async Task Restart()
         {

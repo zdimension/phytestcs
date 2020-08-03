@@ -12,6 +12,7 @@ using SFML.Window;
 using TGUI;
 using static phytestcs.Tools;
 using Button = TGUI.Button;
+using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Panel = TGUI.Panel;
 
 namespace phytestcs.Interface
@@ -94,6 +95,11 @@ namespace phytestcs.Interface
             Gui.Add(back);
         }
 
+        public static Widget? MouseOnWhichWidget(Vector2f pos)
+        {
+            return Gui.Widgets.LastOrDefault(w => w.Visible && w.MouseOnWidget(pos));
+        }
+
         private static void InitMenuBar()
         {
             var wnd = new ChildWindowEx(L["New"], 200, true, false);
@@ -149,6 +155,21 @@ namespace phytestcs.Interface
             };
             Gui.Add(menu);
         }
+        
+        private static List<ChildWindowEx> _childWindows = new List<ChildWindowEx>();
+
+        public static Widget? GetFocusedWidget(Container? start=null)
+        {
+            var wgts = start?.Widgets ?? Gui.Widgets;
+            while (true)
+            {
+                var focused = wgts.FirstOrDefault(w => w.Focus);
+                if (focused is Container c)
+                    wgts = c.Widgets;
+                else
+                    return focused;
+            }
+        }
 
         private static void InitToolButtons()
         {
@@ -163,9 +184,19 @@ namespace phytestcs.Interface
                 numSpaces++;
             }
 
+            BackPanel.MousePressed += (sender, f) =>
+            {
+                foreach (var w in _childWindows)
+                {
+                    if (!w.WasMoved)
+                        w.Visible = false;
+                }
+            };
+
             static void ConnectButton(ClickableWidget b, ChildWindowEx w, bool right = false, bool center = false)
             {
                 w.Visible = false;
+                _childWindows.Add(w);
 
                 void Dlg(object? sender, SignalArgsVector2f f)
                 {
@@ -287,8 +318,9 @@ namespace phytestcs.Interface
             btnConsole.MouseReleased += delegate
             {
                 var w = new WndConsole();
-                w.PositionLayout = new Layout2d("parent.w / 2 - &.w / 2", "parent.h / 2 - &.h / 2");
+                w.PositionLayout = new Layout2d("parent.w / 2 - w / 2", "parent.h / 2 - h / 2");
                 Gui.Add(w);
+                w.Field.Focus = true;
             };
             buttons.Add(btnConsole);
 
@@ -301,6 +333,7 @@ namespace phytestcs.Interface
         public static void Init()
         {
             Gui = new Gui(Render.Window);
+            Gui.TabKeyUsageEnabled = false;
 
             InitBackPanel();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using TGUI;
 using static phytestcs.Tools;
 using static phytestcs.Interface.Ui;
 
@@ -124,7 +126,7 @@ namespace phytestcs
 
                     OnDrawn();
 
-                    Gui.Draw();
+                    Ui.Gui.Draw();
 
                     Render.DrawDrawing();
                 }

@@ -223,6 +223,8 @@ namespace phytestcs
                     Drawing.DragSpring.End2.RelPos = world;
                     if (Drawing.DrawMode == DrawingType.Spring)
                         Drawing.DragSpring.TargetLength = Drawing.DragSpring.Delta.Norm();
+                    else
+                        Drawing.DragSpring.Constant = Drawing.DragConstant * Drawing.DragSpring.End1.Object.Mass;
                 }
             }
 

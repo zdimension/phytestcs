@@ -20,7 +20,7 @@ namespace phytestcs
 
     public sealed class Drawing
     {
-        public static float DragConstant = 1e3f;
+        public static float DragConstant = 1e2f;
         public static DrawingType DrawMode;
         public static Color DrawColor;
         public static BaseObject? DragObject;

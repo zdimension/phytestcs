@@ -233,6 +233,7 @@ namespace phytestcs
 
         private static void Window_MouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
         {
+            if (MouseOnWhichWidget(e.Position().F()) != BackPanel)
             var factor = 1 + Camera.ZoomDelta;
             if (e.Delta < 0)
                 factor = 1 / factor;
@@ -529,9 +530,19 @@ namespace phytestcs
                     break;
             }
         }
+        
+        public static readonly Dictionary<Widget, KeyHandler> WidgetKeyHandlers = new Dictionary<Widget, KeyHandler>();
 
         private static void Window_KeyPressed(object? sender, KeyEventArgs e)
         {
+            var focused = Ui.GetFocusedWidget();
+
+            if (focused != null && WidgetKeyHandlers.TryGetValue(focused, out var handler))
+            {
+                if (handler(e))
+                    return;
+            }
+            
             switch (e.Code)
             {
                 case Keyboard.Key.Right:
@@ -630,4 +641,6 @@ namespace phytestcs
             Environment.Exit(0);
         }
     }
+    
+    public delegate bool KeyHandler(KeyEventArgs e);
 }

@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using TGUI;
 
 namespace phytestcs
@@ -76,6 +77,23 @@ namespace phytestcs
             {
                 return coll.ToArray();
             }
+        }
+
+        public static void OnKeyPressed(this Widget w, KeyHandler handler)
+        {
+            if (Program.WidgetKeyHandlers.ContainsKey(w))
+            {
+                Console.WriteLine("Warning: overwriting key handler for widget");
+            }
+
+            Program.WidgetKeyHandlers[w] = e =>
+            {
+                if (w.CPointer != IntPtr.Zero)
+                    return handler(e);
+                
+                Program.WidgetKeyHandlers.Remove(w);
+                return true;
+            };
         }
 
         public static T With<T>(this T obj, Action<T> map)

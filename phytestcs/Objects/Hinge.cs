@@ -27,6 +27,10 @@ namespace phytestcs.Objects
             object1.Forces.Add(_torque2);
             object1.Hinge = this;
 
+            Force1.OnlyTorque = true;
+            if (Force2 != null)
+                Force2.OnlyTorque = true;
+
             Size = size;
         }
 
@@ -95,8 +99,8 @@ namespace phytestcs.Objects
             _torque1.Value = new Vector2f(0, -force / 2).Rotate(End1.Object.Angle);
             _torque2.Value = new Vector2f(0, force / 2).Rotate(End1.Object.Angle);
 
-            var o1Net = End1.Object.NetForce - Force1.Value - _torque1.Value - _torque2.Value;
-            var o2Net = Force2 == null ? default : End2.Object.NetForce - Force2.Value;
+            var o1Net = End1.Object.NetForce - _torque2.Value;
+            var o2Net = Force2 == null ? default : End2.Object.NetForce;
             Force1.Value = -o1Net + o2Net;
             if (Force2 != null)
                 Force2.Value = -o2Net + o1Net;

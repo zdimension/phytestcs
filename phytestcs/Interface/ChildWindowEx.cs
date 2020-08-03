@@ -12,14 +12,19 @@ namespace phytestcs.Interface
 
         protected float Height;
 
-        public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true) : base(name,
+        public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true, bool useLayout=false) : base(name,
             TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
+            UseLayout = useLayout;
             Size = new Vector2f(width, 0);
 
-            Container = new VerticalLayout();
+            if (!UseLayout)
+            {
+                Container = new VerticalLayout();
+                Container.SizeLayout = new Layout2d("parent.w", "parent.h");
 
-            ((Container) this).Add(Container);
+                ((Container) this).Add(Container);
+            }
 
             UpdateSize();
 
@@ -42,7 +47,7 @@ namespace phytestcs.Interface
         public Vector2f? StartPosition { get; set; }
         public bool WasMoved => StartPosition.HasValue && Position != StartPosition.Value;
         public bool IsMinimized { get; private set; }
-        public VerticalLayout Container { get; }
+        public VerticalLayout? Container { get; }
         public bool IsMain { get; set; }
         public bool IsClosing { get; private set; }
 
@@ -66,21 +71,41 @@ namespace phytestcs.Interface
             IsClosing = false;
         }
 
+        public bool UseLayout { get;}
+
         protected virtual void UpdateSize()
         {
-            MaximumSize = Container.Size = MinimumSize = new Vector2f(Container.Size.X,
-                IsMinimized
-                    ? 0
-                    : Height);
+            if (UseLayout)
+            {
+                SizeLayout = new Layout2d($"{Size.X}", _yLayout);
+            }
+            else
+            {
+                MaximumSize = Container.Size = MinimumSize = new Vector2f(Container.Size.X,
+                    IsMinimized
+                        ? 0
+                        : Height);
+            }
         }
 
-        public T Add<T>(T w)
+        private string _yLayout = "0";
+
+        public T Add<T>(T w, string widgetName="")
             where T : Widget
         {
             if (w == null) throw new ArgumentNullException(nameof(w));
+            
+            if (UseLayout)
+            {
+                _yLayout += $"+{widgetName}.h";
+                base.Add(w, widgetName);
+            }
+            else
+            {
+                Height += w.Size.Y;
+                Container.Add(w, w.Size.Y, widgetName);
+            }
 
-            Height += w.Size.Y;
-            Container.Add(w, w.Size.Y);
             Children.Add(w);
 
             UpdateSize();

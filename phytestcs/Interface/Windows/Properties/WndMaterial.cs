@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using MoreLinq;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -78,12 +80,26 @@ namespace phytestcs.Interface.Windows.Properties
         public WndMaterial(PhysicalObject obj, Vector2f pos)
             : base(obj, 250, pos)
         {
-            foreach (var (text, action) in Materials)
+            var container = new Group();
+            var row = 0;
+            foreach (var items in Materials.Batch(2))
             {
-                var btn = new Button(text);
-                btn.Clicked += delegate { action(obj); };
-                Add(btn);
+                var itemsArr = items.ToArray();
+
+                var col = 0;
+                foreach (var (text, action) in itemsArr)
+                {
+                    var btn = new Button(text);
+                    btn.Clicked += delegate { action(obj); };
+                    btn.SizeLayout = new Layout2d($"&.w / 2", "20");
+                    btn.PositionLayout = new Layout2d($"&.w * {col++} / 2", $"{row * 20}");
+                    container.Add(btn);
+                }
+
+                row++;
             }
+            container.Size = new Vector2f(Size.X, row * 20);
+            Add(container);
 
             Add(new NumberField<float>(0.001f, 100f, () => obj.Density, log: true));
             Add(new NumberField<float>(0.001f, 1000f, () => obj.Mass, log: true));

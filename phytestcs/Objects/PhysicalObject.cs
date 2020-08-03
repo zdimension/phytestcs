@@ -365,7 +365,7 @@ namespace phytestcs.Objects
                         _angle = ((float) Math.Round(_angle, 6)).ClampWrap((float) Math.PI);
                     }
 
-                    /*if (Hinge != null)
+                    if (Hinge != null)
                     {
                         Velocity = default;
                         //var oldPos = _position;
@@ -373,7 +373,7 @@ namespace phytestcs.Objects
                         //_position = Shape.Transform.TransformPoint(-Hinge.RelPos);
                         _position = Hinge.OriginalPosition - Hinge.End1.RelPos.Rotate(Angle);
                     }
-                    else*/
+                    else
                     {
                         _position += Velocity * dt;
                     }
@@ -601,7 +601,7 @@ namespace phytestcs.Objects
         /// </summary>
         public Vector2f SpeedAtPoint(Vector2f local)
         {
-            return -AngularVelocity * local.Ortho().Rotate(Angle);
+            return Velocity - AngularVelocity * local.Ortho().Rotate(Angle);
         }
 
         public static void ProcessPairs(float dt, PhysicalObject[] phy)
@@ -624,7 +624,8 @@ namespace phytestcs.Objects
                 if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
                     continue;
 
-                if (Obb.TestCollision(a.Shape, b.Shape, out var mtv))
+                Obb.TestCollision(b, a, out var mtvInv);
+                if (Obb.TestCollision(a, b, out var mtv))
                 {
                     var unitMtv = mtv.Normalize();
                     var v1p = -a.Velocity.Dot(unitMtv);
@@ -711,10 +712,16 @@ namespace phytestcs.Objects
                         wA[0] = dA / X;
                         wA[1] = gA / X;
 
+                        if (Math.Sign(wA[0]) != Math.Sign(wA[1]))
+                            wA[0] = wA[1] = 0.5f;
+
                         var gB = (b.Position - colls[0]).Dot(line);
                         var dB = X - gB;
                         wB[0] = dB / X;
                         wB[1] = gB / X;
+                        
+                        if (Math.Sign(wB[0]) != Math.Sign(wB[1]))
+                            wB[0] = wB[1] = 0.5f;
 
                         /*if (p2out)
                             {
@@ -741,32 +748,28 @@ namespace phytestcs.Objects
                     var unit = unitMtv.Ortho();
                     var unitF = friction * unit;
 
-                    if (!a.Fixed)
+                    var unitFA = unitF * tA;
+                    var ffA = 0;//a.Velocity.Dot(unit);
+
+                    var unitFB = unitF * tB;
+                    var ffB = 0;//b.Velocity.Dot(unit);
+
+                    for (var i1 = 0; i1 < np; i1++)
                     {
-                        var unitFA = unitF * tA;
-                        var ff = -a.Velocity.Dot(unit) * unitFA;
+                        var localA = a.MapInv(colls[i1]);
+                        var localB = b.MapInv(colls[i1]);
+                        var sA = a.SpeedAtPoint(localA);
+                        var sB = b.SpeedAtPoint(localB);
+                        var relVel = -(sA - sB).Dot(unit);
+                        
+                        a.Forces.Add(new Force(ForceType.Friction,
+                                (ffA * wA[i1] - relVel) * unitFA, localA, dt)
+                            { Source = b });
 
-                        for (var i1 = 0; i1 < np; i1++)
-                        {
-                            var local = a.MapInv(colls[i1]);
-                            a.Forces.Add(new Force(ForceType.Friction,
-                                    ff * wA[i1] + -a.SpeedAtPoint(local).Dot(unit) * unitFA, local, dt)
-                                { Source = b });
-                        }
-                    }
-
-                    if (!b.Fixed)
-                    {
-                        var unitFB = unitF * tB;
-                        var ff = -b.Velocity.Dot(unit) * unitFB;
-
-                        for (var i1 = 0; i1 < np; i1++)
-                        {
-                            var local = b.MapInv(colls[i1]);
-                            b.Forces.Add(new Force(ForceType.Friction,
-                                    ff * wB[i1] + -b.SpeedAtPoint(local).Dot(unit) * unitFB, local, dt)
-                                { Source = a });
-                        }
+                        
+                        b.Forces.Add(new Force(ForceType.Friction,
+                                (ffB * wB[i1] - relVel) * unitFB, localB, dt)
+                            { Source = a });
                     }
 
                     //if (!a.Fixed && obj._velocity.Y != 0 && obj.Shape.GetGlobalBounds().CollidesY(Shape.GetGlobalBounds()))

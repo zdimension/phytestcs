@@ -1,4 +1,5 @@
 ﻿using System;
+using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
 
@@ -57,13 +58,6 @@ namespace phytestcs
             return Math.Min(a.Y, b.Y) - Math.Max(a.X, b.X);
         }
 
-        private static Vector2f GetCenter(Shape shape)
-        {
-            var transform = shape.Transform;
-            var local = shape.GetLocalBounds();
-            return transform.TransformPoint(local.Width / 2f, local.Height / 2f);
-        }
-
         private static Vector2f[] GetVertices(Shape shape)
         {
             var vertices = new Vector2f[shape.GetPointCount()];
@@ -93,9 +87,12 @@ namespace phytestcs
 
         // Separating Axis Theorem (SAT) collision test
         // Minimum Translation Vector (MTV) is returned for the first Oriented Bounding Box (OBB)
-        public static bool TestCollision(Shape obb1, Shape obb2, out Vector2f mtv)
+        public static bool TestCollision(PhysicalObject obj1, PhysicalObject obj2, out Vector2f mtv)
         {
             mtv = default;
+
+            var obb1 = obj1.Shape;
+            var obb2 = obj2.Shape;
 
             var vertices1 = GetVertices(obb1);
             var vertices2 = GetVertices(obb2);
@@ -124,10 +121,10 @@ namespace phytestcs
             }
 
             // need to reverse MTV if center offset and overlap are not pointing in the same direction
-            var notPointingInTheSameDirection = (GetCenter(obb1) - GetCenter(obb2)).Dot(mtv) < 0;
+            var notPointingInTheSameDirection = (obj1.Position - obj2.Position).Dot(mtv) < 0;
             if (notPointingInTheSameDirection)
                 mtv = -mtv;
-
+                
             return true;
         }
     }

@@ -9,22 +9,26 @@ namespace phytestcs.Interface
 {
     public class ChildWindowEx : ChildWindow, IEnumerable<Widget>
     {
-        protected readonly List<Widget> Children = new List<Widget>();
+        public readonly List<Widget> Children = new List<Widget>();
 
-        protected float Height;
+        protected float ContentHeight;
 
+        private const int MarginTop = 0;
+        private const int MarginOther = 0;
+        private const int MarginY = MarginTop + MarginOther;
+        
         public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true, bool useLayout=false) : base(name,
             TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
             TitleAlignment = HorizontalAlignment.Left;
-            UseLayout = useLayout;
+            UseLayout = useLayout||true;
             Size = new Vector2f(width, 0);
 
             if (!UseLayout)
             {
                 Container = new VerticalLayout();
-                Container.SizeLayout = new Layout2d("parent.iw - 6", "parent.ih - 4");
-                Container.Position = new Vector2f(3,1);
+                Container.SizeLayout = new Layout2d($"parent.iw - {2 * MarginOther}", $"parent.ih - {MarginOther + MarginTop}");
+                Container.Position = new Vector2f(MarginOther,MarginTop);
 
                 ((Container) this).Add(Container);
             }
@@ -80,14 +84,14 @@ namespace phytestcs.Interface
         {
             if (UseLayout)
             {
-                SizeLayout = new Layout2d($"{Size.X}", IsMinimized ? "0" : _yLayout);
+                SizeLayout = new Layout2d($"{Size.X}", IsMinimized ? $"{MarginY}" : $"{MarginY} + {_yLayout}");
             }
             else
             {
                 MaximumSize = MinimumSize = new Vector2f(Size.X,
-                    IsMinimized
+                    MarginY + (IsMinimized
                         ? 0
-                        : Height);
+                        : ContentHeight));
             }
         }
 
@@ -100,12 +104,16 @@ namespace phytestcs.Interface
             
             if (UseLayout)
             {
+                if (widgetName == "")
+                {
+                    widgetName = $"wg{w.CPointer.ToInt64()}";
+                }
                 _yLayout = $"max({widgetName}.bottom, {_yLayout})";
                 base.Add(w, widgetName);
             }
             else
             {
-                Height += w.Size.Y;
+                ContentHeight += w.Size.Y;
                 Container.Add(w, w.Size.Y, widgetName);
             }
 

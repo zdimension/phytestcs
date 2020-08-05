@@ -115,7 +115,7 @@ namespace phytestcs.Interface
             else
                 Slider.Step = 0;
             var arr = -(int) Math.Log10(step);
-            Slider.SizeLayout = new Layout2d(inline ? "txtValue.left - lblName.right - 18" : "100% - 20", "10");
+            Slider.SizeLayout = new Layout2d(inline ? $"txtValue.left - lblName.right - 18" : "parent.iw - 20", "22");
             Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "7" : "37");
             if (bindProp == null)
                 Value = val;

@@ -1,10 +1,10 @@
 ﻿BitmapButton {
-    Texture     = "theme.png" Part(0, 22, 4, 4) Middle(1, 1, 1, 1);
+    Texture     = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
     TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
 }
 
 Button {
-    Texture     = "theme.png" Part(0, 22, 4, 4) Middle(1, 1, 1, 1);
+    Texture     = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
     TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
     TextColor   = #000;
     TextColorDisabled = #808080;
@@ -120,10 +120,15 @@ ScrollablePanel {
 }
 
 Scrollbar {
-    TextureTrack = "theme.png" Part(0, 0, 16, 1);
-    TextureThumb = "theme.png" Part(0, 22, 4, 4) Middle(1, 1, 1, 1);
-    TextureArrowUp   = "theme.png" Part(50, 38, 16, 16) Middle(4, 6, 7, 4);
-    TextureArrowDown = "theme.png" Part(66, 38, 16, 16) Middle(4, 6, 7, 4);
+    TextureTrack = "theme.png" Part(50, 56, 18, 1);
+    TextureThumb = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
+    TextureArrowUp   = "theme.png" Part(50, 38, 18, 18) Middle(4, 8, 7, 4);
+    TextureArrowDown = "theme.png" Part(68, 38, 18, 18) Middle(4, 6, 7, 4);
+}
+
+Slider {
+    TextureTrack      = "theme.png" Part(97, 40, 23, 21) Middle(2, 10, 19, 0);
+    TextureThumb      = "theme.png" Part(86, 38, 11, 21);
 }
 
 SpinButton {

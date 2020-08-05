@@ -190,5 +190,10 @@ namespace phytestcs
         {
             return (float) (Math.Round(f / n) * n);
         }
+
+        public static void CeilSize(this Widget w)
+        {
+            w.Size = w.Size.Ceil();
+        }
     }
 }

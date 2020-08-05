@@ -52,6 +52,7 @@ namespace phytestcs.Interface
 
             SizeLayout = new Layout2d("100%", inline ? "24" : "60");
             var lblName = new Label(name) { PositionLayout = new Layout2d(5, inline ? 4 : 10) };
+            lblName.CeilSize();
             Add(lblName, "lblName");
 
             var lblUnit = new Label(unit);

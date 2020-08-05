@@ -92,6 +92,11 @@ namespace phytestcs
         {
             return new Vector2f((float) Math.Round(vec.X), (float) Math.Round(vec.Y));
         }
+        
+        public static Vector2f Ceil(this Vector2f vec)
+        {
+            return new Vector2f((float) Math.Ceiling(vec.X), (float) Math.Ceiling(vec.Y));
+        }
 
         public static Vector2f ToWorld(this Vector2i pos)
         {

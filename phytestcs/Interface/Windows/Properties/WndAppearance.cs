@@ -94,12 +94,16 @@ namespace phytestcs.Interface.Windows.Properties
             
             void DrawSelector()
             {
+                var tex = selector.RenderTexture();
+
+                if (tex == null)
+                    return;
+                
+                oldPointer = tex.CPointer;
+                
                 oldColor = wrapper.Value;
 
                 const float fac = 1f / SqSize;
-
-                var tex = selector.RenderTexture();
-                oldPointer = tex.CPointer;
 
                 selector.Clear(BackColor);
 
@@ -180,7 +184,7 @@ namespace phytestcs.Interface.Windows.Properties
                     userChanging = false;
                 }
 
-                if (wrapper.Value != oldColor || selector.RenderTexture().CPointer != oldPointer)
+                if (wrapper.Value != oldColor || selector.RenderTexture()?.CPointer != oldPointer)
                     DrawSelector();
             }
 
@@ -232,10 +236,13 @@ namespace phytestcs.Interface.Windows.Properties
 
                 void DrawAbsorbance()
                 {
+                    var tex = absorbance.RenderTexture();
+
+                    if (tex == null)
+                        return;
+                    
                     oldCol = wrapper.ValueHsv;
                     oldWidth = phy.ColorFilterWidth;
-
-                    var tex = absorbance.RenderTexture();
                     oldPointerAbs = tex.CPointer;
 
                     absorbance.Clear(BackColor);
@@ -276,7 +283,7 @@ namespace phytestcs.Interface.Windows.Properties
                 void UpdateAbsorbance()
                 {
                     if (wrapper.ValueHsv != oldCol || phy.ColorFilterWidth != oldWidth ||
-                        absorbance.RenderTexture().CPointer != oldPointerAbs)
+                        absorbance.RenderTexture()?.CPointer != oldPointerAbs)
                         DrawAbsorbance();
                 }
 

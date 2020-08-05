@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using SFML.System;
 using TGUI;
 
@@ -15,13 +16,15 @@ namespace phytestcs.Interface
         public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true, bool useLayout=false) : base(name,
             TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
+            TitleAlignment = HorizontalAlignment.Left;
             UseLayout = useLayout;
             Size = new Vector2f(width, 0);
 
             if (!UseLayout)
             {
                 Container = new VerticalLayout();
-                Container.SizeLayout = new Layout2d("parent.w", "parent.h");
+                Container.SizeLayout = new Layout2d("parent.iw - 6", "parent.ih - 4");
+                Container.Position = new Vector2f(3,1);
 
                 ((Container) this).Add(Container);
             }
@@ -81,7 +84,7 @@ namespace phytestcs.Interface
             }
             else
             {
-                MaximumSize = Container.Size = MinimumSize = new Vector2f(Container.Size.X,
+                MaximumSize = MinimumSize = new Vector2f(Size.X,
                     IsMinimized
                         ? 0
                         : Height);
@@ -97,7 +100,7 @@ namespace phytestcs.Interface
             
             if (UseLayout)
             {
-                _yLayout += $"+{widgetName}.h";
+                _yLayout = $"max({widgetName}.bottom, {_yLayout})";
                 base.Add(w, widgetName);
             }
             else

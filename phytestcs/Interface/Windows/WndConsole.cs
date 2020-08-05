@@ -31,7 +31,9 @@ namespace phytestcs.Interface.Windows
 
         public WndConsole() : base(L["Console"], 400, useLayout:true)
         {
-            var cb = new ChatBox() { SizeLayout = new Layout2d("parent.w", "400")};
+            var cb = new ChatBox() { SizeLayout = new Layout2d("parent.iw", "parent.ih")};
+            cb.SizeLayout = new Layout2d("parent.iw - 2 * x", "400");
+            cb.Position = new Vector2f(4, 2);
             Add(cb, "cb");
             var w = new Group();
             Field = new EditBox();
@@ -41,10 +43,10 @@ namespace phytestcs.Interface.Windows
             w.Add(Field, "txt");
             w.Add(btn, "btn");
             btn.Size = new Vector2f(20, 20);
-            w.SizeLayout = new Layout2d("parent.w", "btn.h + 10");
+            w.SizeLayout = new Layout2d("parent.iw", "btn.h + 10");
             Field.SizeLayout = new Layout2d("btn.left - 10", "btn.h");
-            btn.PositionLayout = new Layout2d("parent.w - w - 10", "0");
-            w.PositionLayout = new Layout2d("5", "cb.h + 5");
+            btn.PositionLayout = new Layout2d("parent.iw - w - 10", "0");
+            w.PositionLayout = new Layout2d("5", "cb.bottom + 5");
             Add(w, "cont");
 
             var commandHistory = new List<string>();
@@ -205,6 +207,11 @@ namespace phytestcs.Interface.Windows
             {
                 Field.Focus = true;
             };
+
+            var size = new Vector2f(Size.X, Size.Y);
+            //MaximumSize = MinimumSize = size;
+            //Size = size;
+            //SizeLayout = new Layout2d(100, 100);
         }
     }
 }

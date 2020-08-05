@@ -12,6 +12,7 @@ using SFML.Window;
 using TGUI;
 using static phytestcs.Tools;
 using Button = TGUI.Button;
+using ButtonRenderer = TGUI.ButtonRenderer;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Panel = TGUI.Panel;
 
@@ -40,10 +41,10 @@ namespace phytestcs.Interface
                 (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>())
             };
 
-        private static readonly RendererData BrDef = GenerateButtonColor(new Color(210, 210, 210));
-        private static readonly RendererData BrToggle = GenerateButtonColor(new Color(108, 108, 215));
-        public static readonly RendererData BrGreen = GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
-        public static readonly RendererData BrRed = GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
+        private static readonly RendererData BrDef;// GenerateButtonColor(new  Color(210, 210, 210));
+        private static readonly RendererData BrToggle;// GenerateButtonColor(new Color(108, 108, 215));
+        public static readonly RendererData BrGreen;// GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
+        public static readonly RendererData BrRed;// GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
         public static Panel BackPanel = null!;
 
@@ -157,6 +158,17 @@ namespace phytestcs.Interface
         }
         
         private static List<ChildWindowEx> _childWindows = new List<ChildWindowEx>();
+
+        static Ui()
+        {
+            Theme.Default.load("themes/windows/theme.txt");
+            //heme.Default = new Theme("themes/windows/theme.txt");
+
+            BrDef = Theme.Default.getRenderer("Button");
+            BrToggle = Theme.Default.getRenderer("Button");
+            BrGreen = Theme.Default.getRenderer("Button");
+            BrRed =Theme.Default.getRenderer("Button");
+        }
 
         public static Widget? GetFocusedWidget(Container? start=null)
         {

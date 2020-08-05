@@ -34,6 +34,7 @@ namespace phytestcs.Interface.Windows.Properties
             };
 
             var drop = new ComboBox();
+            drop.SizeLayout = new Layout2d("parent.iw", "26");
             foreach (var mode in modes)
                 drop.AddItem(mode.Key);
 

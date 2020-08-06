@@ -42,9 +42,9 @@ namespace phytestcs.Interface.Windows
             var btn = new BitmapButton() { Image = new Texture("icons/small/accept.png") };
             w.Add(Field, "txt");
             w.Add(btn, "btn");
-            btn.Size = new Vector2f(20, 20);
-            w.SizeLayout = new Layout2d("parent.iw", "btn.h + 10");
-            Field.SizeLayout = new Layout2d("btn.left - 10", "btn.h");
+            btn.Size = new Vector2f(22, 22);
+            w.SizeLayout = new Layout2d("parent.iw", "btn.h");
+            Field.SizeLayout = new Layout2d("btn.left - 5", "btn.h");
             btn.PositionLayout = new Layout2d("parent.iw - w - 10", "0");
             w.PositionLayout = new Layout2d("5", "cb.bottom + 5");
             Add(w, "cont");

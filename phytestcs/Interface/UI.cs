@@ -317,7 +317,7 @@ namespace phytestcs.Interface
             btnConsole.MouseReleased += delegate
             {
                 var w = new WndConsole();
-                w.PositionLayout = new Layout2d("parent.w / 2 - w / 2", "parent.h / 2 - h / 2");
+                w.Position = ((BackPanel.Size - w.Size) / 2).Round();
                 Gui.Add(w);
                 w.Field.Focus = true;
             };

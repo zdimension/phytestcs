@@ -146,9 +146,9 @@ namespace phytestcs.Interface
             };
 
             Round = round;
-
-            Field.Text = "";
+            
             Update();
+            Field.CaretPosition = 0;
         }
 
         public EditBox Field { get; }

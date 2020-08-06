@@ -47,12 +47,13 @@ namespace phytestcs.Interface
 
             SizeLayout = new Layout2d("100%", "24");
             NameLabel = new Label(name) { PositionLayout = new Layout2d("0", "3") };
+            NameLabel.CeilSize();
             Add(NameLabel, "lblName");
 
             Field = new EditBox
             {
-                PositionLayout = new Layout2d("lblName.right + 5", "3"),
-                SizeLayout = new Layout2d("100% - 10 - lblName.width", "18")
+                PositionLayout = new Layout2d("lblName.right + 5", "(&.h - h) / 2"),
+                SizeLayout = new Layout2d("100% - x", "22")
             };
             Add(Field);
             if (mono)

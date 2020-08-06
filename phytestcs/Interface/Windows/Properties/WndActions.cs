@@ -30,7 +30,7 @@ namespace phytestcs.Interface.Windows.Properties
         {
             foreach (var (name, icon, action) in Actions)
             {
-                var btn = new BitmapButton { Text = name, Image = new Texture(icon) };
+                var btn = new BitmapButton { Text = name, Image = new Texture(icon), SizeLayout = new Layout2d("100%", "20")};
                 btn.Clicked += delegate { action(obj); };
                 Add(btn);
             }

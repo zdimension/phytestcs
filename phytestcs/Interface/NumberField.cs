@@ -59,12 +59,13 @@ namespace phytestcs.Interface
             Add(lblUnit, "lblUnit");
             lblUnit.PositionLayout = new Layout2d("&.w - w - 5", inline ? "4" : "10");
             lblUnit.SizeLayout = new Layout2d(inline ? 20 : string.IsNullOrWhiteSpace(unit) ? 0 : lblUnit.Size.X, 18);
-
+            lblUnit.CeilSize();
+            
             const int size = 40;
             Field = new EditBox
             {
-                PositionLayout = new Layout2d(inline ? $"lblUnit.left - 5 - {size}" : "lblName.right + 5", inline ? "3" : "9"),
-                SizeLayout = new Layout2d(inline ? $"{size}" : "lblUnit.left - 5 - x", "18")
+                PositionLayout = new Layout2d(inline ? $"lblUnit.left - 5 - {size}" : "lblName.right + 5", inline ? "1" : "7"),
+                SizeLayout = new Layout2d(inline ? $"{size}" : "lblUnit.left - 5 - x", "22")
             };
             Add(Field, "txtValue");
 
@@ -116,7 +117,7 @@ namespace phytestcs.Interface
                 Slider.Step = 0;
             var arr = -(int) Math.Log10(step);
             Slider.SizeLayout = new Layout2d(inline ? $"txtValue.left - lblName.right - 18" : "parent.iw - 20", "22");
-            Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "7" : "37");
+            Slider.PositionLayout = new Layout2d(inline ? "lblName.width + 13" : "10", inline ? "1" : "37");
             if (bindProp == null)
                 Value = val;
             Add(Slider);
@@ -145,6 +146,9 @@ namespace phytestcs.Interface
             };
 
             Round = round;
+
+            Field.Text = "";
+            Update();
         }
 
         public EditBox Field { get; }

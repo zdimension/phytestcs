@@ -13,15 +13,15 @@ namespace phytestcs.Interface
 
         protected float ContentHeight;
 
-        private const int MarginTop = 0;
-        private const int MarginOther = 0;
+        private const int MarginTop = 1;
+        private const int MarginOther = 3;
         private const int MarginY = MarginTop + MarginOther;
         
         public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true, bool useLayout=false) : base(name,
             TitleButton.Close | (minimize ? TitleButton.Minimize : 0))
         {
             TitleAlignment = HorizontalAlignment.Left;
-            UseLayout = useLayout||true;
+            UseLayout = useLayout;
             Size = new Vector2f(width, 0);
 
             if (!UseLayout)

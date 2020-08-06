@@ -15,6 +15,7 @@ namespace phytestcs.Interface
 
         private const int MarginTop = 1;
         private const int MarginOther = 3;
+        private const int MarginX = 2 * MarginOther;
         private const int MarginY = MarginTop + MarginOther;
         
         public ChildWindowEx(string name, int width, bool hide = false, bool minimize = true, bool useLayout=false) : base(name,
@@ -22,12 +23,12 @@ namespace phytestcs.Interface
         {
             TitleAlignment = HorizontalAlignment.Left;
             UseLayout = useLayout;
-            Size = new Vector2f(width, 0);
+            Size = new Vector2f(width + MarginX, MarginY);
 
             if (!UseLayout)
             {
                 Container = new VerticalLayout();
-                Container.SizeLayout = new Layout2d($"parent.iw - {2 * MarginOther}", $"parent.ih - {MarginOther + MarginTop}");
+                Container.SizeLayout = new Layout2d($"parent.iw - {MarginX}", $"parent.ih - {MarginY}");
                 Container.Position = new Vector2f(MarginOther,MarginTop);
 
                 ((Container) this).Add(Container);

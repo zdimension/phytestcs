@@ -103,24 +103,14 @@ namespace phytestcs.Interface
 
         private static void InitMenuBar()
         {
-            var wnd = new ChildWindowEx(L["New"], 200, true, false);
-            foreach (var (text, palette) in Palette.Palettes)
-            {
-                var btn = new Button(text);
-                btn.Clicked += async delegate
-                {
-                    wnd.Close();
-                    await Scene.New().ConfigureAwait(true);
-                    Program.CurrentPalette = palette;
-                };
-                wnd.Add(btn);
-            }
-
-            wnd.Visible = false;
-            Gui.Add(wnd);
-
             var menu = new MenuBar();
             menu.AddMenu(L["New"]);
+            var newDict = new Dictionary<string, Palette>();
+            foreach (var (text, palette) in Palette.Palettes)
+            {
+                newDict[text] = palette;
+                menu.AddMenuItem(text);
+            }
             menu.AddMenu(L["Open"]);
             menu.AddMenu(L["Exit"]);
             menu.MenuItemClicked += async (sender, s) =>
@@ -145,13 +135,10 @@ namespace phytestcs.Interface
                     if (ofp.ShowDialog() == DialogResult.OK)
                         await Scene.Load(Scene.LoadScript(ofp.FileName)).ConfigureAwait(true);
                 }
-                else if (s.Value == L["New"])
+                else if (newDict.TryGetValue(s.Value, out var palette))
                 {
-                    if (!wnd.Visible)
-                    {
-                        wnd.PositionLayout = new Layout2d("50% - w / 2", "50% - h / 2");
-                        wnd.Show();
-                    }
+                    await Scene.New().ConfigureAwait(true);
+                    Program.CurrentPalette = palette;
                 }
             };
             Gui.Add(menu);

@@ -1,13 +1,13 @@
 ﻿BitmapButton {
     Texture = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
     TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
-    TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
 }
 
 Button {
     Texture     = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
     TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
-    TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
     TextColor   = #000;
     TextColorDisabled = #808080;
 }
@@ -24,6 +24,8 @@ CheckBox {
     TextureUncheckedDisabled = "theme.png" Part(24, 51, 13, 13);
     TextureCheckedDisabled   = "theme.png" Part(37, 51, 13, 13);
     TextDistanceRatio = 0.2;
+    TextColor   = #000;
+    TextColorDisabled = #808080;
 }
 
 ChildWindow {
@@ -32,7 +34,7 @@ ChildWindow {
     ShowTextOnTitleButtons = false;
     TitlebarHeight = 22;
     DistanceToSide = 5;
-    TextureTitlebar = "theme.png" Part(0, 0, 812, 22) Middle(4, 4, 804, 16);
+    TextureTitlebar = "theme.png" Part(0, 0, 812, 22) Middle(3, 3, 804, 18);
     TextureBackground = "theme.png" Part(4, 27, 5, 3) Middle(2, 0, 1, 1);
     MinimizeButton = {
         Texture       = "theme.png" Part( 9, 22, 16, 16);
@@ -90,7 +92,10 @@ ListView {
 }
 
 MenuBar {
+    TextColor                    = #000;
+    SelectedTextColor = #fff;
     BackgroundColor = #d4d0c8;
+    SelectedBackgroundColor      = #0a246a;
 }
 
 MessageBox {
@@ -111,6 +116,8 @@ RadioButton {
     TextureUncheckedDisabled = "theme.png" Part( 0, 50, 12, 12);
     TextureCheckedDisabled   = "theme.png" Part(12, 50, 12, 12);
     TextDistanceRatio = 0.2;
+    TextColor = #000;
+    TextColorDisabled = #808080;
 }
 
 RangeSlider {

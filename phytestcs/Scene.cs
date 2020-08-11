@@ -20,14 +20,15 @@ namespace phytestcs
     {
         public static volatile bool Loaded;
         public static Script<object>? Script;
-        public static ExpandoObject My = null!;
+        public static dynamic My = null!;
 
         public static readonly IReadOnlyCollection<MetadataReference> DefaultReferences = new List<MetadataReference>
         {
             MetadataReference.CreateFromFile(typeof(object).GetAssemblyLoadPath()),
-            MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Runtime.dll")),
-            MetadataReference.CreateFromFile(Extensions.GetSystemAssemblyPathByName("System.Private.CoreLib.dll")),
-
+            MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("System.Runtime.dll")),
+            MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("System.Private.CoreLib.dll")),
+            
+            MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.Binder).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Scene).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Color).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Vector2f).Assembly.Location),

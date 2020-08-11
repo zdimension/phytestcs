@@ -1,4 +1,5 @@
-﻿using phytestcs.Objects;
+﻿using phytestcs.Internal;
+using phytestcs.Objects;
 using SFML.Graphics;
 using static phytestcs.Tools;
 

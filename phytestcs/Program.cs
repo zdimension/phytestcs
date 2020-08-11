@@ -560,22 +560,22 @@ namespace phytestcs
                     break;
 
                 case Keyboard.Key.Num0:
-                    SetDrawMode(DrawingType.Off);
+                    Drawing.DrawMode = DrawingType.Off;
                     break;
                 case Keyboard.Key.Num1:
-                    SetDrawMode(DrawingType.Rectangle);
+                    Drawing.DrawMode = DrawingType.Rectangle;
                     break;
                 case Keyboard.Key.Num2:
-                    SetDrawMode(DrawingType.Circle);
+                    Drawing.DrawMode = DrawingType.Circle;
                     break;
                 case Keyboard.Key.Num3:
-                    SetDrawMode(DrawingType.Spring);
+                    Drawing.DrawMode = DrawingType.Spring;
                     break;
                 case Keyboard.Key.Num4:
-                    SetDrawMode(DrawingType.Fixate);
+                    Drawing.DrawMode = DrawingType.Fixate;
                     break;
                 case Keyboard.Key.Num5:
-                    SetDrawMode(DrawingType.Move);
+                    Drawing.DrawMode = DrawingType.Move;
                     break;
 
                 case Keyboard.Key.Add:

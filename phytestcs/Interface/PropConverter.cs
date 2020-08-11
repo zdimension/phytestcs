@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Globalization;
+using phytestcs.Internal;
 using SFML.Graphics;
 using SFML.System;
 using static phytestcs.Tools;

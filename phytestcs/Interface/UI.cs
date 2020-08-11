@@ -26,7 +26,7 @@ namespace phytestcs.Interface
         public static readonly Font FontMono = new Font("fonts/mono.ttf");
         public static Gui Gui = null!;
 
-        private static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> Actions =
+        public static readonly List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)> Actions =
             new List<(DrawingType, string, Ref<BitmapButton>, Ref<Texture>)>
             {
                 (DrawingType.Off, "drag", new Ref<BitmapButton>(), new Ref<Texture>()),
@@ -41,8 +41,8 @@ namespace phytestcs.Interface
                 (DrawingType.Laser, "laser", new Ref<BitmapButton>(), new Ref<Texture>())
             };
 
-        private static readonly RendererData BrDef;// GenerateButtonColor(new  Color(210, 210, 210));
-        private static readonly RendererData BrToggle;// GenerateButtonColor(new Color(108, 108, 215));
+        public static readonly RendererData BrDef;// GenerateButtonColor(new  Color(210, 210, 210));
+        public static readonly RendererData BrToggle;// GenerateButtonColor(new Color(108, 108, 215));
         public static readonly RendererData BrGreen;// GenerateButtonColor(new Color(0x91, 0xbd, 0x3a));
         public static readonly RendererData BrRed;// GenerateButtonColor(new Color(0xfa, 0x16, 0x3f));
 
@@ -55,17 +55,6 @@ namespace phytestcs.Interface
 
         public static readonly Dictionary<BaseObject, List<ChildWindowEx>> PropertyWindows =
             new Dictionary<BaseObject, List<ChildWindowEx>>();
-
-        public static void SetDrawMode(DrawingType mode)
-        {
-            Drawing.DrawMode = mode;
-            foreach (var (dess, _, bref, text) in Actions)
-            {
-                bref.Value!.SetRenderer(dess == mode ? BrToggle : BrDef);
-                if (dess == mode)
-                    Render.DrawSprite.Texture = text.Value;
-            }
-        }
 
         private static void InitBackPanel()
         {
@@ -145,16 +134,19 @@ namespace phytestcs.Interface
         }
         
         private static List<ChildWindowEx> _childWindows = new List<ChildWindowEx>();
+        public static BitmapButton BtnGrav;
+        public static BitmapButton BtnAirFr;
+        public static BitmapButton BtnGrid;
 
         static Ui()
         {
             Theme.Default.load("themes/windows/theme.txt");
             //heme.Default = new Theme("themes/windows/theme.txt");
-
             BrDef = Theme.Default.getRenderer("Button");
-            BrToggle = Theme.Default.getRenderer("Button");
+            var th = new Theme("themes/windows/theme_toggled.txt");
+            BrToggle =th.getRenderer("Button"); 
             BrGreen = Theme.Default.getRenderer("Button");
-            BrRed =Theme.Default.getRenderer("Button");
+            BrRed = th.getRenderer("Button");
         }
 
         public static Widget? GetFocusedWidget(Container? start=null)
@@ -218,7 +210,7 @@ namespace phytestcs.Interface
             foreach (var (dess, img, bref, text) in Actions)
             {
                 var btn = new BitmapButton { Image = text.Value = new Texture($"icons/big/{img}.png") };
-                btn.Clicked += delegate { SetDrawMode(dess); };
+                btn.Clicked += delegate { Drawing.DrawMode = dess; };
                 buttons.Add(btn);
                 bref.Value = btn;
             }
@@ -240,27 +232,25 @@ namespace phytestcs.Interface
 
             Space();
 
-            var btnGrid = new BitmapButton { Image = new Texture("icons/big/grid.png") };
-            btnGrid.SetRenderer(BrToggle);
-            btnGrid.MouseReleased += (sender, f) =>
+            BtnGrid = new BitmapButton { Image = new Texture("icons/big/grid.png") };
+            BtnGrid.SetRenderer(BrToggle);
+            BtnGrid.MouseReleased += (sender, f) =>
             {
                 Render.ShowGrid = !Render.ShowGrid;
-                btnGrid.SetRenderer(Render.ShowGrid ? BrToggle : BrDef);
             };
             var wndGrid = new ChildWindowEx(L["Grid"], 250, true, false)
             {
                 new CheckField(() => Render.SnapToGrid)
             };
             Gui.Add(wndGrid);
-            ConnectButton(btnGrid, wndGrid, true);
-            buttons.Add(btnGrid);
+            ConnectButton(BtnGrid, wndGrid, true);
+            buttons.Add(BtnGrid);
 
-            var btnGrav = new BitmapButton { Image = new Texture("icons/big/gravity.png") };
-            btnGrav.SetRenderer(BrToggle);
-            btnGrav.MouseReleased += (sender, f) =>
+            BtnGrav = new BitmapButton { Image = new Texture("icons/big/gravity.png") };
+            BtnGrav.SetRenderer(BrToggle);
+            BtnGrav.MouseReleased += (sender, f) =>
             {
                 Simulation.GravityEnabled = !Simulation.GravityEnabled;
-                btnGrav.SetRenderer(Simulation.GravityEnabled ? BrToggle : BrDef);
             };
             var wndGrav = new ChildWindowEx(L["Gravity"], 250, true, false)
             {
@@ -269,15 +259,14 @@ namespace phytestcs.Interface
                 new CheckField(() => Render.ShowGravityField)
             };
             Gui.Add(wndGrav);
-            ConnectButton(btnGrav, wndGrav, true);
-            buttons.Add(btnGrav);
+            ConnectButton(BtnGrav, wndGrav, true);
+            buttons.Add(BtnGrav);
 
-            var btnAirFr = new BitmapButton { Image = new Texture("icons/big/wind.png") };
-            btnAirFr.SetRenderer(BrDef);
-            btnAirFr.MouseReleased += (sender, f) =>
+            BtnAirFr = new BitmapButton { Image = new Texture("icons/big/wind.png") };
+            BtnAirFr.SetRenderer(BrDef);
+            BtnAirFr.MouseReleased += (sender, f) =>
             {
                 Simulation.AirFriction = !Simulation.AirFriction;
-                btnAirFr.SetRenderer(Simulation.AirFriction ? BrToggle : BrDef);
             };
             var wndAirFr = new ChildWindowEx(L["Air friction"], 250, true, false)
             {
@@ -296,8 +285,8 @@ namespace phytestcs.Interface
             };
 
             Gui.Add(wndAirFr);
-            ConnectButton(btnAirFr, wndAirFr, true);
-            buttons.Add(btnAirFr);
+            ConnectButton(BtnAirFr, wndAirFr, true);
+            buttons.Add(BtnAirFr);
 
             var btnSettings = new BitmapButton { Image = new Texture("icons/big/options.png") };
             btnSettings.SetRenderer(BrDef);
@@ -340,7 +329,7 @@ namespace phytestcs.Interface
 
             InitToolButtons();
 
-            SetDrawMode(DrawingType.Off);
+            Drawing.DrawMode = DrawingType.Off;
         }
 
         public static void OpenProperties(BaseObject obj, Vector2f pos)

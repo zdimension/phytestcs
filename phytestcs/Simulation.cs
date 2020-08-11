@@ -37,6 +37,7 @@ namespace phytestcs
         public static BaseObject[] WorldCacheNonLaser = null!;
         private static float _laserFuzziness = 0.7f;
         private static int _numColorsInRainbow = 12;
+        private static bool _airFriction = false;
 
         static Simulation()
         {
@@ -54,7 +55,15 @@ namespace phytestcs
             }
         }
 
-        public static bool AirFriction { get; set; } = false;
+        public static bool AirFriction
+        {
+            get => _airFriction;
+            set
+            {
+                _airFriction = value;
+                Ui.BtnAirFr.SetRenderer(value ? Ui.BrToggle : Ui.BrDef);
+            }
+        }
 
         [ObjProp("Multiplier", "x")]
         public static float AirFrictionMultiplier { get; set; } = 1;
@@ -98,6 +107,7 @@ namespace phytestcs
             set
             {
                 _gravityEnabled = value;
+                Ui.BtnGrav.SetRenderer(value ? Ui.BrToggle : Ui.BrDef);
                 ActualGravity = value ? Gravity : 0;
                 UpdateGravity();
             }

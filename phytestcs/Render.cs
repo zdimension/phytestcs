@@ -40,6 +40,7 @@ namespace phytestcs
         ).ToArray();
 
         public static BaseObject[] WorldCache = null!;
+        private static bool _showGrid = true;
 
         static Render()
         {
@@ -58,7 +59,15 @@ namespace phytestcs
         [ObjProp("Force arrows scale", "m/N")]
         public static float ForcesScale { get; set; } = 0.50f;
 
-        public static bool ShowGrid { get; set; } = true;
+        public static bool ShowGrid
+        {
+            get => _showGrid;
+            set
+            {
+                _showGrid = value;
+                Ui.BtnGrid.SetRenderer(value ? Ui.BrToggle : Ui.BrDef);
+            }
+        }
 
         public static bool SnapToGrid { get; set; } = true;
 

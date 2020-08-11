@@ -1,0 +1,13 @@
+﻿BitmapButton {
+    Texture = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+}
+
+Button {
+    Texture     = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+    TextColor   = #000;
+    TextColorDisabled = #808080;
+}

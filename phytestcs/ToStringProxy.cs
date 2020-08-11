@@ -4,12 +4,13 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using phytestcs.Internal;
 using SFML.Graphics;
 using SFML.System;
 
 namespace phytestcs
 {
-    public abstract class ToStringProxy
+    internal abstract class ToStringProxy
     {
         public override string ToString()
         {

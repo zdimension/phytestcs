@@ -127,7 +127,7 @@ namespace phytestcs.Interface.Windows
                 }
                 else if (e.Code == Keyboard.Key.Tab)
                 {
-                    Task.Run(async () =>
+                    //Task.Run(async () =>
                     {
                         RemoveAutocompleteLines();
                         
@@ -138,14 +138,19 @@ namespace phytestcs.Interface.Windows
                                 "phytestcs", 
                                 LanguageNames.CSharp, 
                                 isSubmission: true)
+                            .WithDefaultNamespace("phytestcs")
                             .WithMetadataReferences(Scene.DefaultReferences)
                             .WithCompilationOptions(CompilationOptions);
                         var scriptProject = Workspace.AddProject(scriptProjectInfo);
 
+                        var position = (int) Field.CaretPosition;
                         var code = Field.Text;
-                        if (code.Length == 0)
+                        /*if (code.Length == 0)
+                        {
                             code = "phytestcs.";
-                        
+                            position = code.Length;
+                        }*/
+
                         var scriptDocumentInfo = DocumentInfo.Create(
                             DocumentId.CreateNewId(scriptProject.Id), "Script",
                             sourceCodeKind: SourceCodeKind.Script,
@@ -153,35 +158,35 @@ namespace phytestcs.Interface.Windows
                                 VersionStamp.Create())));
                         var scriptDocument = Workspace.AddDocument(scriptDocumentInfo);
 
-                        var position = (int) Field.CaretPosition;
-
                         var completionService = CompletionService.GetService(scriptDocument);
 
                         try
                         {
-                            var results = await completionService.GetCompletionsAsync(scriptDocument, position)
-                                .ConfigureAwait(false);
+                            var results = completionService.GetCompletionsAsync(scriptDocument, position).Result;
                             if (results != null)
                             {
                                 var lines = results
                                     .Items
                                     .DistinctBy(i => i.DisplayText)
                                     .Where(n => n.DisplayText.StartsWith(
-                                        Field.Text[new Range(n.Span.Start, n.Span.End)],
+                                        code[new Range(n.Span.Start, n.Span.End)],
                                         StringComparison.InvariantCultureIgnoreCase))
                                     .ToArray();
-                                //var linesCut = 
-                                var minStr = lines.MinBy(l => l.DisplayText.Length).First();
-                                var common = new string(
-                                    minStr.DisplayText
-                                        .TakeWhile((c, i) => lines.All(s => s.DisplayText[i] == c)).ToArray());
-                                var newText = Field.Text[0..minStr.Span.Start];
-                                newText += common;
-                                newText += Field.Text[position..];
-                                var newPos = newText.Length;
-                                Field.Text = newText;
-                                Field.CaretPosition = (uint)newPos;
-                                
+
+                                if (Field.Text != "")
+                                {
+                                    var minStr = lines.MinBy(l => l.DisplayText.Length).First();
+                                    var common = new string(
+                                        minStr.DisplayText
+                                            .TakeWhile((c, i) => lines.All(s => s.DisplayText[i] == c)).ToArray());
+                                    var newText = Field.Text[0..minStr.Span.Start];
+                                    newText += common;
+                                    newText += Field.Text[position..];
+                                    var newPos = newText.Length;
+                                    Field.Text = newText;
+                                    Field.CaretPosition = (uint) newPos;
+                                }
+
                                 numAutocompleteLines = lines.Length + 1;
                                 cb.AddLine("> " + Field.Text, Color.Black, Text.Styles.Italic);
                                 foreach (var line in lines)
@@ -190,14 +195,21 @@ namespace phytestcs.Interface.Windows
                                 }
                             }
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
                             cb.AddLine("* autocompletion error", Color.Red, Text.Styles.Italic);
-                            cb.AddLine(e.Message, Color.Red, Text.Styles.Italic);
+                            cb.AddLine(ex.Message, Color.Red, Text.Styles.Italic);
                         }
 
-                        Workspace.CloseDocument(scriptDocument.Id);
-                    });
+                        try
+                        {
+                            Workspace.CloseDocument(scriptDocument.Id);
+                        }
+                        catch
+                        {
+                            //
+                        }
+                    };
                 }
 
                 return false;
@@ -207,11 +219,6 @@ namespace phytestcs.Interface.Windows
             {
                 Field.Focus = true;
             };
-
-            var size = new Vector2f(Size.X, Size.Y);
-            //MaximumSize = MinimumSize = size;
-            //Size = size;
-            //SizeLayout = new Layout2d(100, 100);
         }
     }
 }

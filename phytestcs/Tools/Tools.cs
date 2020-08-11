@@ -22,14 +22,6 @@ namespace phytestcs
                 Math.Min((float) (DateTime.Now - start).TotalSeconds / duration, 1);
         }
 
-        public static T Clamp<T>(T x, T a, T b)
-            where T : IComparable
-        {
-            if (x.CompareTo(a) < 0) return a;
-            if (x.CompareTo(b) > 0) return b;
-            return x;
-        }
-
         public static BaseObject ObjectAtPosition(Vector2i pos)
         {
             var loc = pos.ToWorld();

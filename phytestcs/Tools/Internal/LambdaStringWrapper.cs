@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.CodeAnalysis.Scripting;
 
-namespace phytestcs
+namespace phytestcs.Internal
 {
     public sealed class LambdaStringWrapper<T> : IRepr
         where T : Delegate

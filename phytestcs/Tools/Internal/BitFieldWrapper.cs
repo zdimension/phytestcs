@@ -2,9 +2,9 @@
 using System.Linq.Expressions;
 using phytestcs.Interface;
 
-namespace phytestcs
+namespace phytestcs.Internal
 {
-    public sealed class BitFieldWrapper
+    internal sealed class BitFieldWrapper
     {
         private readonly Func<uint> _getter;
         private readonly Action<uint>? _setter;

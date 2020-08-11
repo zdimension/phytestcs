@@ -4,9 +4,9 @@ using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.Graphics;
 
-namespace phytestcs
+namespace phytestcs.Internal
 {
-    public sealed class ColorWrapper
+    internal sealed class ColorWrapper
     {
         private readonly Func<Color> _getter;
         private readonly Action<Color>? _setter;

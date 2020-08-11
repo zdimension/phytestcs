@@ -15,7 +15,7 @@ using TGUI;
 
 namespace phytestcs
 {
-    public static class Extensions
+    public static partial class Tools
     {
         public static T Clamp<T>(this T v, T min, T max)
             where T : IComparable<T>

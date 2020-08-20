@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using phytestcs.Objects;
 using SFML.Graphics;
 using SFML.System;
@@ -70,19 +71,20 @@ namespace phytestcs
 
         private static Vector2f GetPerpendicularAxis(Vector2f[] vertices, int index)
         {
-            return GetNormal(GetNormalized(vertices[index + 1] - vertices[index]));
+            return GetNormal(GetNormalized(vertices[(index + 1) % vertices.Length] - vertices[index]));
         }
 
         // axes for which we'll test stuff. Two for each box, because testing for parallel axes isn't needed
         private static Vector2f[] GetPerpendicularAxes(Vector2f[] vertices1, Vector2f[] vertices2)
         {
             return new[]
-            {
-                GetPerpendicularAxis(vertices1, 0),
-                GetPerpendicularAxis(vertices1, 1),
-                GetPerpendicularAxis(vertices2, 0),
-                GetPerpendicularAxis(vertices2, 1)
-            };
+                {
+                    vertices1,
+                    vertices2
+                }.SelectMany(arr => 
+                    Enumerable.Range(0, arr.Length % 2 == 0 ? arr.Length / 2 : arr.Length)
+                        .Select(i => GetPerpendicularAxis(arr, i)))
+                .ToArray();
         }
 
         // Separating Axis Theorem (SAT) collision test

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="RIDER_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/csfml-audio.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/csfml-graphics.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/csfml-system.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/csfml-window.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/ctgui-0.8.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/sfml-audio-2.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/sfml-graphics-2.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/sfml-system-2.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/sfml-window-2.dll" />
-    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.7.15/build/tgui.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/csfml-audio.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/csfml-graphics.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/csfml-system.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/csfml-window.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/ctgui-0.8.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/sfml-audio-2.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/sfml-graphics-2.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/sfml-system-2.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/sfml-window-2.dll" />
+    <content url="file://$USER_HOME$/.nuget/packages/tgui.net.win-x64/0.8.8.16/build/tgui.dll" />
     <content url="file://$MODULE_DIR$/../.." />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

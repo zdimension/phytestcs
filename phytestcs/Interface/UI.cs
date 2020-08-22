@@ -85,9 +85,10 @@ namespace phytestcs.Interface
             Gui.Add(back);
         }
 
-        public static Widget? MouseOnWhichWidget(Vector2f pos)
+        public static Widget? MouseOnWhichWidget(Vector2i pos)
         {
-            return Gui.Widgets.LastOrDefault(w => w.Visible && w.MouseOnWidget(pos));
+            return Gui.GetWidgetBelowMouseCursor(pos.X, pos.Y);
+            //return Gui.Widgets.LastOrDefault(w => w.Visible && w.MouseOnWidget(pos.F()));
         }
 
         private static void InitMenuBar()

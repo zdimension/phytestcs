@@ -235,7 +235,7 @@ namespace phytestcs
 
         private static void Window_MouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
         {
-            if (MouseOnWhichWidget(e.Position().F()) != BackPanel)
+            if (MouseOnWhichWidget(e.Position()) != BackPanel)
                 return;
 
             var factor = 1 + Camera.ZoomDelta;

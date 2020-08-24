@@ -66,11 +66,16 @@ namespace phytestcs.Interface.Windows
                     Field.Text = "";
                 
                     cb.AddLine("> " + code);
+                    var ncode = code;
+                    if (ncode.EndsWith('#'))
+                    {
+                        ncode = $"Doc(()=>({ncode[..^1]}))";
+                    }
                     try
                     {
                         state = await (state == null
-                                ? code.Exec<object?>()
-                                : state.ContinueWithAsync<object?>(code)
+                                ? ncode.Exec<object?>()
+                                : state.ContinueWithAsync<object?>(ncode)
                             ).ConfigureAwait(true);
                         if (state.ReturnValue != null)
                         {
@@ -219,6 +224,8 @@ namespace phytestcs.Interface.Windows
             {
                 Field.Focus = true;
             };
+            
+            cb.AddLine(L["Press TAB for a list of available items."] + "\n" + L["Add # at the end of the line to show the documentation."], Color.Blue);
         }
     }
 }

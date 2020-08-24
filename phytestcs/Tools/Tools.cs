@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using phytestcs.Interface;
 using phytestcs.Objects;
 using SFML.System;
 using SFML.Window;
@@ -85,6 +87,18 @@ namespace phytestcs
         
         [ObjProp("Speed of light", "m/s")]
         public const int SpeedOfLight = 299792458;
+
+        public static string Doc<T>(Expression<Func<T>> expr)
+        {
+            try
+            {
+                return PropertyReference.FromExpression(expr)!.DisplayName!;
+            }
+            catch (Exception)
+            {
+                return L["<no documentation available>"];
+            }
+        }
     }
 
     public sealed class Ref<T>

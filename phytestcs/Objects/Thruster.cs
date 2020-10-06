@@ -6,7 +6,7 @@ namespace phytestcs.Objects
 {
     public sealed class Thruster : PinnedShapedVirtualObject
     {
-        private readonly Force _force;
+        private readonly Force _force = new Force(ForceType.Thruster, default, default);
         private readonly CircleShape _shape = new CircleShape();
 
         public Thruster(PhysicalObject @object, Vector2f relPos, float size, float force = 5, ForceType? type = null)
@@ -15,7 +15,9 @@ namespace phytestcs.Objects
             Size = size;
             Force = force;
 
-            _force = new Force(type ?? ForceType.Thruster, default, default) { Source = this };
+            _force.Source = this;
+            if (type != null)
+                _force.Type = type;
             Object.Forces.Add(_force);
 
             UpdatePhysics(0);

@@ -240,7 +240,6 @@ namespace phytestcs.Interface.Windows.Properties
             var yLines = (int) Math.Ceiling(_canvasView.Size.Y / yFact);
             var yGrid = new Vertex[yLines * 2];
             var ySpan = maxY - minY;
-            ySpan *= Marge;
             var offY = ySpan % yFact;
             for (var i = 0; i < yLines; i++)
             {
@@ -278,64 +277,7 @@ namespace phytestcs.Interface.Windows.Properties
 
                 _canvas.View = _canvasView;
 
-                {
-                    var zoomY = _canvas.Size.Y / Marge / taille.Y;
-                    var (fY, _) = Render.CalculateRuler(zoomY, 10);
-                    var zoomX = _canvas.Size.X / Marge / taille.X;
-                    var (fX, _) = Render.CalculateRuler(zoomX, 10);
-
-                    var fdX = (decimal) fX;
-                    var fdY = (decimal) fY;
-
-                    var start = new Vector2f(0, maxY);
-                    var end = new Vector2f(taille.X, minY);
-
-                    var lines = new List<Vertex>();
-
-                    (int, byte) Thickness(float zoom, decimal factor, decimal coord)
-                    {
-                        var w = 3;
-                        byte a = 40;
-                        if (Math.Abs(coord) < factor)
-                        {
-                            w = (int) Math.Round(6 / zoom * 45 / (float) factor);
-                            a = 160;
-                        }
-                        else if (coord % (5 * factor) == 0)
-                        {
-                            w = coord % (10 * factor) == 0 ? 9 : 6;
-                            a = 80;
-                        }
-
-                        return (w, a);
-                    }
-
-                    if (fdX != 0)
-                        for (var x = Math.Round((decimal) start.X / fdX) * fdX; x < (decimal) end.X; x += fdX / 100)
-                        {
-                            if (x % fdX != 0)
-                                continue;
-
-                            var (w, a) = Thickness(zoomX, fdX, x);
-                            lines.AddRange(VertexLine(new Vector2f((float) x, start.Y), new Vector2f((float) x, end.Y),
-                                new Color(255, 255, 255, a), w * fX / 100));
-                        }
-
-                    if (fdY != 0)
-                        for (var y = Math.Round((decimal) start.Y / fdY) * fdY; y > (decimal) end.Y; y -= fdY / 100)
-                        {
-                            if (y % fdY != 0)
-                                continue;
-
-                            var (h, a) = Thickness(zoomY, fdY, y);
-                            lines.AddRange(VertexLine(new Vector2f(start.X, (float) y), new Vector2f(end.X, (float) y),
-                                new Color(255, 255, 255, a), h * fY / 100));
-                        }
-
-                    _canvas.Draw(lines.ToArray(), PrimitiveType.Quads, new RenderStates(BlendMode.Alpha));
-                }
-
-                //DrawPlotGrid(minY, maxY);
+                DrawPlotGrid(minY, maxY);
 
                 _canvas.Draw(new[]
                 {

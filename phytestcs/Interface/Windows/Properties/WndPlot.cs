@@ -143,7 +143,7 @@ namespace phytestcs.Interface.Windows.Properties
             };
             hl.Add(btnCsv);
 
-            var txtCustom = new TextBox
+            var txtCustom = new EditBox
             {
                 SizeLayout = new Layout2d(LargeurBtn, HauteurBtn),
                 PositionLayout = new Layout2d(MargeX, 3 * HauteurLigne),

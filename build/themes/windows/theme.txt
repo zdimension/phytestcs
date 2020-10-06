@@ -152,9 +152,9 @@ TextBox {
     TextureBackground = "theme.png" Part(4, 30, 5, 5) Middle(2, 2, 1, 1);
     TextureBackgroundDisabled = "theme.png" Part(141, 22, 5, 5) Middle(2, 2, 1, 1);
     TextColor = #000;
-    TextColorDisabled = #808080;
+    //TextColorDisabled = #808080;
     SelectedTextColor = White;
-    SelectedTextBackgroundColor = #0a246a;
+    //SelectedTextBackgroundColor = #0a246a;
     Padding = (4, 3, 4, 5);
 }
 

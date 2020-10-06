@@ -65,6 +65,11 @@ namespace phytestcs.Interface.Windows.Properties
         {
             FillColor = Color.White
         };
+        
+        private readonly RectangleShape _textBack = new RectangleShape()
+        {
+            FillColor = new Color(128, 128, 128, 128)
+        };
 
         private Func<PhysicalObject, float>? _customExpr;
         private float _plotStart;
@@ -350,9 +355,11 @@ d{name}/dt = {-deriv,6:F2} {CurrentLine.Item2?.UnitDeriv ?? ""}";
                                     (rpos - _canvasView.Center - _canvasView.Size / 2)
                                     .Prod(_canvas.DefaultView.Size)
                                     .Div(_canvasView.Size) +
-                                    _canvas.Size + new Vector2f(30, -25);
-
+                                    _canvas.Size + new Vector2f(35, -25);
+                                _textBack.Size = _textInt.GetLocalBounds().Size();
+                                _textBack.Position = _textInt.Position;
                                 _canvas.View = _canvas.DefaultView;
+                                _canvas.Draw(_textBack);
                                 _canvas.Draw(_textInt);
                                 _canvas.View = _canvasView;
                             }

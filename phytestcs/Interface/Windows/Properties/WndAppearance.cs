@@ -169,7 +169,7 @@ namespace phytestcs.Interface.Windows.Properties
                                new Vector2f(0, Renderer.TitleBarHeight);
                     if (selector.MouseOnWidget(mpos))
                     {
-                        var (x, y) = (mpos - selector.AbsolutePosition).I();
+                        var (x, y) = (mpos - selector.Position).I();
                         x -= Margin;
                         y -= Margin;
                         if (x >= 0 && x <= TotalSize && y >= 0 && y < 140)

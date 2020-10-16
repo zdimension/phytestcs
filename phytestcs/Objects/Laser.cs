@@ -177,6 +177,7 @@ namespace phytestcs.Objects
                                    (float) Math.PI;
                         }
 
+                        // todo: make sure total color strength is bounded by the incident ray
                         var refractionStrength = opacityRefracted * ray.EndStrength;
                         Func<double, double> colorStrength;
                         var alphaD = (255 - minObj.Color.A) / 255d;

@@ -135,6 +135,7 @@ namespace phytestcs.Interface
         private void UpdateUi(string val)
         {
             Field.Text = _binding?.Code ?? val.ToString(CultureInfo.CurrentCulture);
+            Field.CaretPosition = 0;
         }
 
         public void Update()

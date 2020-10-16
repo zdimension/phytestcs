@@ -189,6 +189,7 @@ namespace phytestcs.Interface
             if (Round != null)
                 val = (float) Math.Round(val, Round.Value);
             Field.Text = val.ToString(CultureInfo.CurrentCulture);
+            Field.CaretPosition = 0;
         }
 
         public void Update()

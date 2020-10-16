@@ -1,4 +1,5 @@
-﻿using phytestcs.Internal;
+﻿using System;
+using phytestcs.Internal;
 using phytestcs.Objects;
 using SFML.Graphics;
 using static phytestcs.Tools;
@@ -31,8 +32,8 @@ namespace phytestcs
         {
             return new Hsva(
                 Rng.NextDouble(Start.H, End.H),
-                Rng.NextDouble(Start.S, End.S),
-                Rng.NextDouble(Start.V, End.V),
+                Math.Sqrt(Rng.NextDouble(Start.S, End.S)),
+                Math.Pow(Rng.NextDouble(Start.V, End.V), 1 / 3d),
                 Rng.NextDouble(Start.A, End.A)
             );
         }

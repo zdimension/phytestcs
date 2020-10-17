@@ -473,56 +473,58 @@ namespace phytestcs.Objects
         {
             base.DrawOverlay();
 
-            if (Render.ShowForces || Appearance.ShowForces)
-                foreach (var f in Forces.ToArrayLocked())
+            if (!Render.ShowForces && !Appearance.ShowForces)
+                return;
+            
+            foreach (var f in Forces.ToArrayLocked())
+            {
+                var origin = Map(f.Position);
+                var delta = f.Value * Render.ForcesScale;
+                var tip = origin + delta;
+                var arrow = delta.Norm() / 5;
+                const float arrowAng = (float) (Math.PI / 4);
+                var angle = f.Value.Angle();
+                var color = f.Type.Color;
+                if (Render.ShowForcesComponents)
                 {
-                    var origin = Map(f.Position);
-                    var delta = f.Value * Render.ForcesScale;
-                    var tip = origin + delta;
-                    var arrow = delta.Norm() / 5;
-                    var arrowAng = (float) (Math.PI / 4);
-                    var angle = f.Value.Angle();
-                    var color = f.Type.Color;
-                    if (Render.ShowForcesComponents)
-                    {
-                        var colorTrans = color;
-                        colorTrans.A = 80;
-
-                        Render.Window.Draw(new[]
-                        {
-                            new Vertex(origin, colorTrans),
-                            new Vertex(origin + new Vector2f(delta.X, 0), colorTrans),
-                            new Vertex(tip, color),
-                            new Vertex(origin + new Vector2f(0, delta.Y), colorTrans),
-                            new Vertex(origin, colorTrans)
-                        }, PrimitiveType.LineStrip);
-                    }
+                    var colorTrans = color;
+                    colorTrans.A = 80;
 
                     Render.Window.Draw(new[]
                     {
-                        new Vertex(origin, color),
+                        new Vertex(origin, colorTrans),
+                        new Vertex(origin + new Vector2f(delta.X, 0), colorTrans),
                         new Vertex(tip, color),
-                        new Vertex(tip, color),
-                        new Vertex(tip - Tools.FromPolar(arrow, angle + arrowAng), color),
-                        new Vertex(tip, color),
-                        new Vertex(tip - Tools.FromPolar(arrow, angle - arrowAng), color)
-                    }, PrimitiveType.Lines);
-
-                    Render.Window.SetView(Camera.MainView);
-
-                    if ((ForceName.CharacterSize = (uint) (30 * arrow)) < 300)
-                    {
-                        ForceName.FillColor = color;
-                        ForceName.DisplayedString = f.Type.ShortName;
-                        ForceName.OutlineThickness = ForceName.CharacterSize / 20f;
-                        if (Render.ShowForcesValues)
-                            ForceName.DisplayedString += $" = {f.Value.Norm():F2} N";
-                        ForceName.Position = tip.ToScreen().F();
-                        Render.Window.Draw(ForceName);
-                    }
-
-                    Render.Window.SetView(Camera.GameView);
+                        new Vertex(origin + new Vector2f(0, delta.Y), colorTrans),
+                        new Vertex(origin, colorTrans)
+                    }, PrimitiveType.LineStrip);
                 }
+
+                Render.Window.Draw(new[]
+                {
+                    new Vertex(origin, color),
+                    new Vertex(tip, color),
+                    new Vertex(tip, color),
+                    new Vertex(tip - Tools.FromPolar(arrow, angle + arrowAng), color),
+                    new Vertex(tip, color),
+                    new Vertex(tip - Tools.FromPolar(arrow, angle - arrowAng), color)
+                }, PrimitiveType.Lines);
+
+                Render.Window.SetView(Camera.MainView);
+
+                if ((ForceName.CharacterSize = (uint) (30 * arrow)) < 300)
+                {
+                    ForceName.FillColor = color;
+                    ForceName.DisplayedString = f.Type.ShortName;
+                    ForceName.OutlineThickness = ForceName.CharacterSize / 20f;
+                    if (Render.ShowForcesValues)
+                        ForceName.DisplayedString += $" = {f.Value.Norm():F2} N";
+                    ForceName.Position = tip.ToScreen().F();
+                    Render.Window.Draw(ForceName);
+                }
+
+                Render.Window.SetView(Camera.GameView);
+            }
         }
 
         private static (Vector2f[], bool, PhysicalObject, PhysicalObject, Vector2f, Vector2f) GetForcePoints(
@@ -624,8 +626,7 @@ namespace phytestcs.Objects
 
                 if (a._collIgnore.Contains(b) || b._collIgnore.Contains(a))
                     continue;
-
-                Obb.TestCollision(b, a, out var mtvInv);
+                
                 if (Obb.TestCollision(a, b, out var mtv))
                 {
                     var unitMtv = mtv.Normalize();
@@ -649,7 +650,7 @@ namespace phytestcs.Objects
                     {
                         // sinon on répartit proportionnellement
                         var vs = Math.Abs(v1p) + Math.Abs(v2p);
-                        if (vs == 0)
+                        if (Math.Abs(vs) < 1e-6f)
                         {
                             dpa = mtv / 2;
                             dpb = -mtv / 2;
@@ -691,40 +692,41 @@ namespace phytestcs.Objects
                     var wA = new float[np];
                     var wB = new float[np];
 
-                    if (np == 1)
+                    switch (np)
                     {
-                        wA[0] = 1f;
-                        wB[0] = 1f;
-                    }
-                    else if (np == 2)
-                    {
-                        var line = colls[1] - colls[0];
-                        var X = line.Norm();
-
-                        if (X == 0)
+                        case 1:
+                            wA[0] = 1f;
+                            wB[0] = 1f;
+                            break;
+                        case 2:
                         {
-                            X = 1e-5f;
-                        }
+                            var line = colls[1] - colls[0];
+                            var X = line.Norm();
 
-                        line /= X;
+                            if (X == 0)
+                            {
+                                X = 1e-5f;
+                            }
 
-                        var gA = (a.Position - colls[0]).Dot(line);
-                        var dA = X - gA;
-                        wA[0] = dA / X;
-                        wA[1] = gA / X;
+                            line /= X;
 
-                        if (Math.Sign(wA[0]) != Math.Sign(wA[1]))
-                            wA[0] = wA[1] = 0.5f;
+                            var gA = (a.Position - colls[0]).Dot(line);
+                            var dA = X - gA;
+                            wA[0] = dA / X;
+                            wA[1] = gA / X;
 
-                        var gB = (b.Position - colls[0]).Dot(line);
-                        var dB = X - gB;
-                        wB[0] = dB / X;
-                        wB[1] = gB / X;
+                            if (Math.Sign(wA[0]) != Math.Sign(wA[1]))
+                                wA[0] = wA[1] = 0.5f;
+
+                            var gB = (b.Position - colls[0]).Dot(line);
+                            var dB = X - gB;
+                            wB[0] = dB / X;
+                            wB[1] = gB / X;
                         
-                        if (Math.Sign(wB[0]) != Math.Sign(wB[1]))
-                            wB[0] = wB[1] = 0.5f;
+                            if (Math.Sign(wB[0]) != Math.Sign(wB[1]))
+                                wB[0] = wB[1] = 0.5f;
 
-                        /*if (p2out)
+                            /*if (p2out)
                             {
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
@@ -735,6 +737,8 @@ namespace phytestcs.Objects
                                 w[0] = 0.5f;
                                 w[1] = 0.5f;
                             }*/
+                            break;
+                        }
                     }
 
                     for (var i1 = 0; i1 < np; i1++)
@@ -820,7 +824,7 @@ namespace phytestcs.Objects
             return shape;
         }
         
-        public Polygon(float x, float y, ICollection<Vector2f> points, Color col, bool wall = false,
+        public Polygon(float x, float y, IEnumerable<Vector2f> points, Color col, bool wall = false,
             string name = "", bool killer = false)
             : this(new Vector2f(x, y), GetShape(points, col), wall, name, killer)
         {
@@ -907,7 +911,9 @@ namespace phytestcs.Objects
             base.Draw();
 
             if (Appearance.DrawCircleCakes)
-                Render.Window.Draw(Tools.CircleCake(Position, Shape.Radius, Shape.OutlineColor, Angle));
+                using(var cake = Tools.CircleCake(Position, Shape.Radius, Shape.OutlineColor, Angle))
+                    Render.Window.Draw(cake);
+            
             if (Appearance.Protractor)
             {
                 var transform = Transform.Identity;

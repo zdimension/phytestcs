@@ -8,16 +8,16 @@ namespace phytestcs
 {
     public static class Camera
     {
-        public static Vector2f OldSize;
-        public static Vector2f OldPos;
-        public static bool ZoomTransition;
-        public static Vector2f NewSize;
-        public static Vector2f? NewPos;
-        public static DateTime TransitionStart;
+        private static Vector2f _oldSize;
+        private static Vector2f _oldPos;
+        private static bool _zoomTransition;
+        private static Vector2f _newSize;
+        private static Vector2f? _newPos;
+        private static DateTime _transitionStart;
         public static float TransitionDuration = 0.1f;
         public static float ZoomDelta = 0.3f;
 
-        public static Vector2f? CameraMoveOrigin = null;
+        public static Vector2f? CameraMoveOrigin;
         public static readonly View GameView = new View();
         public static readonly View MainView = new View();
 
@@ -34,36 +34,36 @@ namespace phytestcs
 
         public static void UpdateZoom()
         {
-            if (!ZoomTransition) return;
+            if (!_zoomTransition) return;
 
-            var dt = DateTime.Now - TransitionStart;
+            var dt = DateTime.Now - _transitionStart;
 
             if (dt.TotalSeconds > TransitionDuration)
             {
-                GameView.Size = NewSize;
+                GameView.Size = _newSize;
 
-                if (NewPos.HasValue) GameView.Center = NewPos.Value;
+                if (_newPos.HasValue) GameView.Center = _newPos.Value;
 
-                ZoomTransition = false;
+                _zoomTransition = false;
             }
             else
             {
-                GameView.Size = Tools.Transition(OldSize, NewSize, TransitionStart, TransitionDuration);
+                GameView.Size = Tools.Transition(_oldSize, _newSize, _transitionStart, TransitionDuration);
 
-                if (NewPos.HasValue)
-                    GameView.Center = Tools.Transition(OldPos, NewPos.Value, TransitionStart, TransitionDuration);
+                if (_newPos.HasValue)
+                    GameView.Center = Tools.Transition(_oldPos, _newPos.Value, _transitionStart, TransitionDuration);
             }
         }
 
         public static void SetZoom(float val, Vector2f? pos = null, bool abs = false)
         {
             Debug.Assert(val > 0);
-            OldSize = GameView.Size;
-            OldPos = GameView.Center;
-            ZoomTransition = true;
-            NewSize = (abs ? Render.WindowF : GameView.Size) / val;
-            NewPos = pos;
-            TransitionStart = DateTime.Now;
+            _oldSize = GameView.Size;
+            _oldPos = GameView.Center;
+            _zoomTransition = true;
+            _newSize = (abs ? Render.WindowF : GameView.Size) / val;
+            _newPos = pos;
+            _transitionStart = DateTime.Now;
             ZoomChanged(val);
         }
 

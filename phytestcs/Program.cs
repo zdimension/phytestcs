@@ -24,10 +24,10 @@ namespace phytestcs
         public static bool Moving;
         private static float _rotatingAngle;
 
-        public static CircleShape RotCircle = new CircleShape(0, Render.RotCirclePointCount)
+        public static readonly CircleShape RotCircle = new CircleShape(0, Render.RotCirclePointCount)
             { FillColor = Color.Transparent, OutlineColor = new Color(255, 255, 255, 180) };
 
-        public static Text RotText = new Text("", Ui.FontMono, 18)
+        public static readonly Text RotText = new Text("", Ui.FontMono, 18)
             { FillColor = Color.White, OutlineColor = Color.Black, OutlineThickness = 1f };
 
         public static float RotDeltaAngle;
@@ -35,7 +35,7 @@ namespace phytestcs
 
         private static Vector2f _cameraMoveVel;
 
-        public static Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
+        public static readonly Force MoveForce = new Force(ForceType.User, new Vector2f(0, 0), default);
 
         public static int NumRays = 100;
 
@@ -211,7 +211,7 @@ namespace phytestcs
                 
                 if (Render.GridSnappingActive && Drawing.DrawMode != DrawingType.Off)
                 {
-                    var (f, r) = Render.CalculateRuler(Camera.Zoom);
+                    var (f, _) = Render.CalculateRuler(Camera.Zoom);
                     world = world.RoundTo(f);
                 }
                 
@@ -260,50 +260,50 @@ namespace phytestcs
             if (!moved && !Rotating)
                 Drawing.SelectObject(ObjectAtPosition(pos));
 
-            if (btn == Mouse.Button.Left)
+            switch (btn)
             {
-                if (pos == LastClick && (DateTime.Now - MouseDownTime).TotalMilliseconds < DoubleClickTime)
-                    Window_DoubleClick();
-
-                if (Drawing.DragObject != null)
+                case Mouse.Button.Left:
                 {
-                    Drawing.DragSpring?.Delete();
+                    if (pos == LastClick && (DateTime.Now - MouseDownTime).TotalMilliseconds < DoubleClickTime)
+                        Window_DoubleClick();
 
-                    if (Drawing.DrawMode != DrawingType.Move && Drawing.DrawMode != DrawingType.Spring)
+                    if (Drawing.DragObject != null)
                     {
-                        Drawing.DragObject = null;
-                        Drawing.DragObjectRelPos = default;
-                        Drawing.DragSpring = null;
+                        Drawing.DragSpring?.Delete();
+
+                        if (Drawing.DrawMode != DrawingType.Move && Drawing.DrawMode != DrawingType.Spring)
+                        {
+                            Drawing.DragObject = null;
+                            Drawing.DragObjectRelPos = default;
+                            Drawing.DragSpring = null;
+                        }
                     }
+
+                    if (Drawing.DrawMode != DrawingType.Off)
+                        FinishDrawing();
+                    break;
                 }
-
-                if (Drawing.DrawMode != DrawingType.Off)
-                    FinishDrawing();
-            }
-
-            if (btn == Mouse.Button.Right)
-            {
-                if (Rotating)
+                case Mouse.Button.Right when Rotating:
                 {
                     Rotating = false;
                     if (Drawing.SelectedObject is PhysicalObject phy)
                         phy.UserFix = false;
+                    break;
                 }
-                else
+                case Mouse.Button.Right when moved:
                 {
-                    if (moved)
-                    {
-                        var (time, mpos) = _lastMove;
-                        var dt = DateTime.Now - time;
-                        var dp = mpos - pos;
-                        _cameraMoveVel = dp.F() / (float) dt.TotalSeconds;
-                    }
-                    else
-                    {
-                        var obj = ObjectAtPosition(pos);
-                        if (obj != null)
-                            OpenProperties(obj, pos.F());
-                    }
+                    var (time, mpos) = _lastMove;
+                    var dt = DateTime.Now - time;
+                    var dp = mpos - pos;
+                    _cameraMoveVel = dp.F() / (float) dt.TotalSeconds;
+                    break;
+                }
+                case Mouse.Button.Right:
+                {
+                    var obj = ObjectAtPosition(pos);
+                    if (obj != null)
+                        OpenProperties(obj, pos.F());
+                    break;
                 }
             }
 
@@ -606,12 +606,6 @@ namespace phytestcs
                     case Keyboard.Key.I:
                         NumRays++;
                         break;
-                    case Keyboard.Key.Y:
-                        Simulation.Player.Velocity = new Vector2f(5, 0);
-                        break;
-                    case Keyboard.Key.T:
-                        Simulation.Player.Velocity = new Vector2f(-5, 0);
-                        break;
                     case Keyboard.Key.G:
                         var debut = DateTime.Now;
                         Simulation.TogglePause();
@@ -624,9 +618,6 @@ namespace phytestcs
                         break;
                     case Keyboard.Key.C:
                         Camera.Center();
-                        break;
-                    case Keyboard.Key.R:
-                        Simulation.Player.Position = new Vector2f(0, 1);
                         break;
                 }
         }

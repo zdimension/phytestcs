@@ -15,7 +15,6 @@ namespace phytestcs
         private static Transform _gravityTransform = Transform.Identity;
 
         public static float ActualGravity;
-        public static float EscapeVelocity = 55;
         public static float Jump = 40;
         public static float Walk = 15;
         public static bool Pause = true;
@@ -142,12 +141,10 @@ namespace phytestcs
         {
             lock (World.SyncRoot)
             {
-                int j;
-                BaseObject temp;
                 for (var i = 1; i <= World.Count - 1; i++)
                 {
-                    temp = World[i];
-                    j = i - 1;
+                    var temp = World[i];
+                    var j = i - 1;
                     while (j >= 0 && !(temp is Laser) && (World[j].ZDepth > temp.ZDepth || World[j] is Laser))
                     {
                         World[j + 1] = World[j];

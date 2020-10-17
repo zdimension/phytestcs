@@ -67,7 +67,8 @@ namespace phytestcs
 
         public static async Task New()
         {
-            await Load(null).ConfigureAwait(true);
+            Script = null;
+            await Restart().ConfigureAwait(true);
         }
 
         public static async Task Load(Script<object>? scr)
@@ -113,6 +114,7 @@ namespace phytestcs
                     {
                         msgbox.CloseWindow();
                         Ui.Gui.Remove(msgbox);
+                        msgbox.Dispose();
                     };
                 }
 
@@ -132,8 +134,8 @@ namespace phytestcs
         public static void SoftbodyStaggered(int n = 6)
         {
             var square = new Box[n + 1][];
-            var spring = 500;
-            var dist = 1.5f;
+            const int spring = 500;
+            const float dist = 1.5f;
             var distY = (float) (Math.Sqrt(3) / 2 * dist);
             var diago = (float) Math.Sqrt(2) * dist;
 
@@ -179,8 +181,8 @@ namespace phytestcs
         public static void SoftbodySquare(int n = 6)
         {
             var square = new Box[n][];
-            var spring = 500;
-            var dist = 1.5f;
+            const int spring = 500;
+            const float dist = 1.5f;
             var diago = (float) Math.Sqrt(2) * dist;
             for (var i = 0; i < n; i++)
             {

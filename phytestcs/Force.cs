@@ -22,7 +22,7 @@ namespace phytestcs
         public Vector2f Position { get; set; }
         public float TimeToLive { get; set; }
         public BaseObject? Source { get; set; }
-        public bool OnlyTorque { get; set; } = false;
+        public bool OnlyTorque { get; set; }
 
         public override string ToString()
         {

@@ -19,7 +19,7 @@ namespace phytestcs
         Laser
     }
 
-    public sealed class Drawing
+    public static class Drawing
     {
         public static float DragConstant = 1e2f;
 

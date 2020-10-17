@@ -15,9 +15,9 @@ namespace phytestcs
     public static class Render
     {
         public const uint RotCirclePointCount = 360;
-        public static RectangleShape DrawRectangle = new RectangleShape();
-        public static CircleShape DrawCircle = new CircleShape(1, RotCirclePointCount);
-        public static Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
+        public static readonly RectangleShape DrawRectangle = new RectangleShape();
+        public static readonly CircleShape DrawCircle = new CircleShape(1, RotCirclePointCount);
+        public static readonly Sprite DrawSprite = new Sprite { Scale = new Vector2f(0.5f, 0.5f) };
 
         public static int NumRays;
         public static Text Statistics = null!;

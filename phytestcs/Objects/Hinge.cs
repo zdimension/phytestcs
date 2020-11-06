@@ -101,9 +101,9 @@ namespace phytestcs.Objects
 
             var o1Net = End1.Object.NetForce - _torque2.Value;
             var o2Net = Force2 == null ? default : End2.Object.NetForce;
-            Force1.Value = -o1Net + o2Net;
+            Force1.Value = -(-o1Net + o2Net);
             if (Force2 != null)
-                Force2.Value = -o2Net + o1Net;
+                Force2.Value = -(-o2Net + o1Net);
             //_force1.Value = default;
         }
         /*public override float Force =>

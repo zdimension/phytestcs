@@ -465,7 +465,7 @@ namespace phytestcs.Objects
         {
             base.Draw();
 
-            Shape.OutlineThickness = (Selected ? -7 : Appearance.Borders ? -2 : 0) / Camera.Zoom;
+            Shape.OutlineThickness = (Selected ? -Render.DefaultSelectionBorder : Appearance.Borders ? -2 : 0) / Camera.Zoom;
             Render.Window.Draw(Shape);
         }
 

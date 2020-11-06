@@ -40,6 +40,12 @@ namespace phytestcs
         {
             return new Vector2f(r.Width, r.Height);
         }
+        
+        public static Sprite CenterOrigin(this Sprite shape)
+        {
+            shape.Origin = shape.GetLocalBounds().Size() / 2;
+            return shape;
+        }
 
         public static T CenterOrigin<T>(this T shape)
             where T : Shape

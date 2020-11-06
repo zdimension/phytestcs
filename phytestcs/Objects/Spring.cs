@@ -10,6 +10,8 @@ namespace phytestcs.Objects
     [Guid("28DA2FA2-87F9-4748-A1C2-F43675AB8069")]
     public class Spring : VirtualObject
     {
+        private static readonly Texture _spring = new Texture("images/spring.png"){Smooth = true};
+        
         protected readonly Force Force1;
         protected readonly Force? Force2;
 
@@ -40,9 +42,8 @@ namespace phytestcs.Objects
             }
 
             BothDepends(End2);
-
-            Size = size;
-            Color = Color.Black;
+            
+            Color = Tools.RandomColor();
 
             UpdateForce();
         }
@@ -62,7 +63,7 @@ namespace phytestcs.Objects
         public Vector2f Delta => End1.Position - End2.Position;
 
         public bool ShowInfos { get; set; } = true;
-
+        
         public float Size
         {
             get => End1.Size;
@@ -113,6 +114,12 @@ namespace phytestcs.Objects
             UpdateForce();
         }
 
+        public override Color Color
+        {
+            get;
+            set;
+        }
+
         private void UpdateForce()
         {
             var unit = UnitVector;
@@ -142,9 +149,9 @@ namespace phytestcs.Objects
             base.Delete(source);
         }
 
-        public override void DrawOverlay()
+        public override void Draw()
         {
-            base.DrawOverlay();
+            base.Draw();
 
             if (TargetLength == 0)
             {
@@ -156,36 +163,59 @@ namespace phytestcs.Objects
             }
             else
             {
-                var angle = -Delta.Angle();
-
-                var transform = Transform.Identity;
-                transform.Rotate(180 - angle.Degrees(), End1.Position);
-
-                var d = 2 * (int) Math.Ceiling(2 * Math.Round(TargetLength / 2, MidpointRounding.AwayFromZero));
-                var dx = Delta.Norm() / d;
-                var dy = 0.5f;
-
-                var p = End1.Position;
-                var hd = new Vector2f(dx / 2, -dy / 2);
-
                 var color = Color;
+                var angle = 180 + Delta.Angle().Degrees();
+                
+                //var d = (int)Math.Round(2 * (int) Math.Ceiling(2 * Math.Round(TargetLength / 2, MidpointRounding.AwayFromZero)) / (2 * Size), MidpointRounding.AwayFromZero);
+                var d = (int)Math.Round(3 * TargetLength / (2 * Size), MidpointRounding.AwayFromZero);
+                // number of images
 
-                var lines = new Vertex[2 + d];
-                lines[0] = new Vertex(p, color);
-                lines[1] = new Vertex(p += hd, color);
-
-                for (var i = 0; i < d - 1; i++)
+                var dx = Delta.Norm() / d;
+                if (d < 1)
+                    d = 1;
+                
+                var p = End1.Position;
+                
+                if (true)
                 {
-                    lines[2 + i] = new Vertex(p += new Vector2f(dx, dy), color);
-                    dy = -dy;
+                    var img = new Sprite(_spring);
+                    img.Color = color;
+                    img.Rotation = angle;
+                    var delta = img.Transform.TransformPoint(dx, 0);
+                    img.Origin = new Vector2f(0, _spring.Size.Y / 2f);
+                    img.Scale = new Vector2f(dx / _spring.Size.X, 0.6f * -Size / _spring.Size.Y);
+                    img.Position = p;
+
+                    for (var i = 0; i < d; i++)
+                    {
+                        Render.Window.Draw(img);
+                        img.Position += delta;
+                    }
                 }
+                else
+                {
+                    var dy = 0.5f;
+                    var hd = new Vector2f(dx / 2, -dy / 2);
+                    var lines = new Vertex[2 + d];
+                    lines[0] = new Vertex(p, color);
+                    lines[1] = new Vertex(p += hd, color);
 
-                lines[2 + d - 1] = new Vertex(p + hd, color);
+                    for (var i = 0; i < d - 1; i++)
+                    {
+                        lines[2 + i] = new Vertex(p += new Vector2f(dx, dy), color);
+                        dy = -dy;
+                    }
 
-                for (var i = 0; i < lines.Length; i++)
-                    lines[i].Position = transform.TransformPoint(lines[i].Position);
+                    lines[2 + d - 1] = new Vertex(p + hd, color);
 
-                Render.Window.Draw(lines, PrimitiveType.LineStrip);
+                    var transform = Transform.Identity;
+                    transform.Rotate(angle, End1.Position);
+
+                    for (var i = 0; i < lines.Length; i++)
+                        lines[i].Position = transform.TransformPoint(lines[i].Position);
+
+                    Render.Window.Draw(lines, PrimitiveType.LineStrip);
+                }
             }
 
             if (ShowInfos)
@@ -215,12 +245,14 @@ namespace phytestcs.Objects
     public sealed class SpringEnd : PinnedShapedVirtualObject
     {
         private readonly CircleShape _shape = new CircleShape();
+        private readonly CircleShape _shape2 = new CircleShape();
 
         public SpringEnd(PhysicalObject? @object, Vector2f relPos, float size, Spring parent)
             : base(@object, relPos)
         {
             Size = size;
             Parent = parent;
+            Shape.FillColor = Color.Black;
         }
 
         public float Size
@@ -228,13 +260,30 @@ namespace phytestcs.Objects
             get => _shape.Radius * 2;
             set
             {
-                _shape.Radius = value / 2;
+                _shape.Radius = value / 2f;
+                _shape2.Radius = 0.75f * _shape.Radius;
                 _shape.CenterOrigin();
+                _shape2.CenterOrigin();
             }
         }
 
         public override Shape Shape => _shape;
         protected override IEnumerable<Shape> Shapes => new[] { _shape };
+        public override Color Color { get; set; }
         public Spring Parent { get; }
+        
+        public override void Draw()
+        {
+            UpdatePosition();
+
+            _shape.FillColor = Color.Black;
+            _shape.OutlineThickness = (Selected ? 5 : 0) / Camera.Zoom;
+            
+            Render.Window.Draw(_shape);
+            
+            _shape2.Position = _shape.Position;
+            _shape2.FillColor = Object?.Color ?? Program.CurrentPalette.SkyColor;
+            Render.Window.Draw(_shape2);
+        }
     }
 }

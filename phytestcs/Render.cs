@@ -14,6 +14,7 @@ namespace phytestcs
 {
     public static class Render
     {
+        public static int DefaultSelectionBorder = 7;
         public const uint RotCirclePointCount = 360;
         public static readonly RectangleShape DrawRectangle = new RectangleShape();
         public static readonly CircleShape DrawCircle = new CircleShape(1, RotCirclePointCount);

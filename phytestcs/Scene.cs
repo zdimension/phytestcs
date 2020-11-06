@@ -34,7 +34,8 @@ namespace phytestcs
             MetadataReference.CreateFromFile(typeof(Color).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Vector2f).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Console).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Expression<>).Assembly.Location)
+            MetadataReference.CreateFromFile(typeof(Expression<>).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Theme).Assembly.Location)
         }.AsReadOnly();
 
         public static readonly IReadOnlyCollection<string> DefaultUsings = new List<string>
@@ -44,7 +45,8 @@ namespace phytestcs
             "phytestcs.Tools",
             "SFML.Graphics",
             "SFML.System",
-            "System"
+            "System",
+            "TGUI"
         }.AsReadOnly();
         
         public static readonly ScriptOptions DefaultScriptOptions = ScriptOptions.Default

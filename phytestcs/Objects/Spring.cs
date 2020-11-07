@@ -261,7 +261,7 @@ namespace phytestcs.Objects
             set
             {
                 _shape.Radius = value / 2f;
-                _shape2.Radius = 0.75f * _shape.Radius;
+                _shape2.Radius = 0.65f * _shape.Radius;
                 _shape.CenterOrigin();
                 _shape2.CenterOrigin();
             }

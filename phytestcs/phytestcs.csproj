@@ -1,12 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
         <OutputType>Exe</OutputType>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <UseWindowsForms>true</UseWindowsForms>
         <Platforms>AnyCPU;x64</Platforms>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>9</LangVersion>
+        <TargetFramework>net5.0-windows</TargetFramework>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
         <OutputPath>bin\x64\Debug\</OutputPath>
@@ -20,9 +21,6 @@
         <Compile Remove="bin\**" />
         <EmbeddedResource Remove="bin\**" />
         <None Remove="bin\**" />
-    </ItemGroup>
-    <ItemGroup>
-        <Reference Include="System.ServiceModel" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.7.0" />
@@ -64,4 +62,11 @@
             <Generator></Generator>
         </EmbeddedResource>
     </ItemGroup>
+    <Target BeforeTargets="_CheckForTransitiveWindowsDesktopDependencies" Name="_FixStupidSdkError_NETSDK1136">
+        <ItemGroup>
+            <TransitiveFrameworkReference Remove="Microsoft.WindowsDesktop.App" />
+            <TransitiveFrameworkReference Remove="Microsoft.WindowsDesktop.App.WPF" />
+            <TransitiveFrameworkReference Remove="Microsoft.WindowsDesktop.App.WindowsForms" />
+        </ItemGroup>
+    </Target>
 </Project>

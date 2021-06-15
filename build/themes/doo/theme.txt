@@ -1,0 +1,171 @@
+﻿BitmapButton {
+    Texture = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
+    TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+}
+
+Button {
+    Texture     = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
+    TextureDown = "theme.png" Part(4, 22, 5, 5) Middle(2, 2, 1, 1);
+    //TextureFocused = "theme.png" Part(56, 57, 6, 6) Middle(2, 2, 1, 1);
+    TextColor   = #000;
+    TextColorDisabled = #808080;
+}
+
+ChatBox {
+    TextureBackground = "theme.png" Part(4, 30, 5, 5) Middle(2, 2, 1, 1);
+    Padding = (4, 3, 4, 5);
+    Scrollbar = &Scrollbar;
+}
+
+CheckBox {
+    TextureUnchecked         = "theme.png" Part(24, 38, 13, 13);
+    TextureChecked           = "theme.png" Part(37, 38, 13, 13);
+    TextureUncheckedDisabled = "theme.png" Part(24, 51, 13, 13);
+    TextureCheckedDisabled   = "theme.png" Part(37, 51, 13, 13);
+    TextDistanceRatio = 0.2;
+    TextColor   = #000;
+    TextColorDisabled = #808080;
+}
+
+ChildWindow {
+    TitleColor = #fff;
+    PaddingBetweenButtons = 0;
+    ShowTextOnTitleButtons = false;
+    TitlebarHeight = 22;
+    DistanceToSide = 5;
+    TextureTitlebar = "theme.png" Part(0, 0, 812, 22) Middle(3, 3, 804, 18);
+    TextureBackground = "theme.png" Part(4, 27, 5, 3) Middle(2, 0, 1, 1);
+    MinimizeButton = {
+        Texture       = "theme.png" Part( 9, 22, 16, 16);
+        TextureDown   = "theme.png" Part(59, 22, 16, 16);
+    };
+    MaximizeButton = {
+        Texture       = "theme.png" Part(25, 22, 16, 16);
+        TextureDown   = "theme.png" Part(75, 22, 16, 16);
+    };
+    CloseButton = {
+        Texture       = "theme.png" Part(41, 22, 18, 16);
+        TextureDown   = "theme.png" Part(91, 22, 18, 16);
+    };
+}
+
+ComboBox {
+    TextureBackground = "theme.png" Part(4, 30, 5, 5) Middle(2, 2, 1, 1);
+    TextureArrow = "theme.png" Part(109, 22, 16, 18);
+    TextColor = #000;
+    Padding = (2, 2, 2, 2);
+    ListBox = &ListBox;
+}
+
+EditBox {
+    Texture = "theme.png" Part(4, 30, 5, 5) Middle(2, 2, 1, 1);
+    TextureDisabled = "theme.png" Part(141, 22, 5, 5) Middle(2, 2, 1, 1);
+    TextColor = #000;
+    TextColorDisabled = #808080;
+    SelectedTextColor = White;
+    SelectedTextBackgroundColor = #0a246a;
+    Padding = (4, 3, 4, 5);
+    DefaultTextColor = #808080;
+}
+
+Knob {
+    BackgroundColor = #d4d0c8;
+}
+
+ListBox {
+    BackgroundColor = #fff;
+    BorderColor = #000;
+    Borders = (1, 1, 1, 1);
+    TextColor                    = #000;
+    TextColorHover               = #fff;
+    BackgroundColorHover         = #0a246a;
+    SelectedBackgroundColor      = #0a246a;
+    SelectedBackgroundColorHover = #0a246a;
+    SelectedTextColor            = #fff;
+    Padding                      = (0, 0, 0, 0);
+    Scrollbar                    = &Scrollbar;
+}
+
+ListView {
+    BackgroundColor = #d4d0c8;
+}
+
+MenuBar {
+    TextColor                    = #000;
+    SelectedTextColor = #fff;
+    BackgroundColor = #d4d0c8;
+    SelectedBackgroundColor      = #0a246a;
+}
+
+MessageBox {
+    BackgroundColor = #d4d0c8;
+}
+
+Panel {
+    BackgroundColor = #d4d0c8;
+}
+
+ProgressBar {
+    BackgroundColor = #d4d0c8;
+}
+
+RadioButton {
+    TextureUnchecked         = "theme.png" Part( 0, 38, 12, 12);
+    TextureChecked           = "theme.png" Part(12, 38, 12, 12);
+    TextureUncheckedDisabled = "theme.png" Part( 0, 50, 12, 12);
+    TextureCheckedDisabled   = "theme.png" Part(12, 50, 12, 12);
+    TextDistanceRatio = 0.2;
+    TextColor = #000;
+    TextColorDisabled = #808080;
+}
+
+RangeSlider {
+    BackgroundColor = #d4d0c8;
+}
+
+ScrollablePanel {
+    BackgroundColor = #d4d0c8;
+}
+
+Scrollbar {
+    TextureTrack = "theme.png" Part(50, 56, 18, 1);
+    TextureThumb = "theme.png" Part(50, 57, 4, 4) Middle(1, 1, 1, 1);
+    TextureArrowUp   = "theme.png" Part(50, 38, 18, 18) Middle(4, 8, 7, 4);
+    TextureArrowDown = "theme.png" Part(68, 38, 18, 18) Middle(4, 6, 7, 4);
+}
+
+Slider {
+    TextureTrack      = "theme.png" Part(98, 40, 23, 22) Middle(2, 10, 19, 0);
+    TextureThumb      = "theme.png" Part(86, 38, 12, 22);
+}
+
+SpinButton {
+    BackgroundColor = #d4d0c8;
+}
+
+Tabs {
+    BackgroundColor = #d4d0c8;
+}
+
+TextBox {
+    TextureBackground = "theme.png" Part(4, 30, 5, 5) Middle(2, 2, 1, 1);
+    TextureBackgroundDisabled = "theme.png" Part(141, 22, 5, 5) Middle(2, 2, 1, 1);
+    TextColor = #000;
+    //TextColorDisabled = #808080;
+    SelectedTextColor = White;
+    //SelectedTextBackgroundColor = #0a246a;
+    Padding = (4, 3, 4, 5);
+}
+
+ToolTip {
+    TextColor = #000;
+    BackgroundColor = #ffffe1;
+    BorderColor = #000;
+    Borders = (1, 1, 1, 1);
+    Padding = (5, 5, 5, 5);
+}
+
+TreeView {
+    BackgroundColor = #d4d0c8;
+}

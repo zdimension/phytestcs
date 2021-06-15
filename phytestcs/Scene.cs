@@ -153,7 +153,7 @@ namespace phytestcs
                 for (var j = 0; j < n - i % 2; j++)
                 {
                     square[i][j] = new Box(i % 2 * 0.75f + j * dist, 18 + i * distY, 1, 1, Color.Cyan,
-                        name: "Softbody");
+                        name: "Softbody"){LockAngle = true};
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)
@@ -192,7 +192,7 @@ namespace phytestcs
                 for (var j = 0; j < n; j++)
                 {
                     square[i][j] =
-                        new Box(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody");
+                        new Box(j * dist, 18 + i * dist, 1, 1, Color.Cyan, name: "Softbody"){LockAngle = true};
                     Simulation.Add(square[i][j]);
 
                     if (j > 0)

@@ -226,26 +226,35 @@ namespace phytestcs.Interface.Windows.Properties
 
         private void DrawPlotGrid(float minY, float maxY)
         {
-            var xFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.X * 0.2)));
+            var xFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.X * 0.15)));
             var xLines = (int) Math.Ceiling(_canvasView.Size.X / xFact);
             var xGrid = new Vertex[xLines * 2];
 
             for (var i = 0; i < xLines; i++)
             {
                 var x = (i - 1) * xFact;
-                xGrid[2 * i + 0] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2),
+                /*xGrid[2 * i + 0] = new Vertex(new Vector2f(x, -_canvasView.Size.Y + _canvasView.Center.Y / 2),
                     ColGrille);
                 xGrid[2 * i + 1] =
-                    new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);
+                    new Vertex(new Vector2f(x, _canvasView.Size.Y + _canvasView.Center.Y / 2), ColGrille);*/
+                
+                xGrid[2 * i + 0] = new Vertex(new Vector2f(x, 10000),
+                    ColGrille);
+                xGrid[2 * i + 1] =
+                    new Vertex(new Vector2f(x, -10000), ColGrille);
             }
 
             _canvas.Draw(xGrid, PrimitiveType.Lines);
 
             var yFact = (float) Math.Pow(10, Math.Round(Math.Log10(_canvasView.Size.Y * 0.1)));
             var yLines = (int) Math.Ceiling(_canvasView.Size.Y / yFact);
+            
+            
             var yGrid = new Vertex[yLines * 2];
             var ySpan = maxY - minY;
             var offY = ySpan % yFact;
+            
+            
             for (var i = 0; i < yLines; i++)
             {
                 var y = minY + (i - 1) * -yFact + ySpan - offY;

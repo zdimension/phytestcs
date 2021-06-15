@@ -76,9 +76,12 @@ namespace phytestcs
                     sw.Restart();
                     Simulation.UpdatePhysics();
 
-                    var delta = (Simulation.TargetDt - sw.Elapsed.TotalSeconds) * 1000 * 0.975f;
-                    if (delta > 0)
-                        Thread.Sleep((int) delta);
+                    while (sw.Elapsed.TotalSeconds < Simulation.TargetDt) ;
+                    
+
+                    /*var delta = (Simulation.TargetDt - sw.Elapsed.TotalSeconds) * 1000 * 0.5f;
+                    if (delta > 111000)
+                        Thread.Sleep((int) delta);*/
                 }
             });
             /*var tmrPhy = new System.Timers.Timer() {Interval = 10};
@@ -88,7 +91,7 @@ namespace phytestcs
 
             Task.Run(() =>
             {
-                Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/boing.csx")).Wait();
+                Scene.Load(Scene.LoadScript(args.Length > 0 ? args[0] : "scenes/hinge_nc.csx")).Wait();
                 //tmrPhy.Start();
                 if (!thrPhy.IsAlive)
                     thrPhy.Start();
